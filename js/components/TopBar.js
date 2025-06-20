@@ -1,6 +1,6 @@
 // 顶部操作栏组件
-const TopBar = ({ user, notifications, onSearch, onNotificationClick }) => {
-    const { Input, Badge, Dropdown, Avatar, Space, Button, Tooltip } = antd;
+const TopBar = ({ user, notifications, onSearch, onNotificationClick, onLogout }) => {
+    const { Input, Badge, Dropdown, Avatar, Space, Button, Tooltip, Modal } = antd;
     const [searchValue, setSearchValue] = React.useState('');
     
     // 用户菜单
@@ -16,6 +16,11 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick }) => {
             icon: '⚙️'
         },
         {
+            key: 'activity-log',
+            label: '活动日志',
+            icon: '📋'
+        },
+        {
             type: 'divider'
         },
         {
@@ -26,20 +31,98 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick }) => {
         }
     ];
 
+    // 处理用户菜单点击
+    const handleUserMenuClick = ({ key }) => {
+        switch (key) {
+            case 'logout':
+                showLogoutConfirm();
+                break;
+            case 'profile':
+                console.log('跳转到个人中心');
+                // 这里可以添加跳转到个人中心的逻辑
+                break;
+            case 'settings':
+                console.log('跳转到账户设置');
+                // 这里可以添加跳转到账户设置的逻辑
+                break;
+            case 'activity-log':
+                showActivityLog();
+                break;
+            default:
+                console.log('菜单点击:', key);
+        }
+    };
+
+    // 显示退出登录确认对话框
+    const showLogoutConfirm = () => {
+        Modal.confirm({
+            title: '确认退出',
+            content: '您确定要退出登录吗？退出后需要重新登录才能访问系统。',
+            icon: '🚪',
+            okText: '确定退出',
+            cancelText: '取消',
+            okType: 'danger',
+            onOk() {
+                console.log('用户确认退出登录');
+                onLogout && onLogout();
+            },
+            onCancel() {
+                console.log('用户取消退出');
+            }
+        });
+    };
+
+    // 显示活动日志
+    const showActivityLog = () => {
+        const activities = AuthUtils.getUserActivities(10);
+        
+        Modal.info({
+            title: '最近活动记录',
+            width: 600,
+            content: React.createElement('div', {
+                style: { maxHeight: '400px', overflowY: 'auto' }
+            }, activities.length > 0 ? activities.map((activity, index) => 
+                React.createElement('div', {
+                    key: index,
+                    style: { 
+                        padding: '8px 0', 
+                        borderBottom: index < activities.length - 1 ? '1px solid #f0f0f0' : 'none'
+                    }
+                }, [
+                    React.createElement('div', {
+                        key: 'action',
+                        style: { fontWeight: 'bold', marginBottom: '4px' }
+                    }, getActivityDescription(activity.action)),
+                    React.createElement('div', {
+                        key: 'time',
+                        style: { fontSize: '12px', color: '#666' }
+                    }, new Date(activity.timestamp).toLocaleString('zh-CN'))
+                ])
+            ) : React.createElement('div', {
+                style: { textAlign: 'center', color: '#999', padding: '20px' }
+            }, '暂无活动记录')),
+            onOk() {}
+        });
+    };
+
+    // 获取活动描述
+    const getActivityDescription = (action) => {
+        const descriptions = {
+            'login': '登录系统',
+            'login_success': '登录成功',
+            'logout': '退出登录',
+            'page_visit': '访问页面',
+            'search': '执行搜索',
+            'create': '创建内容',
+            'update': '更新内容',
+            'delete': '删除内容'
+        };
+        return descriptions[action] || action;
+    };
+
     const userMenu = {
         items: userMenuItems,
-        onClick: ({ key }) => {
-            switch (key) {
-                case 'logout':
-                    if (confirm('确定要退出登录吗？')) {
-                        // 这里处理退出登录逻辑
-                        console.log('退出登录');
-                    }
-                    break;
-                default:
-                    console.log('菜单点击:', key);
-            }
-        }
+        onClick: handleUserMenuClick
     };
 
     // 通知菜单
@@ -111,6 +194,21 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick }) => {
 
     const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
+    // 获取用户显示名称
+    const getUserDisplayName = () => {
+        if (!user) return '未知用户';
+        return user.name || user.username || '管理员';
+    };
+
+    // 获取用户头像
+    const getUserAvatar = () => {
+        if (user?.avatar) {
+            return user.avatar;
+        }
+        const name = getUserDisplayName();
+        return name.charAt(0).toUpperCase();
+    };
+
     return React.createElement('div', {
         className: 'top-bar'
     }, [
@@ -127,7 +225,17 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick }) => {
                     fontWeight: 'bold',
                     color: '#1e293b'
                 }
-            }, '运营管理后台')
+            }, '运营管理后台'),
+            
+            // 显示当前登录用户信息
+            React.createElement('div', {
+                key: 'user-info',
+                style: {
+                    marginLeft: '24px',
+                    fontSize: '14px',
+                    color: '#64748b'
+                }
+            }, `欢迎，${getUserDisplayName()}`)
         ]),
 
         // 右侧区域
@@ -209,11 +317,11 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick }) => {
                         backgroundColor: '#2563eb',
                         color: 'white'
                     }
-                }, user?.name?.charAt(0) || '管'),
+                }, getUserAvatar()),
                 React.createElement('span', {
                     key: 'name',
                     style: { color: '#1e293b' }
-                }, user?.name || '管理员')
+                }, getUserDisplayName())
             ]))
         ])
     ]);
