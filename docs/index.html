@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人民城轨2.0运营管理后台</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚇</text></svg>">
+    
+    <!-- Ant Design CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
+    
+    <!-- Enhanced Custom CSS -->
+    <style>
+        /* 重置样式 */
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        /* 主题色彩与设计变量 */
+        :root {
+            /* 主色调 - 更柔和、专业的蓝色系 */
+            --primary-color: #4338ca; /* Indigo 700 */
+            --primary-color-light: #6366f1; /* Indigo 500 */
+            --primary-gradient: linear-gradient(145deg, #4f46e5, #7c3aed);
+            
+            /* 系统状态色 */
+            --success-color: #16a34a; /* Green 600 */
+            --warning-color: #f59e0b; /* Amber 500 */
+            --error-color: #dc2626;   /* Red 600 */
+            
+            /* 背景色 - 增加层次感 */
+            --bg-color: #f1f5f9; /* Slate 100 */
+            --bg-color-deep: #e2e8f0; /* Slate 200 */
+            
+            /* 卡片与内容区背景 */
+            --card-bg: rgba(255, 255, 255, 0.75); /* 半透明白色 */
+            
+            /* 文本颜色 */
+            --text-primary: #1e293b;   /* Slate 800 */
+            --text-secondary: #475569; /* Slate 600 */
+            --text-light: #f8fafc;     /* Slate 50 */
+            
+            /* 边框颜色 */
+            --border-color: rgba(226, 232, 240, 0.7); /* 半透明 Slate 200 */
+
+            /* 玻璃质感效果 */
+            --backdrop-blur: 16px;
+            
+            /* 阴影 - 更柔和、自然 */
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            /* 添加微妙的背景图案增加质感 */
+            background-image: radial-gradient(var(--bg-color-deep) 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        .app-container { 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        
+        .main-layout { 
+            flex: 1; 
+            display: flex;
+        }
+        
+        .loading-spinner, .error-boundary { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            flex-direction: column;
+            text-align: center; 
+            padding: 50px; 
+        }
+
+        .error-boundary {
+            color: var(--error-color); 
+        }
+        
+        /* 侧边栏 - 玻璃质感 */
+        .main-nav { 
+            width: 250px;
+            background: var(--card-bg);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-logo {
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+        
+        .nav-menu {
+            flex-grow: 1;
+            padding: 16px 0;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 24px;
+            margin: 4px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+            transform: translateX(3px);
+        }
+        
+        .nav-item.active {
+            background: var(--primary-gradient);
+            color: var(--text-light);
+            font-weight: 600;
+            box-shadow: var(--shadow-lg);
+            border-left-color: #a78bfa; /* 紫色点缀 */
+        }
+        
+        .nav-icon { 
+            margin-right: 14px; 
+            font-size: 20px; 
+            width: 22px;
+            text-align: center;
+        }
+        
+        /* 顶部栏 - 玻璃质感 */
+        .top-bar {
+            background: var(--card-bg);
+            backdrop-filter: blur(var(--backdrop-blur));
+            -webkit-backdrop-filter: blur(var(--backdrop-blur));
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
+            z-index: 10;
+        }
+        
+        .top-bar-left, .top-bar-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 20px;
+        }
+        
+        .logo { 
+            font-size: 22px; 
+            font-weight: bold; 
+            color: var(--primary-color); 
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            min-width: 0;
+        }
+        
+        /* 页面标题 */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .page-description {
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+        
+        /* 卡片样式 - 全面优化 */
+        .dashboard-card, .live-stat-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-card:hover, .live-stat-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+            border-color: rgba(79, 70, 229, 0.5);
+        }
+        
+        /* Ant Design 覆盖 - 深度美化 */
+        .ant-layout { background: transparent; }
+        .ant-layout-sider { background: transparent !important; }
+        .ant-menu { background: transparent; border: none; }
+        
+        .ant-menu-item {
+            margin: 4px 8px !important;
+            border-radius: 8px !important;
+            height: auto !important;
+            line-height: normal !important;
+            padding: 14px 16px !important;
+            display: flex !important;
+            align-items: center !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .ant-menu-item-selected {
+            background: var(--primary-gradient) !important;
+            color: var(--text-light) !important;
+            font-weight: 600 !important;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .ant-menu-item:hover:not(.ant-menu-item-selected) {
+            background: rgba(79, 70, 229, 0.1) !important;
+            color: var(--primary-color) !important;
+        }
+        
+        .ant-card {
+            background: var(--card-bg) !important;
+            border-radius: 16px !important;
+            box-shadow: var(--shadow-md) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        
+        .ant-card-head {
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 0 24px !important;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ant-card-body {
+            padding: 24px !important;
+        }
+        
+        .ant-tabs-tab {
+            padding: 16px 0 !important;
+            margin: 0 20px !important;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+            color: var(--primary-color) !important;
+            font-weight: 700 !important;
+        }
+        
+        .ant-tabs-ink-bar {
+            background: var(--primary-color) !important;
+            height: 3px !important;
+        }
+
+        .ant-btn-primary {
+            background: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .ant-btn-primary:hover {
+            background: var(--primary-color-light) !important;
+            border-color: var(--primary-color-light) !important;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* 页面淡入动画 */
+        .page-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 表格美化 */
+        .live-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .live-data-table th, .live-data-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .live-data-table thead th {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: rgba(241, 245, 249, 0.7);
+        }
+
+        .live-data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .live-data-table tbody tr:hover {
+            background-color: rgba(241, 245, 249, 1);
+        }
+
+        /* 状态标签 */
+        .status-badge, .live-status-tag, .moderation-status-tag {
+            padding: 5px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .live-status-tag.live, .moderation-status-tag.approved {
+            background: #dcfce7; color: #15803d;
+        }
+        .live-status-tag.live::before, .moderation-status-tag.approved::before { content: '●'; color: #22c55e; }
+
+        .live-status-tag.scheduled, .moderation-status-tag.pending {
+            background: #ffedd5; color: #9a3412;
+        }
+        .live-status-tag.scheduled::before, .moderation-status-tag.pending::before { content: '●'; color: #f59e0b; }
+
+        .live-status-tag.ended {
+            background: #e5e7eb; color: #4b5563;
+        }
+        .live-status-tag.ended::before { content: '●'; color: #6b7280; }
+        
+        .live-status-tag.replay {
+            background: #ede9fe; color: #6d28d9;
+        }
+        .live-status-tag.replay::before { content: '●'; color: #8b5cf6; }
+
+        .moderation-status-tag.rejected, .moderation-status-tag.auto_blocked {
+            background: #fee2e2; color: #b91c1c;
+        }
+        .moderation-status-tag.rejected::before, .moderation-status-tag.auto_blocked::before { content: '●'; color: #ef4444; }
+
+        /* 直播管理模块专用样式 */
+        .live-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .live-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .live-stat-label {
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 500;
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="loading-spinner">
+            <div style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 16px;">🚇</div>
+                <div style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">人民城轨2.0运营管理后台</div>
+                <div class="loading-dots">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div style="margin-top: 16px; color: #64748b;">正在加载...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- React and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd-with-locales.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <!-- Application Scripts -->
+    <script src="js/utils/mockData.js"></script>
+    <script src="js/components/ErrorBoundary.js"></script>
+    <script src="js/components/Navigation.js"></script>
+    <script src="js/components/TopBar.js"></script>
+    <script src="js/pages/Dashboard.js"></script>
+    <script src="js/pages/ReviewManagement.js"></script>
+    <script src="js/pages/LiveManagement.js"></script>
+    <script src="js/pages/UserManagement.js"></script>
+    <script src="js/pages/UserProfile.js"></script>
+    <script src="js/pages/BehaviorStats.js"></script>
+    <script src="js/pages/DataManagement.js"></script>
+    <script src="js/pages/SystemSettings.js"></script>
+    <script src="js/App.js"></script>
+
+    <script>
+        // 全局错误处理
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+        });
+
+        // 启动应用
+        try {
+            console.log('🚀 启动人民城轨2.0运营管理后台...');
+            ReactDOM.render(React.createElement(App), document.getElementById('app'));
+            console.log('✅ 应用启动成功!');
+        } catch (error) {
+            console.error('❌ 应用启动失败:', error);
+            document.getElementById('app').innerHTML = `
+                <div class="error-boundary">
+                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                    <h2>应用启动失败</h2>
+                    <p style="margin: 16px 0; color: #6b7280;">${error.message}</p>
+                    <button onclick="location.reload()" style="
+                        padding: 8px 16px; 
+                        background: #2563eb; 
+                        color: white; 
+                        border: none; 
+                        border-radius: 4px; 
+                        cursor: pointer;
+                        font-size: 14px;
+                    ">重新加载</button>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html> 

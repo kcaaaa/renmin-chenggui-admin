@@ -1,0 +1,33 @@
+# 编辑器和IDE文件
+.vscode/
+.cursor/
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 临时文件
+*.tmp
+*.temp
+*.log
+
+# 不需要的原型文档（保留重要文档）
+原型开发.md
+原型界面设计.md
+UI设计.md
+人民城轨APP.md
+人民城轨运营后台.md
+人民城轨运营后台完整版.md
+直播功能.md
+直播功能实现说明.md
+项目完成报告.md
+deploy.md
+
+# 保留这些重要文件
+# README.md
+# GitHub部署指南.md
+# docs/ 
