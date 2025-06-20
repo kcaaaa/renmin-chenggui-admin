@@ -9,9 +9,46 @@
     <!-- Ant Design CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
     
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Enhanced Custom CSS -->
     <style>
-        /* 重置样式 */
+        /* ------------------------- */
+        /* --- NEW DESIGN SYSTEM --- */
+        /* ------------------------- */
+        
+        /* --- 1. CSS Variables --- */
+        :root {
+            /* Color System */
+            --primary-color: #4f46e5; /* Indigo 600 */
+            --primary-color-light: #e0e7ff; /* Indigo 100 */
+            --primary-color-dark: #3730a3; /* Indigo 800 */
+            
+            --success-color: #16a34a; /* Green 600 */
+            --warning-color: #f97316; /* Orange 500 */
+            --error-color: #dc2626; /* Red 600 */
+            
+            --bg-color-light: #f8fafc; /* Slate 50 */
+            --bg-color-dark: #eef2ff; /* Indigo 50 */
+            
+            --surface-bg: rgba(255, 255, 255, 0.5); /* Semi-transparent white for glassmorphism */
+            --surface-bg-opaque: #ffffff;
+
+            --text-primary: #1e293b; /* Slate 800 */
+            --text-secondary: #64748b; /* Slate 500 */
+            --border-color: rgba(226, 232, 240, 0.6); /* Slate 200 with alpha */
+            
+            /* Shadow System */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+            --shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- 2. Base & Typography --- */
         * { 
             box-sizing: border-box; 
             margin: 0; 
@@ -19,164 +56,89 @@
         }
         
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background: #f5f7fa;
-            color: #2c3e50;
-            overflow-x: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color-light);
+            background-image: linear-gradient(180deg, var(--bg-color-dark) 0%, var(--bg-color-light) 25%);
+            color: var(--text-primary);
+            overflow: hidden;
         }
-        
-        .app-container { 
+
+        /* --- 3. Main Layout --- */
+        .app-container, .main-layout { 
             height: 100vh; 
+            width: 100vw;
             display: flex; 
-            flex-direction: column; 
         }
-        
-        .main-layout { 
-            flex: 1; 
-            display: flex;
+
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            height: 100vh;
         }
-        
-        .loading-spinner { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            flex-direction: column;
-        }
-        
-        .error-boundary { 
-            text-align: center; 
-            padding: 50px; 
-            color: #ff4d4f; 
-        }
-        
-        /* 主题色彩 */
-        :root {
-            --primary-color: #2563eb;
-            --success-color: #22c55e;
-            --warning-color: #f59e42;
-            --error-color: #ef4444;
-            --bg-color: #f5f7fa;
-            --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e5e7eb;
-        }
-        
-        /* 侧边栏样式 */
+
+        /* --- 4. Sidebar (Glassmorphism) --- */
         .main-nav { 
-            width: 240px;
-            background: var(--card-bg);
+            width: 250px;
+            background: var(--surface-bg);
             border-right: 1px solid var(--border-color);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             height: 100vh;
             overflow-y: auto;
             flex-shrink: 0;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .nav-logo {
-            padding: 20px;
+            padding: 24px 20px;
             text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .nav-menu {
-            flex: 1;
-            padding: 16px 0;
-        }
-        
-        .nav-item {
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            padding: 12px 20px;
-            margin: 2px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #4b5563;
-            text-decoration: none;
-            border-left: 3px solid transparent;
+            justify-content: center;
+            gap: 10px;
         }
-        
-        .nav-item:hover {
-            background: #f3f4f6;
-            color: var(--primary-color);
-            border-left-color: var(--primary-color);
-            transform: translateX(2px);
+
+        .nav-menu {
+            flex: 1;
+            padding: 8px;
         }
-        
-        .nav-item.active {
-            background: linear-gradient(135deg, #e0f2fe 0%, #e8f0fe 100%);
-            color: var(--primary-color);
-            font-weight: 600;
-            border-left-color: var(--primary-color);
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
-        }
-        
+
         .nav-icon { 
-            margin-right: 12px; 
-            font-size: 18px; 
-            width: 20px;
+            margin-right: 14px; 
+            font-size: 20px; 
+            width: 24px;
             text-align: center;
+            opacity: 0.8;
         }
         
-        /* 顶部栏样式 */
+        /* --- 5. Top Bar --- */
         .top-bar {
-            background: var(--card-bg);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px) saturate(180%);
             border-bottom: 1px solid var(--border-color);
-            padding: 0 24px;
+            padding: 0 32px;
             height: 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            position: sticky;
+            top: 0;
             z-index: 10;
         }
         
-        .top-bar-left { 
-            display: flex; 
-            align-items: center; 
-            gap: 16px;
-        }
-        
-        .top-bar-right { 
-            display: flex; 
-            align-items: center; 
-            gap: 16px; 
-            color: #6b7280;
-        }
-        
-        .logo { 
-            font-size: 20px; 
-            font-weight: bold; 
-            color: var(--primary-color); 
-        }
-        
-        /* 主内容区 */
-        .main-content {
-            flex: 1;
-            background: var(--bg-color);
-            padding: 24px;
-            overflow-y: auto;
-            min-width: 0;
-            height: calc(100vh - 64px);
-        }
-        
-        /* 页面标题 */
+        /* --- 6. Content & Page Header --- */
         .page-header {
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 32px;
         }
 
         .page-title {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 8px;
@@ -186,133 +148,145 @@
             color: var(--text-secondary);
             font-size: 16px;
         }
+
+        /* ------------------------------------ */
+        /* --- ANT DESIGN COMPONENT OVERRIDES --- */
+        /* ------------------------------------ */
         
-        /* 卡片样式 */
-        .dashboard-card, .review-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 16px;
-        }
-        
-        .dashboard-card::before, .review-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-        
-        .dashboard-card:hover, .review-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
-        }
-        
-        /* Ant Design 覆盖样式 */
-        .ant-layout {
-            background: transparent !important;
-            min-height: 100vh;
-        }
-        
-        .ant-layout-content {
-            background: var(--bg-color) !important;
-        }
-        
+        /* --- Layout --- */
+        .ant-layout { background: transparent !important; }
+        .ant-layout-content { background: transparent !important; }
         .ant-layout-sider {
-            background: var(--card-bg) !important;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.06) !important;
+            background: transparent !important;
+            box-shadow: none !important;
         }
-        
+
+        /* --- Menu --- */
         .ant-menu {
             background: transparent !important;
-            border-right: none !important;
+            border: none !important;
         }
         
         .ant-menu-item {
-            margin: 4px 8px !important;
-            border-radius: 6px !important;
-            height: auto !important;
+            margin: 4px 0 !important;
+            border-radius: 8px !important;
             padding: 12px 16px !important;
             display: flex !important;
             align-items: center !important;
-            line-height: 1.4 !important;
+            height: auto !important;
+            line-height: 1.5 !important;
+            font-weight: 500;
+            color: #334155 !important; /* Slate 700 */
         }
         
         .ant-menu-item-selected {
-            background: linear-gradient(135deg, #e0f2fe 0%, #e8f0fe 100%) !important;
-            color: var(--primary-color) !important;
+            background: var(--primary-color) !important;
+            color: white !important;
             font-weight: 600 !important;
+            box-shadow: var(--shadow-md);
         }
         
-        .ant-menu-item:hover {
-            background: #f3f4f6 !important;
+        .ant-menu-item:not(.ant-menu-item-selected):hover {
+            background: rgba(79, 70, 229, 0.08) !important;
             color: var(--primary-color) !important;
         }
         
+        .ant-menu-item-selected .ant-menu-item-icon, 
+        .ant-menu-item-selected .nav-icon {
+            opacity: 1 !important;
+        }
+
+        /* --- Cards --- */
         .ant-card {
-            border-radius: 12px !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06) !important;
+            background: var(--surface-bg-opaque) !important;
+            border-radius: 16px !important;
             border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-sm) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .ant-card:hover {
+            box-shadow: var(--shadow-lg) !important;
+            transform: translateY(-4px);
+            border-color: rgba(79, 70, 229, 0.4) !important;
         }
         
         .ant-card-head {
             border-bottom: 1px solid var(--border-color) !important;
+            font-weight: 600 !important;
+            padding: 0 24px !important;
+            min-height: 60px !important;
         }
         
-        .ant-tabs {
-            overflow: visible !important;
+        .ant-card-body {
+             padding: 24px !important;
         }
-        
+
+        /* --- Tabs --- */
+        .ant-tabs-nav {
+            margin-bottom: 24px !important;
+        }
+
         .ant-tabs-tab {
-            margin: 0 !important;
-            padding: 16px 20px !important;
-            border-radius: 0 !important;
-            font-weight: 500 !important;
+            font-weight: 600 !important;
+            color: var(--text-secondary) !important;
+            padding: 12px 4px !important;
+            margin: 0 16px !important;
         }
-        
+
         .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
             color: var(--primary-color) !important;
-            font-weight: 600 !important;
         }
         
         .ant-tabs-ink-bar {
             background: var(--primary-color) !important;
             height: 3px !important;
+            border-radius: 3px;
         }
-        
-        .ant-tabs-content-holder {
-            background: transparent !important;
-        }
-        
+
+        /* --- Tables --- */
         .ant-table-wrapper {
-            background: var(--card-bg) !important;
-            border-radius: 8px !important;
+            background: var(--surface-bg-opaque) !important;
+            border-radius: 12px !important;
+            border: 1px solid var(--border-color) !important;
             overflow: hidden !important;
         }
         
+        .ant-table {
+             background: transparent !important;
+        }
+        
         .ant-table-thead > tr > th {
-            background: #f8fafc !important;
+            background: #f8fafc !important; /* Slate 50 */
             border-bottom: 1px solid var(--border-color) !important;
             font-weight: 600 !important;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
         }
         
         .ant-table-tbody > tr:hover > td {
-            background: #f8fafc !important;
+            background: var(--bg-color-dark) !important;
         }
-        
+
+        /* --- Buttons --- */
         .ant-btn {
-            border-radius: 6px !important;
-            font-weight: 500 !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
             display: inline-flex !important;
             align-items: center !important;
-            gap: 4px !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            padding: 8px 16px !important;
+            height: auto !important;
+            box-shadow: var(--shadow-sm) !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .ant-btn:hover {
+             transform: translateY(-1px);
+             box-shadow: var(--shadow-md) !important;
         }
         
         .ant-btn-primary {
@@ -321,804 +295,52 @@
         }
         
         .ant-btn-primary:hover {
-            background: #1d4ed8 !important;
-            border-color: #1d4ed8 !important;
-        }
-        
-        /* 统计数字动画 */
-        .stat-value-animated {
-            animation: countUp 1s ease-out;
-        }
-        
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .main-layout { 
-                flex-direction: column; 
-            }
-            
-            .main-nav { 
-                width: 100%; 
-                height: auto; 
-            }
-            
-            .nav-menu {
-                display: flex;
-                overflow-x: auto;
-                padding: 8px;
-            }
-            
-            .nav-item {
-                margin: 0 4px;
-                white-space: nowrap;
-            }
-            
-            .main-content { 
-                padding: 16px; 
-            }
-        }
-        
-        /* 辅助类 */
-        .text-center { text-align: center; }
-        .text-primary { color: var(--primary-color); }
-        .text-success { color: var(--success-color); }
-        .text-warning { color: var(--warning-color); }
-        .text-error { color: var(--error-color); }
-        .mb-16 { margin-bottom: 16px; }
-        .mb-24 { margin-bottom: 24px; }
-        .hidden { display: none; }
-        
-        /* 加载动画 */
-        .loading-dots {
-            display: inline-block;
-            position: relative;
-            width: 40px;
-            height: 10px;
-        }
-        
-        .loading-dots div {
-            position: absolute;
-            top: 0;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            animation: loading-dots 1.2s linear infinite;
-        }
-        
-        .loading-dots div:nth-child(1) { left: 4px; animation-delay: -0.24s; }
-        .loading-dots div:nth-child(2) { left: 16px; animation-delay: -0.12s; }
-        .loading-dots div:nth-child(3) { left: 28px; animation-delay: 0; }
-        
-        @keyframes loading-dots {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+            background: var(--primary-color-dark) !important;
+            border-color: var(--primary-color-dark) !important;
         }
 
-        /* 页面淡入动画 */
+        .ant-btn-default:hover {
+            border-color: var(--primary-color) !important;
+            color: var(--primary-color) !important;
+        }
+
+        .ant-btn-dangerous {
+            background: var(--error-color) !important;
+            border-color: var(--error-color) !important;
+            color: white !important;
+        }
+
+        /* --- Statistic Cards --- */
+        .ant-statistic-title {
+            color: var(--text-secondary) !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+        }
+
+        .ant-statistic-content {
+            font-size: 30px !important;
+            font-weight: 700 !important;
+            color: var(--text-primary) !important;
+        }
+        
+        /* --------------------- */
+        /* --- UTILITY CLASSES --- */
+        /* --------------------- */
         .page-fade-in {
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 状态标签 */
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-live {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-scheduled {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-ended {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
-
-        /* 直播信息样式 */
-        .live-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .live-thumbnail {
-            width: 60px;
-            height: 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-        }
-
-        .live-info h4 {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 4px;
-        }
-
-        .live-info p {
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        /* 直播管理模块专用样式 */
-        .live-management-container {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        /* 直播统计卡片 */
-        .live-stat-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .live-stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-        }
-
-        .live-stat-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
-        }
-
-        .live-stat-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            animation: countUp 1s ease-out;
-        }
-
-        .live-stat-label {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-
-        .live-stat-change {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-
-        .live-stat-change.positive {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .live-stat-change.negative {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* 直播操作栏 */
-        .live-operation-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 20px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1px solid var(--border-color);
-        }
-
-        .live-operation-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .live-operation-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        /* 直播按钮样式 */
-        .live-button {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .live-button.primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .live-button.primary:hover {
-            background: #1d4ed8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .live-button.secondary {
-            background: #f8fafc;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .live-button.secondary:hover {
-            background: #f1f5f9;
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .live-button.success {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .live-button.success:hover {
-            background: #16a34a;
-            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-        }
-
-        .live-button.danger {
-            background: var(--error-color);
-            color: white;
-        }
-
-        .live-button.danger:hover {
-            background: #dc2626;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-        }
-
-        /* 直播表格容器 */
-        .live-table-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1px solid var(--border-color);
-        }
-
-        /* 直播表格样式 */
-        .live-data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        .live-data-table th {
-            background: #f8fafc;
-            padding: 16px 12px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .live-data-table td {
-            padding: 16px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            vertical-align: middle;
-        }
-
-        .live-data-table tr:hover {
-            background: #f8fafc;
-        }
-
-        .live-data-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* 直播信息展示 */
-        .live-info-display {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .live-cover-image {
-            width: 80px;
-            height: 50px;
-            border-radius: 8px;
-            object-fit: cover;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .live-title-desc {
-            flex: 1;
-        }
-
-        .live-title {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            font-size: 15px;
-        }
-
-        .live-description {
-            font-size: 12px;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        /* 直播状态标签 */
-        .live-status-tag {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .live-status-tag.live {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .live-status-tag.live::before {
-            content: '🔴';
-            font-size: 8px;
-        }
-
-        .live-status-tag.scheduled {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .live-status-tag.scheduled::before {
-            content: '🕐';
-            font-size: 10px;
-        }
-
-        .live-status-tag.ended {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
-
-        .live-status-tag.ended::before {
-            content: '⏹️';
-            font-size: 10px;
-        }
-
-        .live-status-tag.replay {
-            background: #f3e8ff;
-            color: #7c3aed;
-        }
-
-        .live-status-tag.replay::before {
-            content: '▶️';
-            font-size: 10px;
-        }
-
-        /* 审核状态标签 */
-        .moderation-status-tag {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .moderation-status-tag.approved {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .moderation-status-tag.pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .moderation-status-tag.rejected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .moderation-status-tag.auto_blocked {
-            background: #fecaca;
-            color: #7f1d1d;
-        }
-
-        /* 主讲人信息 */
-        .presenter-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .presenter-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e5e7eb;
-        }
-
-        .presenter-name {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        /* 观看数据显示 */
-        .viewer-stats {
-            display: flex;
+        .loading-spinner { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
             flex-direction: column;
-            gap: 2px;
-        }
-
-        .viewer-current {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .viewer-peak {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        /* 时间显示 */
-        .time-display {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .time-start {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .time-end {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        /* 操作按钮组 */
-        .action-buttons {
-            display: flex;
-            gap: 6px;
-        }
-
-        .action-button {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: none;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: #f8fafc;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .action-button:hover {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-            transform: translateY(-1px);
-        }
-
-        .action-button.success:hover {
-            background: var(--success-color);
-            border-color: var(--success-color);
-        }
-
-        .action-button.danger:hover {
-            background: var(--error-color);
-            border-color: var(--error-color);
-        }
-
-        /* 图片直播卡片 */
-        .live-image-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .live-image-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-            transform: translateY(-2px);
-        }
-
-        .live-image-preview {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .live-image-content {
-            padding: 16px;
-        }
-
-        .live-image-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .live-image-title {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 14px;
-            margin: 0;
-        }
-
-        .live-image-desc {
-            color: var(--text-secondary);
-            font-size: 12px;
-            line-height: 1.4;
-            margin: 0 0 12px 0;
-        }
-
-        .live-image-stats {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        /* AI得分显示 */
-        .ai-score {
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .ai-score.high {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .ai-score.medium {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .ai-score.low {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* 模态框样式 */
-        .live-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .live-modal-content {
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow: auto;
-            animation: slideUp 0.3s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .live-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 24px 24px 16px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .live-modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .live-modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            padding: 4px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .live-modal-close:hover {
-            background: #f3f4f6;
-            color: var(--text-primary);
-        }
-
-        .live-modal-body {
-            padding: 24px;
-        }
-
-        .live-modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            padding: 16px 24px 24px;
-        }
-
-        /* 加载状态 */
-        .live-loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-
-        .live-loading::before {
-            content: '';
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 12px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Tab导航美化 */
-        .live-tab-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-
-        .live-tab-header {
-            display: flex;
-            background: #f8fafc;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .live-tab-button {
-            flex: 1;
-            padding: 16px 20px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .live-tab-button.active {
-            color: var(--primary-color);
-            background: var(--card-bg);
-            font-weight: 600;
-        }
-
-        .live-tab-button.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary-color);
-        }
-
-        .live-tab-button:hover:not(.active) {
-            color: var(--text-primary);
-            background: #f1f5f9;
-        }
-
-        .live-tab-content {
-            padding: 24px;
-        }
-
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .live-operation-bar {
-                flex-direction: column;
-                gap: 16px;
-                align-items: stretch;
-            }
-
-            .live-operation-actions {
-                justify-content: center;
-            }
-
-            .live-data-table {
-                font-size: 12px;
-            }
-
-            .live-data-table th,
-            .live-data-table td {
-                padding: 12px 8px;
-            }
-
-            .live-cover-image {
-                width: 60px;
-                height: 40px;
-            }
-
-            .live-modal-content {
-                margin: 16px;
-                max-width: calc(100vw - 32px);
-            }
         }
     </style>
 </head>
