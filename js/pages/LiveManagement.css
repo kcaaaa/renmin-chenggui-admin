@@ -262,4 +262,70 @@
 .moderation-status-tag.approved { color: var(--success-color); }
 .moderation-status-tag.pending { color: var(--warning-color); }
 .moderation-status-tag.rejected,
-.moderation-status-tag.auto_blocked { color: var(--error-color); } 
+.moderation-status-tag.auto_blocked { color: var(--error-color); }
+
+.form-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 8px;
+}
+
+/* --- RuoYi Style Overrides --- */
+.ruoyi-style-container {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin: -15px; /* Counteract parent padding if necessary */
+}
+
+.ruoyi-query-form {
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    box-shadow: var(--shadow-sm);
+}
+
+.ruoyi-table-box {
+    padding: 15px;
+    background: #ffffff;
+    border-radius: 6px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* RuoYi Antd Table Style */
+.ruoyi-table-box .ant-table-wrapper {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.ruoyi-table-box .ant-table {
+    border-radius: 0;
+}
+
+.ruoyi-table-box .ant-table-thead > tr > th {
+    background-color: #fafafa !important;
+    font-weight: 500;
+    color: #606266;
+}
+
+.ruoyi-table-box .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.ruoyi-table-box .ant-table-tbody > tr:hover > td {
+    background: #f5f7fa !important;
+}
+
+/* RuoYi style buttons in table */
+.ruoyi-table-box .ant-btn {
+    padding: 0 5px;
+    height: 24px;
+    font-size: 12px;
+}
+.ruoyi-table-box .ant-btn-circle {
+    font-size: 14px;
+} 
