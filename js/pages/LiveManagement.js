@@ -19,9 +19,7 @@ function LiveManagement() {
 
     // 如果数据还没加载完成，显示加载状态
     if (!liveData) {
-        return React.createElement('div', { className: 'page-container' },
-            React.createElement('div', { className: 'loading' }, '加载中...')
-        );
+        return React.createElement('div', { className: 'loading-spinner' });
     }
 
     // 新建直播表单
@@ -375,112 +373,56 @@ function LiveManagement() {
         }, config.text);
     };
 
+    // 渲染统计卡片
+    const renderStatCard = (title, value, change, changeType, icon) => {
+        return React.createElement('div', { className: 'live-stat-card' }, [
+            React.createElement('div', { className: 'live-stat-header', key: 'header' }, [
+                 React.createElement('span', null, title),
+                 React.createElement('span', { className: 'live-stat-icon' }, icon)
+            ]),
+            React.createElement('div', { className: 'live-stat-value', key: 'value' }, value),
+            React.createElement('div', { className: `live-stat-change ${changeType}`, key: 'change' }, change)
+        ]);
+    };
+
     // 直播列表视图
     const renderLiveList = () => {
-        return React.createElement('div', { className: 'live-management-container' }, [
+        const { Button, Input } = antd;
+        return React.createElement('div', null, [
             // 操作栏
             React.createElement('div', {
                 key: 'operation-bar',
                 className: 'live-operation-bar'
             }, [
-                React.createElement('h3', { 
-                    key: 'title',
-                    className: 'live-operation-title' 
-                }, '直播管理'),
+                React.createElement(Input.Search, { 
+                    placeholder: "搜索直播...", 
+                    style: { width: 300 } 
+                }),
                 React.createElement('div', {
                     key: 'actions',
                     className: 'live-operation-actions'
                 }, [
-                    React.createElement('button', {
-                        key: 'create',
-                        className: 'live-button primary',
-                        onClick: () => setCreateLiveVisible(true)
-                    }, ['📹 ', '新建直播']),
-                    React.createElement('button', {
+                    React.createElement(Button, {
                         key: 'batch',
-                        className: 'live-button secondary'
-                    }, ['⚙️ ', '批量操作'])
+                    }, ['批量操作']),
+                    React.createElement(Button, {
+                        key: 'create',
+                        type: 'primary',
+                        icon: React.createElement('span', null, '📹'),
+                        onClick: () => setCreateLiveVisible(true)
+                    }, '新建直播'),
                 ])
             ]),
 
             // 统计卡片
             React.createElement('div', {
                 key: 'stats',
-                style: {
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gap: '16px',
-                    marginBottom: '20px'
-                }
+                className: 'live-stat-grid'
             }, [
-                React.createElement('div', {
-                    key: 'total',
-                    className: 'live-stat-card'
-                }, [
-                    React.createElement('div', { 
-                        key: 'value',
-                        className: 'live-stat-value' 
-                    }, liveData.liveStats.today.totalLives),
-                    React.createElement('div', { 
-                        key: 'label',
-                        className: 'live-stat-label' 
-                    }, '今日直播'),
-                    React.createElement('div', { 
-                        key: 'change',
-                        className: 'live-stat-change positive' 
-                    }, '+2 较昨日')
-                ]),
-                React.createElement('div', {
-                    key: 'active',
-                    className: 'live-stat-card'
-                }, [
-                    React.createElement('div', { 
-                        key: 'value',
-                        className: 'live-stat-value' 
-                    }, liveData.liveStats.today.activeLives),
-                    React.createElement('div', { 
-                        key: 'label',
-                        className: 'live-stat-label' 
-                    }, '进行中'),
-                    React.createElement('div', { 
-                        key: 'change',
-                        className: 'live-stat-change' 
-                    }, '实时数据')
-                ]),
-                React.createElement('div', {
-                    key: 'viewers',
-                    className: 'live-stat-card'
-                }, [
-                    React.createElement('div', { 
-                        key: 'value',
-                        className: 'live-stat-value' 
-                    }, liveData.liveStats.today.totalViewers.toLocaleString()),
-                    React.createElement('div', { 
-                        key: 'label',
-                        className: 'live-stat-label' 
-                    }, '当前观看'),
-                    React.createElement('div', { 
-                        key: 'change',
-                        className: 'live-stat-change positive' 
-                    }, '+15% 较昨日')
-                ]),
-                React.createElement('div', {
-                    key: 'peak',
-                    className: 'live-stat-card'
-                }, [
-                    React.createElement('div', { 
-                        key: 'value',
-                        className: 'live-stat-value' 
-                    }, liveData.liveStats.today.peakViewers.toLocaleString()),
-                    React.createElement('div', { 
-                        key: 'label',
-                        className: 'live-stat-label' 
-                    }, '峰值观看'),
-                    React.createElement('div', { 
-                        key: 'change',
-                        className: 'live-stat-change positive' 
-                    }, '+8% 较昨日')
-                ])
+                renderStatCard('今日直播', liveData.liveStats.today.totalLives, '+2 较昨日', 'positive', '📅'),
+                renderStatCard('进行中', liveData.liveStats.today.activeLives, '实时数据', '', '📡'),
+                renderStatCard('当前观看', liveData.liveStats.today.totalViewers.toLocaleString(), '+15% 较昨日', 'positive', '👀'),
+                renderStatCard('峰值观看', liveData.liveStats.today.peakViewers.toLocaleString(), '+8% 较昨日', 'positive', '🚀'),
             ]),
 
             // 直播列表
@@ -1266,39 +1208,22 @@ function LiveManagement() {
         // 新建直播模态框
         React.createElement(antd.Modal, {
             key: 'create-modal',
-            title: React.createElement('div', {
-                style: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '18px',
-                    fontWeight: '600'
-                }
-            }, ['📹 ', '新建直播']),
-            open: createLiveVisible,
-            onCancel: () => {
-                setCreateLiveVisible(false);
-                createLiveForm.resetFields();
-            },
-            width: 900,
+            title: '新建直播',
+            visible: createLiveVisible,
+            onCancel: () => setCreateLiveVisible(false),
             footer: [
                 React.createElement(antd.Button, {
-                    key: 'cancel',
-                    onClick: () => {
-                        setCreateLiveVisible(false);
-                        createLiveForm.resetFields();
-                    }
+                    key: 'back',
+                    onClick: () => setCreateLiveVisible(false)
                 }, '取消'),
                 React.createElement(antd.Button, {
                     key: 'submit',
                     type: 'primary',
-                    onClick: () => createLiveForm.submit(),
-                    style: {
-                        background: 'var(--primary-color)',
-                        borderColor: 'var(--primary-color)'
-                    }
+                    loading: loading,
+                    onClick: () => createLiveForm.submit()
                 }, '创建直播')
-            ]
+            ],
+            width: 800
         }, renderCreateLiveForm()),
 
         // 直播详情弹窗
