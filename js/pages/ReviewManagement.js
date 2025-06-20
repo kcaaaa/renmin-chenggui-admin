@@ -1,6 +1,6 @@
 // 审核管理页面
 const ReviewManagement = () => {
-    const { Tabs, Table, Card, Button, Space, Tag, Input, Select, Modal, Progress, Alert, Tooltip, Row, Col, Image, Video, Descriptions, Timeline, Badge } = antd;
+    const { Tabs, Table, Card, Button, Space, Tag, Input, Select, Modal, Progress, Alert, Tooltip, Row, Col, Image, Video, Descriptions, Timeline, Badge, Statistic } = antd;
     const [activeTab, setActiveTab] = React.useState('image');
     const [reviewQueue, setReviewQueue] = React.useState([]);
     const [videoQueue, setVideoQueue] = React.useState([]);
@@ -11,6 +11,12 @@ const ReviewManagement = () => {
     const [videoModalVisible, setVideoModalVisible] = React.useState(false);
     const [currentItem, setCurrentItem] = React.useState(null);
     const [currentVideo, setCurrentVideo] = React.useState(null);
+    const [stats, setStats] = React.useState({
+        pending: 1248,
+        reviewing: 356,
+        approved: 8952,
+        rejected: 124
+    });
 
     React.useEffect(() => {
         if (activeTab === 'video') {

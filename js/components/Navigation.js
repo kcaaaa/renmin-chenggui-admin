@@ -15,12 +15,6 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             icon: '🔍',
             label: '审核管理',
             title: '内容审核与管理',
-            children: [
-                { key: 'review-image', label: '图文审核' },
-                { key: 'review-video', label: '视频审核' },
-                { key: 'review-interaction', label: '互动审核' },
-                { key: 'review-mechanism', label: '审核机制' }
-            ],
             page: 'ReviewManagement'
         },
         {
@@ -68,27 +62,6 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
     ];
 
     const renderMenuItem = (item) => {
-        if (item.children) {
-            return React.createElement(Menu.SubMenu, {
-                key: item.key,
-                title: React.createElement('span', {
-                    title: item.title
-                }, [
-                    React.createElement('span', {
-                        key: 'icon',
-                        className: 'nav-icon'
-                    }, item.icon),
-                    !collapsed && React.createElement('span', {
-                        key: 'label'
-                    }, item.label)
-                ])
-            }, item.children.map(child => 
-                React.createElement(Menu.Item, {
-                    key: child.key
-                }, child.label)
-            ));
-        }
-        
         return React.createElement(Menu.Item, {
             key: item.key,
             title: item.title
