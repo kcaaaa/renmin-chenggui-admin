@@ -1,6 +1,6 @@
 // 审核管理页面
 const ReviewManagement = () => {
-    const { Tabs, Table, Card, Button, Space, Tag, Input, Select, Modal, Progress, Alert, Tooltip, Row, Col, Image, Video, Descriptions, Timeline, Badge } = antd;
+    const { Tabs, Table, Card, Button, Space, Tag, Input, Select, Modal, Progress, Alert, Tooltip, Row, Col, Image, Video, Descriptions, Timeline, Badge, Statistic } = antd;
     const [activeTab, setActiveTab] = React.useState('image');
     const [reviewQueue, setReviewQueue] = React.useState([]);
     const [videoQueue, setVideoQueue] = React.useState([]);
@@ -11,6 +11,12 @@ const ReviewManagement = () => {
     const [videoModalVisible, setVideoModalVisible] = React.useState(false);
     const [currentItem, setCurrentItem] = React.useState(null);
     const [currentVideo, setCurrentVideo] = React.useState(null);
+    const [stats, setStats] = React.useState({
+        pending: 1248,
+        reviewing: 356,
+        approved: 8952,
+        rejected: 124
+    });
 
     React.useEffect(() => {
         if (activeTab === 'video') {
@@ -686,31 +692,1541 @@ const ReviewManagement = () => {
         {
             key: 'interaction',
             label: React.createElement('span', {}, ['💬 ', '互动审核']),
-            children: React.createElement('div', {
-                style: { padding: '40px', textAlign: 'center', color: '#64748b' }
-            }, [
+            children: React.createElement('div', { className: 'interaction-review-container' }, [
+                // 操作栏
                 React.createElement('div', {
-                    key: 'icon',
-                    style: { fontSize: '64px', marginBottom: '16px' }
-                }, '💬'),
+                    key: 'operation-bar',
+                    style: {
+                        marginBottom: '24px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '16px',
+                        background: 'var(--surface-bg-opaque)',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)'
+                    }
+                }, [
+                    React.createElement('h3', { 
+                        key: 'title',
+                        style: { 
+                            fontSize: '20px', 
+                            fontWeight: '600', 
+                            color: 'var(--text-primary)',
+                            margin: 0 
+                        } 
+                    }, '💬 互动审核'),
+                    React.createElement('div', {
+                        key: 'actions',
+                        style: { display: 'flex', gap: '12px' }
+                    }, [
+                        React.createElement('select', {
+                            key: 'filter',
+                            style: { 
+                                padding: '8px 12px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                marginRight: '8px'
+                            }
+                        }, [
+                            React.createElement('option', { key: 'all', value: 'all' }, '全部类型'),
+                            React.createElement('option', { key: 'comment', value: 'comment' }, '评论'),
+                            React.createElement('option', { key: 'message', value: 'message' }, '私信'),
+                            React.createElement('option', { key: 'reply', value: 'reply' }, '回复')
+                        ]),
+                        React.createElement(Button, {
+                            key: 'export',
+                            type: 'default'
+                        }, ['📊 ', '导出数据']),
+                        React.createElement(Button, {
+                            key: 'batch',
+                            type: 'primary'
+                        }, ['⚡ ', '批量处理'])
+                    ])
+                ]),
+
+                // 统计卡片
                 React.createElement('div', {
-                    key: 'text'
-                }, '互动审核功能开发中...')
+                    key: 'stats',
+                    style: {
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                        gap: '20px',
+                        marginBottom: '24px'
+                    }
+                }, [
+                    // 总互动数
+                    React.createElement('div', {
+                        key: 'total',
+                        style: {
+                            background: 'var(--surface-bg-opaque)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            border: '1px solid var(--border-color)',
+                            boxShadow: 'var(--shadow-sm)',
+                            transition: 'all 0.2s ease'
+                        }
+                    }, [
+                        React.createElement('div', { 
+                            key: 'header',
+                            style: {
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: '8px'
+                            }
+                        }, [
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '14px', 
+                                    color: 'var(--text-secondary)', 
+                                    fontWeight: '500' 
+                                } 
+                            }, '今日互动'),
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '20px',
+                                    color: 'var(--primary-color)' 
+                                } 
+                            }, '💬')
+                        ]),
+                        React.createElement('div', { 
+                            key: 'value',
+                            style: { 
+                                fontSize: '28px', 
+                                fontWeight: '700', 
+                                color: 'var(--text-primary)',
+                                marginBottom: '8px'
+                            } 
+                        }, '15,847'),
+                        React.createElement('div', { 
+                            key: 'change',
+                            style: { 
+                                fontSize: '13px', 
+                                fontWeight: '600',
+                                color: 'var(--success-color)'
+                            } 
+                        }, '+12.3% 较昨日')
+                    ]),
+                    
+                    // 拦截数
+                    React.createElement('div', {
+                        key: 'blocked',
+                        style: {
+                            background: 'var(--surface-bg-opaque)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            border: '1px solid var(--border-color)',
+                            boxShadow: 'var(--shadow-sm)'
+                        }
+                    }, [
+                        React.createElement('div', { 
+                            key: 'header',
+                            style: {
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: '8px'
+                            }
+                        }, [
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '14px', 
+                                    color: 'var(--text-secondary)', 
+                                    fontWeight: '500' 
+                                } 
+                            }, '自动拦截'),
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '20px',
+                                    color: 'var(--error-color)' 
+                                } 
+                            }, '🚫')
+                        ]),
+                        React.createElement('div', { 
+                            key: 'value',
+                            style: { 
+                                fontSize: '28px', 
+                                fontWeight: '700', 
+                                color: 'var(--text-primary)',
+                                marginBottom: '8px'
+                            } 
+                        }, '342'),
+                        React.createElement('div', { 
+                            key: 'change',
+                            style: { 
+                                fontSize: '13px', 
+                                fontWeight: '600',
+                                color: 'var(--error-color)'
+                            } 
+                        }, '+8 较昨日')
+                    ]),
+                    
+                    // 通过率
+                    React.createElement('div', {
+                        key: 'pass-rate',
+                        style: {
+                            background: 'var(--surface-bg-opaque)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            border: '1px solid var(--border-color)',
+                            boxShadow: 'var(--shadow-sm)'
+                        }
+                    }, [
+                        React.createElement('div', { 
+                            key: 'header',
+                            style: {
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: '8px'
+                            }
+                        }, [
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '14px', 
+                                    color: 'var(--text-secondary)', 
+                                    fontWeight: '500' 
+                                } 
+                            }, '通过率'),
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '20px',
+                                    color: 'var(--success-color)' 
+                                } 
+                            }, '✅')
+                        ]),
+                        React.createElement('div', { 
+                            key: 'value',
+                            style: { 
+                                fontSize: '28px', 
+                                fontWeight: '700', 
+                                color: 'var(--text-primary)',
+                                marginBottom: '8px'
+                            } 
+                        }, '97.8%'),
+                        React.createElement('div', { 
+                            key: 'change',
+                            style: { 
+                                fontSize: '13px', 
+                                fontWeight: '600',
+                                color: 'var(--success-color)'
+                            } 
+                        }, '+0.2% 较昨日')
+                    ]),
+                    
+                    // 待审核
+                    React.createElement('div', {
+                        key: 'pending',
+                        style: {
+                            background: 'var(--surface-bg-opaque)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            border: '1px solid var(--border-color)',
+                            boxShadow: 'var(--shadow-sm)'
+                        }
+                    }, [
+                        React.createElement('div', { 
+                            key: 'header',
+                            style: {
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                marginBottom: '8px'
+                            }
+                        }, [
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '14px', 
+                                    color: 'var(--text-secondary)', 
+                                    fontWeight: '500' 
+                                } 
+                            }, '待审核'),
+                            React.createElement('span', { 
+                                style: { 
+                                    fontSize: '20px',
+                                    color: 'var(--warning-color)' 
+                                } 
+                            }, '⏳')
+                        ]),
+                        React.createElement('div', { 
+                            key: 'value',
+                            style: { 
+                                fontSize: '28px', 
+                                fontWeight: '700', 
+                                color: 'var(--text-primary)',
+                                marginBottom: '8px'
+                            } 
+                        }, '28'),
+                        React.createElement('div', { 
+                            key: 'change',
+                            style: { 
+                                fontSize: '13px', 
+                                fontWeight: '600',
+                                color: 'var(--warning-color)'
+                            } 
+                        }, '需处理')
+                    ])
+                ]),
+
+                // 互动审核列表
+                React.createElement('div', {
+                    key: 'table',
+                    style: {
+                        background: 'var(--surface-bg-opaque)',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        border: '1px solid var(--border-color)'
+                    }
+                },
+                    React.createElement('table', { 
+                        style: { 
+                            width: '100%', 
+                            borderCollapse: 'collapse' 
+                        } 
+                    }, [
+                        React.createElement('thead', { key: 'thead' },
+                            React.createElement('tr', null, [
+                                React.createElement('th', { 
+                                    key: 'user',
+                                    style: {
+                                        padding: '16px',
+                                        textAlign: 'left',
+                                        background: '#f8fafc',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        color: 'var(--text-secondary)',
+                                        letterSpacing: '0.5px',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, '用户信息'),
+                                React.createElement('th', { 
+                                    key: 'type',
+                                    style: {
+                                        padding: '16px',
+                                        textAlign: 'left',
+                                        background: '#f8fafc',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        color: 'var(--text-secondary)',
+                                        letterSpacing: '0.5px',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, '类型'),
+                                React.createElement('th', { 
+                                    key: 'content',
+                                    style: {
+                                        padding: '16px',
+                                        textAlign: 'left',
+                                        background: '#f8fafc',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        color: 'var(--text-secondary)',
+                                        letterSpacing: '0.5px',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, '互动内容'),
+                                React.createElement('th', { 
+                                    key: 'risk',
+                                    style: {
+                                        padding: '16px',
+                                        textAlign: 'left',
+                                        background: '#f8fafc',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        color: 'var(--text-secondary)',
+                                        letterSpacing: '0.5px',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, '风险评级'),
+                                React.createElement('th', { 
+                                    key: 'status',
+                                    style: {
+                                        padding: '16px',
+                                        textAlign: 'left',
+                                        background: '#f8fafc',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        color: 'var(--text-secondary)',
+                                        letterSpacing: '0.5px',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, '状态'),
+                                React.createElement('th', { 
+                                    key: 'time',
+                                    style: {
+                                        padding: '16px',
+                                        textAlign: 'left',
+                                        background: '#f8fafc',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        color: 'var(--text-secondary)',
+                                        letterSpacing: '0.5px',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, '时间'),
+                                React.createElement('th', { 
+                                    key: 'actions',
+                                    style: {
+                                        padding: '16px',
+                                        textAlign: 'left',
+                                        background: '#f8fafc',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        textTransform: 'uppercase',
+                                        color: 'var(--text-secondary)',
+                                        letterSpacing: '0.5px',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, '操作')
+                            ])
+                        ),
+                        React.createElement('tbody', { key: 'tbody' }, 
+                            [
+                                {
+                                    id: 'INT001',
+                                    userId: 'U123456',
+                                    username: '张工程师',
+                                    userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang',
+                                    type: 'comment',
+                                    content: '这个系统确实很先进，不过价格有点贵，有没有更便宜的选择？',
+                                    riskLevel: 'low',
+                                    status: 'approved',
+                                    timestamp: '2024-01-15 14:25:30',
+                                    aiScore: 0.95,
+                                    userRiskScore: 'normal'
+                                },
+                                {
+                                    id: 'INT002',
+                                    userId: 'U789012',
+                                    username: '李技术',
+                                    userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li',
+                                    type: 'reply',
+                                    content: '联系我，微信：abc123，专业技术咨询，价格优惠！',
+                                    riskLevel: 'high',
+                                    status: 'blocked',
+                                    timestamp: '2024-01-15 14:20:15',
+                                    aiScore: 0.15,
+                                    userRiskScore: 'high'
+                                },
+                                {
+                                    id: 'INT003',
+                                    userId: 'U345678',
+                                    username: '王专家',
+                                    userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang',
+                                    type: 'message',
+                                    content: '你好，我对你们的产品很感兴趣，能详细介绍一下吗？',
+                                    riskLevel: 'low',
+                                    status: 'approved',
+                                    timestamp: '2024-01-15 14:18:42',
+                                    aiScore: 0.98,
+                                    userRiskScore: 'normal'
+                                },
+                                {
+                                    id: 'INT004',
+                                    userId: 'U567890',
+                                    username: '赵主任',
+                                    userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhao',
+                                    type: 'comment',
+                                    content: '这种技术在国外已经很成熟了，我们需要加快发展步伐。',
+                                    riskLevel: 'medium',
+                                    status: 'pending',
+                                    timestamp: '2024-01-15 14:15:20',
+                                    aiScore: 0.72,
+                                    userRiskScore: 'normal'
+                                },
+                                {
+                                    id: 'INT005',
+                                    userId: 'U901234',
+                                    username: '孙经理',
+                                    userAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sun',
+                                    type: 'reply',
+                                    content: '废物系统，完全不如我们公司的产品！',
+                                    riskLevel: 'high',
+                                    status: 'deleted',
+                                    timestamp: '2024-01-15 14:12:08',
+                                    aiScore: 0.22,
+                                    userRiskScore: 'high'
+                                }
+                            ].map(interaction =>
+                                React.createElement('tr', { 
+                                    key: interaction.id,
+                                    style: {
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }
+                                }, [
+                                    React.createElement('td', { 
+                                        key: 'user',
+                                        style: { padding: '16px', verticalAlign: 'middle' }
+                                    },
+                                        React.createElement('div', {
+                                            style: {
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '12px'
+                                            }
+                                        }, [
+                                            React.createElement('img', {
+                                                key: 'avatar',
+                                                src: interaction.userAvatar,
+                                                alt: interaction.username,
+                                                style: {
+                                                    width: '36px',
+                                                    height: '36px',
+                                                    borderRadius: '50%',
+                                                    objectFit: 'cover',
+                                                    border: '2px solid white',
+                                                    boxShadow: 'var(--shadow-sm)'
+                                                }
+                                            }),
+                                            React.createElement('div', { key: 'info' }, [
+                                                React.createElement('div', {
+                                                    key: 'name',
+                                                    style: {
+                                                        fontWeight: '500',
+                                                        fontSize: '14px',
+                                                        color: 'var(--text-primary)'
+                                                    }
+                                                }, interaction.username),
+                                                React.createElement('div', {
+                                                    key: 'id',
+                                                    style: {
+                                                        fontSize: '12px',
+                                                        color: 'var(--text-secondary)'
+                                                    }
+                                                }, `ID: ${interaction.userId}`)
+                                            ])
+                                        ])
+                                    ),
+                                    React.createElement('td', { 
+                                        key: 'type',
+                                        style: { padding: '16px', verticalAlign: 'middle' }
+                                    },
+                                        React.createElement('span', {
+                                            style: {
+                                                padding: '4px 8px',
+                                                borderRadius: '12px',
+                                                fontSize: '12px',
+                                                fontWeight: '600',
+                                                backgroundColor: interaction.type === 'comment' ? '#e0e7ff' : 
+                                                               interaction.type === 'reply' ? '#f0fdf4' : '#fef3c7',
+                                                color: interaction.type === 'comment' ? '#4338ca' : 
+                                                       interaction.type === 'reply' ? '#166534' : '#92400e'
+                                            }
+                                        }, {
+                                            'comment': '💬 评论',
+                                            'reply': '↩️ 回复',
+                                            'message': '✉️ 私信'
+                                        }[interaction.type])
+                                    ),
+                                    React.createElement('td', { 
+                                        key: 'content',
+                                        style: { 
+                                            padding: '16px', 
+                                            verticalAlign: 'middle',
+                                            maxWidth: '300px'
+                                        }
+                                    },
+                                        React.createElement('div', {
+                                            style: {
+                                                fontSize: '14px',
+                                                lineHeight: '1.5',
+                                                wordBreak: 'break-word',
+                                                color: interaction.status === 'blocked' || interaction.status === 'deleted' ? 
+                                                       'var(--error-color)' : 'var(--text-primary)'
+                                            }
+                                        }, interaction.content)
+                                    ),
+                                    React.createElement('td', { 
+                                        key: 'risk',
+                                        style: { padding: '16px', verticalAlign: 'middle' }
+                                    },
+                                        React.createElement('div', {
+                                            style: {
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '4px'
+                                            }
+                                        }, [
+                                            React.createElement('span', {
+                                                key: 'level',
+                                                style: {
+                                                    padding: '4px 8px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '12px',
+                                                    fontWeight: '600',
+                                                    backgroundColor: interaction.riskLevel === 'high' ? '#fee2e2' : 
+                                                                   interaction.riskLevel === 'medium' ? '#fef3c7' : '#dcfce7',
+                                                    color: interaction.riskLevel === 'high' ? '#991b1b' : 
+                                                           interaction.riskLevel === 'medium' ? '#92400e' : '#166534'
+                                                }
+                                            }, {
+                                                'high': '🔴 高风险',
+                                                'medium': '🟡 中风险',
+                                                'low': '🟢 低风险'
+                                            }[interaction.riskLevel]),
+                                            React.createElement('span', {
+                                                key: 'score',
+                                                style: {
+                                                    fontSize: '11px',
+                                                    color: 'var(--text-secondary)'
+                                                }
+                                            }, `AI: ${(interaction.aiScore * 100).toFixed(1)}%`)
+                                        ])
+                                    ),
+                                    React.createElement('td', { 
+                                        key: 'status',
+                                        style: { padding: '16px', verticalAlign: 'middle' }
+                                    },
+                                        React.createElement('span', {
+                                            style: {
+                                                padding: '4px 10px',
+                                                borderRadius: '12px',
+                                                fontSize: '12px',
+                                                fontWeight: '600',
+                                                backgroundColor: interaction.status === 'approved' ? '#dcfce7' : 
+                                                               interaction.status === 'pending' ? '#fef3c7' :
+                                                               interaction.status === 'blocked' ? '#fee2e2' : '#f1f5f9',
+                                                color: interaction.status === 'approved' ? '#166534' : 
+                                                       interaction.status === 'pending' ? '#92400e' :
+                                                       interaction.status === 'blocked' ? '#991b1b' : '#475569'
+                                            }
+                                        }, {
+                                            'approved': '✅ 已通过',
+                                            'pending': '⏳ 待审核',
+                                            'blocked': '🚫 已拦截',
+                                            'deleted': '🗑️ 已删除'
+                                        }[interaction.status])
+                                    ),
+                                    React.createElement('td', { 
+                                        key: 'time',
+                                        style: { 
+                                            padding: '16px', 
+                                            verticalAlign: 'middle',
+                                            fontSize: '13px',
+                                            color: 'var(--text-secondary)'
+                                        }
+                                    }, interaction.timestamp),
+                                    React.createElement('td', { 
+                                        key: 'actions',
+                                        style: { padding: '16px', verticalAlign: 'middle' }
+                                    },
+                                        React.createElement('div', {
+                                            style: {
+                                                display: 'flex',
+                                                gap: '8px'
+                                            }
+                                        }, [
+                                            React.createElement('button', {
+                                                key: 'detail',
+                                                style: {
+                                                    padding: '6px 12px',
+                                                    fontSize: '12px',
+                                                    fontWeight: '500',
+                                                    border: '1px solid var(--border-color)',
+                                                    borderRadius: '6px',
+                                                    background: 'white',
+                                                    color: 'var(--text-primary)',
+                                                    cursor: 'pointer'
+                                                }
+                                            }, '详情'),
+                                            interaction.status === 'pending' && [
+                                                React.createElement('button', {
+                                                    key: 'approve',
+                                                    style: {
+                                                        padding: '6px 12px',
+                                                        fontSize: '12px',
+                                                        fontWeight: '500',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        background: 'var(--success-color)',
+                                                        color: 'white',
+                                                        cursor: 'pointer'
+                                                    }
+                                                }, '通过'),
+                                                React.createElement('button', {
+                                                    key: 'reject',
+                                                    style: {
+                                                        padding: '6px 12px',
+                                                        fontSize: '12px',
+                                                        fontWeight: '500',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        background: 'var(--error-color)',
+                                                        color: 'white',
+                                                        cursor: 'pointer'
+                                                    }
+                                                }, '拒绝')
+                                            ]
+                                        ].flat().filter(Boolean))
+                                    )
+                                ])
+                            )
+                        )
+                    ])
+                )
             ])
         },
         {
             key: 'mechanism',
             label: React.createElement('span', {}, ['⚙️ ', '审核机制']),
-            children: React.createElement('div', {
-                style: { padding: '40px', textAlign: 'center', color: '#64748b' }
-            }, [
+            children: React.createElement('div', { className: 'mechanism-container' }, [
+                // 页面头部
                 React.createElement('div', {
-                    key: 'icon',
-                    style: { fontSize: '64px', marginBottom: '16px' }
-                }, '⚙️'),
+                    key: 'header',
+                    style: {
+                        marginBottom: '24px',
+                        padding: '20px',
+                        background: 'var(--surface-bg-opaque)',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)'
+                    }
+                }, [
+                    React.createElement('h3', {
+                        key: 'title',
+                        style: {
+                            fontSize: '20px',
+                            fontWeight: '600',
+                            color: 'var(--text-primary)',
+                            marginBottom: '8px'
+                        }
+                    }, '⚙️ 审核机制配置'),
+                    React.createElement('p', {
+                        key: 'desc',
+                        style: {
+                            color: 'var(--text-secondary)',
+                            fontSize: '14px',
+                            margin: 0
+                        }
+                    }, '配置和管理审核流程的自动化策略、阈值参数及第三方系统集成')
+                ]),
+
+                // Tab导航
                 React.createElement('div', {
-                    key: 'text'
-                }, '审核机制配置功能开发中...')
+                    key: 'tabs',
+                    style: {
+                        display: 'flex',
+                        marginBottom: '24px',
+                        background: 'var(--surface-bg-opaque)',
+                        borderRadius: '12px',
+                        padding: '6px',
+                        border: '1px solid var(--border-color)'
+                    }
+                }, [
+                    React.createElement('button', {
+                        key: 'threshold',
+                        style: {
+                            flex: 1,
+                            padding: '12px 16px',
+                            border: 'none',
+                            background: 'var(--primary-color)',
+                            color: 'white',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }
+                    }, '🎚️ 阈值调整'),
+                    React.createElement('button', {
+                        key: 'tracking',
+                        style: {
+                            flex: 1,
+                            padding: '12px 16px',
+                            border: 'none',
+                            background: 'transparent',
+                            color: 'var(--text-secondary)',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }
+                    }, '📊 过程追踪'),
+                    React.createElement('button', {
+                        key: 'integration',
+                        style: {
+                            flex: 1,
+                            padding: '12px 16px',
+                            border: 'none',
+                            background: 'transparent',
+                            color: 'var(--text-secondary)',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                        }
+                    }, '🔗 系统集成')
+                ]),
+
+                // 阈值调整区域
+                React.createElement('div', {
+                    key: 'threshold-section',
+                    style: {
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                        gap: '20px',
+                        marginBottom: '24px'
+                    }
+                }, [
+                    // 图文审核阈值
+                    React.createElement('div', {
+                        key: 'image-threshold',
+                        style: {
+                            background: 'var(--surface-bg-opaque)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            border: '1px solid var(--border-color)'
+                        }
+                    }, [
+                        React.createElement('h4', {
+                            key: 'title',
+                            style: {
+                                fontSize: '16px',
+                                fontWeight: '600',
+                                color: 'var(--text-primary)',
+                                marginBottom: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }
+                        }, ['🖼️', '图文审核阈值']),
+                        
+                        React.createElement('div', {
+                            key: 'settings',
+                            style: { display: 'flex', flexDirection: 'column', gap: '16px' }
+                        }, [
+                            React.createElement('div', { key: 'sensitive' }, [
+                                React.createElement('label', {
+                                    style: {
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: 'var(--text-primary)',
+                                        marginBottom: '8px'
+                                    }
+                                }, '敏感词检测敏感度'),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0',
+                                    max: '1',
+                                    step: '0.1',
+                                    defaultValue: '0.8',
+                                    style: {
+                                        width: '100%',
+                                        height: '6px',
+                                        borderRadius: '3px',
+                                        background: '#e2e8f0',
+                                        outline: 'none'
+                                    }
+                                }),
+                                React.createElement('div', {
+                                    style: {
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        fontSize: '12px',
+                                        color: 'var(--text-secondary)',
+                                        marginTop: '4px'
+                                    }
+                                }, [
+                                    React.createElement('span', { key: 'low' }, '宽松'),
+                                    React.createElement('span', { key: 'current' }, '当前: 0.8'),
+                                    React.createElement('span', { key: 'high' }, '严格')
+                                ])
+                            ]),
+                            
+                            React.createElement('div', { key: 'image' }, [
+                                React.createElement('label', {
+                                    style: {
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: 'var(--text-primary)',
+                                        marginBottom: '8px'
+                                    }
+                                }, '图片内容识别阈值'),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0',
+                                    max: '1',
+                                    step: '0.1',
+                                    defaultValue: '0.7',
+                                    style: {
+                                        width: '100%',
+                                        height: '6px',
+                                        borderRadius: '3px',
+                                        background: '#e2e8f0',
+                                        outline: 'none'
+                                    }
+                                }),
+                                React.createElement('div', {
+                                    style: {
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        fontSize: '12px',
+                                        color: 'var(--text-secondary)',
+                                        marginTop: '4px'
+                                    }
+                                }, [
+                                    React.createElement('span', { key: 'low' }, '宽松'),
+                                    React.createElement('span', { key: 'current' }, '当前: 0.7'),
+                                    React.createElement('span', { key: 'high' }, '严格')
+                                ])
+                            ])
+                        ])
+                    ]),
+                    
+                    // 视频审核阈值
+                    React.createElement('div', {
+                        key: 'video-threshold',
+                        style: {
+                            background: 'var(--surface-bg-opaque)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            border: '1px solid var(--border-color)'
+                        }
+                    }, [
+                        React.createElement('h4', {
+                            key: 'title',
+                            style: {
+                                fontSize: '16px',
+                                fontWeight: '600',
+                                color: 'var(--text-primary)',
+                                marginBottom: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }
+                        }, ['🎥', '视频审核阈值']),
+                        
+                        React.createElement('div', {
+                            key: 'settings',
+                            style: { display: 'flex', flexDirection: 'column', gap: '16px' }
+                        }, [
+                            React.createElement('div', { key: 'frame' }, [
+                                React.createElement('label', {
+                                    style: {
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: 'var(--text-primary)',
+                                        marginBottom: '8px'
+                                    }
+                                }, '画面检测阈值'),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0',
+                                    max: '1',
+                                    step: '0.1',
+                                    defaultValue: '0.6',
+                                    style: {
+                                        width: '100%',
+                                        height: '6px',
+                                        borderRadius: '3px',
+                                        background: '#e2e8f0',
+                                        outline: 'none'
+                                    }
+                                }),
+                                React.createElement('div', {
+                                    style: {
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        fontSize: '12px',
+                                        color: 'var(--text-secondary)',
+                                        marginTop: '4px'
+                                    }
+                                }, [
+                                    React.createElement('span', { key: 'low' }, '宽松'),
+                                    React.createElement('span', { key: 'current' }, '当前: 0.6'),
+                                    React.createElement('span', { key: 'high' }, '严格')
+                                ])
+                            ]),
+                            
+                            React.createElement('div', { key: 'audio' }, [
+                                React.createElement('label', {
+                                    style: {
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: 'var(--text-primary)',
+                                        marginBottom: '8px'
+                                    }
+                                }, '音频内容阈值'),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0',
+                                    max: '1',
+                                    step: '0.1',
+                                    defaultValue: '0.75',
+                                    style: {
+                                        width: '100%',
+                                        height: '6px',
+                                        borderRadius: '3px',
+                                        background: '#e2e8f0',
+                                        outline: 'none'
+                                    }
+                                }),
+                                React.createElement('div', {
+                                    style: {
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        fontSize: '12px',
+                                        color: 'var(--text-secondary)',
+                                        marginTop: '4px'
+                                    }
+                                }, [
+                                    React.createElement('span', { key: 'low' }, '宽松'),
+                                    React.createElement('span', { key: 'current' }, '当前: 0.75'),
+                                    React.createElement('span', { key: 'high' }, '严格')
+                                ])
+                            ])
+                        ])
+                    ]),
+                    
+                    // 互动审核阈值
+                    React.createElement('div', {
+                        key: 'interaction-threshold',
+                        style: {
+                            background: 'var(--surface-bg-opaque)',
+                            borderRadius: '12px',
+                            padding: '20px',
+                            border: '1px solid var(--border-color)'
+                        }
+                    }, [
+                        React.createElement('h4', {
+                            key: 'title',
+                            style: {
+                                fontSize: '16px',
+                                fontWeight: '600',
+                                color: 'var(--text-primary)',
+                                marginBottom: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }
+                        }, ['💬', '互动审核阈值']),
+                        
+                        React.createElement('div', {
+                            key: 'settings',
+                            style: { display: 'flex', flexDirection: 'column', gap: '16px' }
+                        }, [
+                            React.createElement('div', { key: 'realtime' }, [
+                                React.createElement('label', {
+                                    style: {
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: 'var(--text-primary)',
+                                        marginBottom: '8px'
+                                    }
+                                }, '实时拦截阈值'),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0',
+                                    max: '1',
+                                    step: '0.1',
+                                    defaultValue: '0.9',
+                                    style: {
+                                        width: '100%',
+                                        height: '6px',
+                                        borderRadius: '3px',
+                                        background: '#e2e8f0',
+                                        outline: 'none'
+                                    }
+                                }),
+                                React.createElement('div', {
+                                    style: {
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        fontSize: '12px',
+                                        color: 'var(--text-secondary)',
+                                        marginTop: '4px'
+                                    }
+                                }, [
+                                    React.createElement('span', { key: 'low' }, '宽松'),
+                                    React.createElement('span', { key: 'current' }, '当前: 0.9'),
+                                    React.createElement('span', { key: 'high' }, '严格')
+                                ])
+                            ]),
+                            
+                            React.createElement('div', { key: 'user-risk' }, [
+                                React.createElement('label', {
+                                    style: {
+                                        display: 'block',
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                        color: 'var(--text-primary)',
+                                        marginBottom: '8px'
+                                    }
+                                }, '用户风险评估权重'),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0',
+                                    max: '1',
+                                    step: '0.1',
+                                    defaultValue: '0.3',
+                                    style: {
+                                        width: '100%',
+                                        height: '6px',
+                                        borderRadius: '3px',
+                                        background: '#e2e8f0',
+                                        outline: 'none'
+                                    }
+                                }),
+                                React.createElement('div', {
+                                    style: {
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        fontSize: '12px',
+                                        color: 'var(--text-secondary)',
+                                        marginTop: '4px'
+                                    }
+                                }, [
+                                    React.createElement('span', { key: 'low' }, '弱化'),
+                                    React.createElement('span', { key: 'current' }, '当前: 0.3'),
+                                    React.createElement('span', { key: 'high' }, '强化')
+                                ])
+                            ])
+                        ])
+                    ])
+                ]),
+
+                // 审核策略配置
+                React.createElement('div', {
+                    key: 'strategy-section',
+                    style: {
+                        background: 'var(--surface-bg-opaque)',
+                        borderRadius: '12px',
+                        padding: '20px',
+                        border: '1px solid var(--border-color)',
+                        marginBottom: '24px'
+                    }
+                }, [
+                    React.createElement('h4', {
+                        key: 'title',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            color: 'var(--text-primary)',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }
+                    }, ['📋', '审核策略配置']),
+                    
+                    React.createElement('div', {
+                        key: 'strategies',
+                        style: {
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                            gap: '16px'
+                        }
+                    }, [
+                        React.createElement('div', {
+                            key: 'auto-block',
+                            style: {
+                                padding: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px',
+                                background: '#fafafa'
+                            }
+                        }, [
+                            React.createElement('div', {
+                                key: 'header',
+                                style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '8px'
+                                }
+                            }, [
+                                React.createElement('span', {
+                                    style: {
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        color: 'var(--text-primary)'
+                                    }
+                                }, '🚫 自动拦截'),
+                                React.createElement('input', {
+                                    type: 'checkbox',
+                                    defaultChecked: true,
+                                    style: {
+                                        width: '16px',
+                                        height: '16px'
+                                    }
+                                })
+                            ]),
+                            React.createElement('p', {
+                                style: {
+                                    fontSize: '13px',
+                                    color: 'var(--text-secondary)',
+                                    margin: 0
+                                }
+                            }, '高风险内容自动拦截，无需人工干预')
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'manual-review',
+                            style: {
+                                padding: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px',
+                                background: '#fafafa'
+                            }
+                        }, [
+                            React.createElement('div', {
+                                key: 'header',
+                                style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '8px'
+                                }
+                            }, [
+                                React.createElement('span', {
+                                    style: {
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        color: 'var(--text-primary)'
+                                    }
+                                }, '👤 人工复审'),
+                                React.createElement('input', {
+                                    type: 'checkbox',
+                                    defaultChecked: true,
+                                    style: {
+                                        width: '16px',
+                                        height: '16px'
+                                    }
+                                })
+                            ]),
+                            React.createElement('p', {
+                                style: {
+                                    fontSize: '13px',
+                                    color: 'var(--text-secondary)',
+                                    margin: 0
+                                }
+                            }, '中风险内容进入人工审核队列')
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'third-party',
+                            style: {
+                                padding: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px',
+                                background: '#fafafa'
+                            }
+                        }, [
+                            React.createElement('div', {
+                                key: 'header',
+                                style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginBottom: '8px'
+                                }
+                            }, [
+                                React.createElement('span', {
+                                    style: {
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        color: 'var(--text-primary)'
+                                    }
+                                }, '🔗 钉钉审批'),
+                                React.createElement('input', {
+                                    type: 'checkbox',
+                                    defaultChecked: false,
+                                    style: {
+                                        width: '16px',
+                                        height: '16px'
+                                    }
+                                })
+                            ]),
+                            React.createElement('p', {
+                                style: {
+                                    fontSize: '13px',
+                                    color: 'var(--text-secondary)',
+                                    margin: 0
+                                }
+                            }, '协会/展会内容推送至钉钉审批')
+                        ])
+                    ])
+                ]),
+
+                // 系统集成配置
+                React.createElement('div', {
+                    key: 'integration-section',
+                    style: {
+                        background: 'var(--surface-bg-opaque)',
+                        borderRadius: '12px',
+                        padding: '20px',
+                        border: '1px solid var(--border-color)',
+                        marginBottom: '24px'
+                    }
+                }, [
+                    React.createElement('h4', {
+                        key: 'title',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            color: 'var(--text-primary)',
+                            marginBottom: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }
+                    }, ['🔗', '第三方系统集成']),
+                    
+                    React.createElement('div', {
+                        key: 'integrations',
+                        style: {
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                            gap: '20px'
+                        }
+                    }, [
+                        React.createElement('div', {
+                            key: 'dingtalk',
+                            style: {
+                                padding: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px'
+                            }
+                        }, [
+                            React.createElement('div', {
+                                key: 'header',
+                                style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    marginBottom: '16px'
+                                }
+                            }, [
+                                React.createElement('div', {
+                                    style: {
+                                        width: '40px',
+                                        height: '40px',
+                                        background: '#1890ff',
+                                        borderRadius: '8px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '20px'
+                                    }
+                                }, '📱'),
+                                React.createElement('div', {}, [
+                                    React.createElement('div', {
+                                        style: {
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            color: 'var(--text-primary)'
+                                        }
+                                    }, '钉钉审批集成'),
+                                    React.createElement('div', {
+                                        style: {
+                                            fontSize: '12px',
+                                            color: 'var(--text-secondary)'
+                                        }
+                                    }, '连接状态: 已连接')
+                                ])
+                            ]),
+                            
+                            React.createElement('div', {
+                                key: 'config',
+                                style: {
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '12px'
+                                }
+                            }, [
+                                React.createElement('div', {}, [
+                                    React.createElement('label', {
+                                        style: {
+                                            display: 'block',
+                                            fontSize: '13px',
+                                            fontWeight: '500',
+                                            color: 'var(--text-primary)',
+                                            marginBottom: '4px'
+                                        }
+                                    }, 'App Key'),
+                                    React.createElement('input', {
+                                        type: 'text',
+                                        defaultValue: 'dingoa_xxxxxxxxxxxxx',
+                                        style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: '6px',
+                                            fontSize: '13px'
+                                        }
+                                    })
+                                ]),
+                                React.createElement('div', {}, [
+                                    React.createElement('label', {
+                                        style: {
+                                            display: 'block',
+                                            fontSize: '13px',
+                                            fontWeight: '500',
+                                            color: 'var(--text-primary)',
+                                            marginBottom: '4px'
+                                        }
+                                    }, '审批模板ID'),
+                                    React.createElement('input', {
+                                        type: 'text',
+                                        defaultValue: 'approval_template_001',
+                                        style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: '6px',
+                                            fontSize: '13px'
+                                        }
+                                    })
+                                ])
+                            ])
+                        ]),
+                        
+                        React.createElement('div', {
+                            key: 'webhook',
+                            style: {
+                                padding: '16px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px'
+                            }
+                        }, [
+                            React.createElement('div', {
+                                key: 'header',
+                                style: {
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    marginBottom: '16px'
+                                }
+                            }, [
+                                React.createElement('div', {
+                                    style: {
+                                        width: '40px',
+                                        height: '40px',
+                                        background: '#52c41a',
+                                        borderRadius: '8px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '20px'
+                                    }
+                                }, '🔗'),
+                                React.createElement('div', {}, [
+                                    React.createElement('div', {
+                                        style: {
+                                            fontSize: '16px',
+                                            fontWeight: '600',
+                                            color: 'var(--text-primary)'
+                                        }
+                                    }, 'Webhook通知'),
+                                    React.createElement('div', {
+                                        style: {
+                                            fontSize: '12px',
+                                            color: 'var(--text-secondary)'
+                                        }
+                                    }, '连接状态: 未配置')
+                                ])
+                            ]),
+                            
+                            React.createElement('div', {
+                                key: 'config',
+                                style: {
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '12px'
+                                }
+                            }, [
+                                React.createElement('div', {}, [
+                                    React.createElement('label', {
+                                        style: {
+                                            display: 'block',
+                                            fontSize: '13px',
+                                            fontWeight: '500',
+                                            color: 'var(--text-primary)',
+                                            marginBottom: '4px'
+                                        }
+                                    }, 'Webhook URL'),
+                                    React.createElement('input', {
+                                        type: 'url',
+                                        placeholder: 'https://your-domain.com/webhook',
+                                        style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: '6px',
+                                            fontSize: '13px'
+                                        }
+                                    })
+                                ]),
+                                React.createElement('div', {}, [
+                                    React.createElement('label', {
+                                        style: {
+                                            display: 'block',
+                                            fontSize: '13px',
+                                            fontWeight: '500',
+                                            color: 'var(--text-primary)',
+                                            marginBottom: '4px'
+                                        }
+                                    }, '密钥'),
+                                    React.createElement('input', {
+                                        type: 'password',
+                                        placeholder: '请输入Webhook密钥',
+                                        style: {
+                                            width: '100%',
+                                            padding: '8px 12px',
+                                            border: '1px solid var(--border-color)',
+                                            borderRadius: '6px',
+                                            fontSize: '13px'
+                                        }
+                                    })
+                                ])
+                            ])
+                        ])
+                    ])
+                ]),
+
+                // 操作按钮
+                React.createElement('div', {
+                    key: 'actions',
+                    style: {
+                        display: 'flex',
+                        gap: '12px',
+                        justifyContent: 'flex-end'
+                    }
+                }, [
+                    React.createElement(Button, {
+                        key: 'test',
+                        style: {
+                            padding: '8px 16px',
+                            fontSize: '14px'
+                        }
+                    }, '🧪 测试配置'),
+                    React.createElement(Button, {
+                        key: 'reset',
+                        style: {
+                            padding: '8px 16px',
+                            fontSize: '14px'
+                        }
+                    }, '🔄 重置默认'),
+                    React.createElement(Button, {
+                        key: 'save',
+                        type: 'primary',
+                        style: {
+                            padding: '8px 16px',
+                            fontSize: '14px'
+                        }
+                    }, '💾 保存配置')
+                ])
             ])
         }
     ];
