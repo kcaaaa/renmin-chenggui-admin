@@ -1,396 +1,594 @@
-const { useState, useEffect, useCallback } = React;
-const {
-    Tabs, Button, Table, Space, Tag, Modal, Form, Input, Select, DatePicker,
-    Radio, Switch, Upload, Row, Col, TimePicker, InputNumber, Popconfirm,
-    message, Tooltip, Avatar, Dropdown, Menu
-} = antd;
-const {
-    UploadOutlined, EditOutlined, DeleteOutlined, EllipsisOutlined, EyeOutlined,
-    PlaySquareOutlined, CommentOutlined, PictureOutlined, HistoryOutlined, ReloadOutlined,
-    SearchOutlined, PlusOutlined, VideoCameraAddOutlined
-} = antd.icons;
-
-// Helper function for status tags
-const renderStatusTag = (status) => {
-    const statusConfig = {
-        live: { text: '直播中', color: 'red' },
-        scheduled: { text: '即将开始', color: 'orange' },
-        ended: { text: '已结束', color: 'default' },
-        replay: { text: '可回放', color: 'green' }
-    };
-    const config = statusConfig[status] || { text: status, color: 'blue' };
-    return <Tag color={config.color} key={status}>{config.text}</Tag>;
-};
-
-
-// LiveManagement Component
-function LiveManagement() {
-    const [activeTab, setActiveTab] = useState('live-list');
-    const [loading, setLoading] = useState(false);
-    const [liveData, setLiveData] = useState(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingLive, setEditingLive] = useState(null);
-    const [searchText, setSearchText] = useState('');
-
+// 直播管理页面 - 基于新功能规范重构
+const LiveManagement = () => {
+    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, Statistic, Badge, Switch } = antd;
+    const [activeTab, setActiveTab] = React.useState('channels');
+    const [channelData, setChannelData] = React.useState({});
+    const [liveData, setLiveData] = React.useState({});
+    const [replayData, setReplayData] = React.useState({});
+    const [loading, setLoading] = React.useState(false);
+    const [modalVisible, setModalVisible] = React.useState(false);
     const [form] = Form.useForm();
 
-    const fetchData = useCallback(() => {
+    React.useEffect(() => {
+        loadLiveData();
+    }, []);
+
+    const loadLiveData = () => {
         setLoading(true);
         setTimeout(() => {
-            const data = window.MockData.liveManagementData;
-            const filteredList = data.liveList.filter(item => 
-                item.title.toLowerCase().includes(searchText.toLowerCase()) ||
-                item.presenter.toLowerCase().includes(searchText.toLowerCase())
-            );
-            setLiveData({ ...data, liveList: filteredList });
-            setLoading(false);
-        }, 500);
-    }, [searchText]);
-
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
-    const showModal = (live = null) => {
-        setEditingLive(live);
-        if (live) {
-            form.setFieldsValue({
-                ...live,
-                scheduleTime: live.startTime ? moment(live.startTime) : null,
+            // 频道管理数据
+            setChannelData({
+                channels: [
+                    {
+                        id: 'channel_001',
+                        name: '展会直播频道',
+                        description: '展会活动专用直播频道',
+                        status: 'active',
+                        liveCount: 15,
+                        totalViews: 125634,
+                        provider: '微赞',
+                        created: '2024-01-10'
+                    },
+                    {
+                        id: 'channel_002',
+                        name: '技术分享频道',
+                        description: '技术讲座和分享直播',
+                        status: 'active',
+                        liveCount: 8,
+                        totalViews: 89245,
+                        provider: '微赞',
+                        created: '2024-01-15'
+                    },
+                    {
+                        id: 'channel_003',
+                        name: '协会活动频道',
+                        description: '协会官方活动直播',
+                        status: 'inactive',
+                        liveCount: 3,
+                        totalViews: 34567,
+                        provider: '微赞',
+                        created: '2024-02-01'
+                    }
+                ]
             });
-        } else {
-            form.resetFields();
-            form.setFieldsValue({
-                liveType: 'live',
-                enableComment: true,
-                autoRecord: true,
-                moderationLevel: 'medium',
-                accessLevel: 'public',
-                quality: '1080p',
-                fps: 30,
-            });
-        }
-        setIsModalVisible(true);
-    };
 
-    const handleCancel = () => {
-        setIsModalVisible(false);
-        setEditingLive(null);
-        form.resetFields();
-    };
-
-    const handleFormSubmit = (values) => {
-        const { scheduleTime, ...rest } = values;
-        const processedValues = {
-            ...rest,
-            startTime: scheduleTime.format('YYYY-MM-DD HH:mm:ss'),
-        };
-        console.log('Form values:', processedValues);
-        const action = editingLive ? '更新' : '创建';
-        message.loading({ content: `正在${action}直播...`, key: 'action' });
-
-        setTimeout(() => {
-            // Here you would typically call an API
-            // For now, we just update local state
-            if (editingLive) {
-                setLiveData(prev => ({
-                    ...prev,
-                    liveList: prev.liveList.map(l => l.id === editingLive.id ? { ...l, ...processedValues, id: l.id, cover: l.cover, presenterAvatar: l.presenterAvatar } : l)
-                }));
-            } else {
-                 setLiveData(prev => ({
-                    ...prev,
-                    liveList: [{ 
-                        ...processedValues, 
-                        id: `live_${Date.now()}`,
-                        cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live',
-                        presenterAvatar: 'https://i.pravatar.cc/32',
+            // 直播活动数据
+            setLiveData({
+                lives: [
+                    {
+                        id: 'live_001',
+                        title: '城轨新技术发布会',
+                        channel: '展会直播频道',
+                        status: 'live',
+                        startTime: '2024-01-15 14:00:00',
+                        viewers: 2456,
+                        peakViewers: 3421,
+                        duration: '02:15:30',
+                        provider: '微赞',
+                        weizan_id: 'wz_live_12345'
+                    },
+                    {
+                        id: 'live_002',
+                        title: '智能调度系统介绍',
+                        channel: '技术分享频道',
                         status: 'scheduled',
-                        viewerCount: 0,
-                        peakViewers: 0
-                    }, ...prev.liveList]
-                }));
+                        startTime: '2024-01-16 09:30:00',
+                        viewers: 0,
+                        peakViewers: 0,
+                        duration: '00:00:00',
+                        provider: '微赞',
+                        weizan_id: 'wz_live_12346'
+                    },
+                    {
+                        id: 'live_003',
+                        title: '安全运营管理讲座',
+                        channel: '协会活动频道',
+                        status: 'ended',
+                        startTime: '2024-01-14 10:00:00',
+                        viewers: 0,
+                        peakViewers: 1876,
+                        duration: '01:45:20',
+                        provider: '微赞',
+                        weizan_id: 'wz_live_12347'
+                    }
+                ]
+            });
+
+            // 直播回放数据
+            setReplayData({
+                replays: [
+                    {
+                        id: 'replay_001',
+                        title: '城轨技术峰会完整回放',
+                        originalLive: '城轨新技术发布会',
+                        duration: '02:15:30',
+                        fileSize: '1.2GB',
+                        quality: '1080P',
+                        status: 'available',
+                        views: 15634,
+                        created: '2024-01-15 16:30:00',
+                        provider: '微赞',
+                        weizan_replay_id: 'wz_replay_98765'
+                    },
+                    {
+                        id: 'replay_002',
+                        title: '智能化运维系统分享',
+                        originalLive: '技术分享会议',
+                        duration: '01:30:45',
+                        fileSize: '850MB',
+                        quality: '720P',
+                        status: 'processing',
+                        views: 0,
+                        created: '2024-01-14 11:45:00',
+                        provider: '微赞',
+                        weizan_replay_id: 'wz_replay_98766'
+                    },
+                    {
+                        id: 'replay_003',
+                        title: '协会年度总结大会',
+                        originalLive: '协会年度会议',
+                        duration: '03:20:15',
+                        fileSize: '2.1GB',
+                        quality: '1080P',
+                        status: 'available',
+                        views: 8923,
+                        created: '2024-01-13 18:20:00',
+                        provider: '微赞',
+                        weizan_replay_id: 'wz_replay_98767'
+                    }
+                ]
+            });
+
+            setLoading(false);
+        }, 800);
+    };
+
+    // 渲染频道管理
+    const renderChannelManagement = () => {
+        const channelColumns = [
+            {
+                title: '频道信息',
+                dataIndex: 'name',
+                width: 250,
+                render: (text, record) => React.createElement('div', {}, [
+                    React.createElement('div', {
+                        key: 'name',
+                        style: { fontWeight: 'bold', color: '#1890ff', marginBottom: '4px' }
+                    }, text),
+                    React.createElement('div', {
+                        key: 'desc',
+                        style: { fontSize: '12px', color: '#666' }
+                    }, record.description),
+                    React.createElement('div', {
+                        key: 'provider',
+                        style: { fontSize: '12px', color: '#999', marginTop: '4px' }
+                    }, `服务商: ${record.provider}`)
+                ])
+            },
+            {
+                title: '状态',
+                dataIndex: 'status',
+                width: 100,
+                render: (status) => React.createElement(Tag, {
+                    color: status === 'active' ? 'green' : 'default'
+                }, status === 'active' ? '启用' : '禁用')
+            },
+            {
+                title: '直播数量',
+                dataIndex: 'liveCount',
+                width: 100,
+                render: (count) => React.createElement('span', {
+                    style: { fontWeight: 'bold', color: '#1890ff' }
+                }, count)
+            },
+            {
+                title: '总观看量',
+                dataIndex: 'totalViews',
+                width: 120,
+                render: (views) => views.toLocaleString()
+            },
+            {
+                title: '创建时间',
+                dataIndex: 'created',
+                width: 120
+            },
+            {
+                title: '操作',
+                width: 150,
+                render: (_, record) => React.createElement(Space, {}, [
+                    React.createElement(Button, {
+                        key: 'edit',
+                        size: 'small',
+                        onClick: () => editChannel(record)
+                    }, '编辑'),
+                    React.createElement(Button, {
+                        key: 'sync',
+                        size: 'small',
+                        type: 'primary',
+                        onClick: () => syncWithWeizan(record)
+                    }, '同步微赞')
+                ])
             }
-            message.success({ content: `直播${action}成功！`, key: 'action', duration: 2 });
-            handleCancel();
+        ];
+
+        return React.createElement('div', {}, [
+            React.createElement(Alert, {
+                key: 'info',
+                message: '频道管理',
+                description: '管理在APP中展示的直播频道列表，与微赞平台保持同步',
+                type: 'info',
+                showIcon: true,
+                style: { marginBottom: '24px' }
+            }),
+
+            React.createElement(Card, {
+                key: 'channel-table',
+                title: '直播频道列表',
+                extra: React.createElement(Space, {}, [
+                    React.createElement(Button, {
+                        onClick: () => setModalVisible(true)
+                    }, '新增频道'),
+                    React.createElement(Button, {
+                        type: 'primary',
+                        onClick: () => message.info('正在同步微赞数据...')
+                    }, '批量同步')
+                ])
+            }, React.createElement(Table, {
+                dataSource: channelData.channels?.map((item, index) => ({ ...item, key: index })) || [],
+                columns: channelColumns,
+                pagination: false,
+                size: 'small'
+            }))
+        ]);
+    };
+
+    // 渲染直播管理
+    const renderLiveManagement = () => {
+        const liveColumns = [
+            {
+                title: '直播信息',
+                dataIndex: 'title',
+                width: 200,
+                render: (text, record) => React.createElement('div', {}, [
+                    React.createElement('div', {
+                        key: 'title',
+                        style: { fontWeight: 'bold', color: '#1890ff', marginBottom: '4px' }
+                    }, text),
+                    React.createElement('div', {
+                        key: 'channel',
+                        style: { fontSize: '12px', color: '#666' }
+                    }, `频道: ${record.channel}`),
+                    React.createElement('div', {
+                        key: 'weizan',
+                        style: { fontSize: '12px', color: '#999', marginTop: '4px' }
+                    }, `微赞ID: ${record.weizan_id}`)
+                ])
+            },
+            {
+                title: '状态',
+                dataIndex: 'status',
+                width: 100,
+                render: (status) => {
+                    const statusConfig = {
+                        live: { color: 'red', text: '直播中' },
+                        scheduled: { color: 'orange', text: '即将开始' },
+                        ended: { color: 'green', text: '已结束' }
+                    };
+                    const config = statusConfig[status] || { color: 'default', text: status };
+                    return React.createElement(Tag, { color: config.color }, config.text);
+                }
+            },
+            {
+                title: '开播时间',
+                dataIndex: 'startTime',
+                width: 150
+            },
+            {
+                title: '观看数据',
+                dataIndex: 'viewers',
+                width: 120,
+                render: (viewers, record) => React.createElement('div', {}, [
+                    React.createElement('div', {
+                        key: 'current',
+                        style: { fontSize: '14px', fontWeight: 'bold' }
+                    }, `实时: ${viewers.toLocaleString()}`),
+                    React.createElement('div', {
+                        key: 'peak',
+                        style: { fontSize: '12px', color: '#666' }
+                    }, `峰值: ${record.peakViewers.toLocaleString()}`)
+                ])
+            },
+            {
+                title: '时长',
+                dataIndex: 'duration',
+                width: 100
+            },
+            {
+                title: '操作',
+                width: 180,
+                render: (_, record) => React.createElement(Space, {}, [
+                    React.createElement(Button, {
+                        key: 'view',
+                        size: 'small',
+                        onClick: () => viewLiveDetail(record)
+                    }, '查看'),
+                    React.createElement(Button, {
+                        key: 'sync',
+                        size: 'small',
+                        type: 'primary',
+                        onClick: () => syncLiveStatus(record)
+                    }, '同步状态'),
+                    record.status === 'ended' && React.createElement(Button, {
+                        key: 'replay',
+                        size: 'small',
+                        onClick: () => generateReplay(record)
+                    }, '生成回放')
+                ])
+            }
+        ];
+
+        return React.createElement('div', {}, [
+            React.createElement(Alert, {
+                key: 'info',
+                message: '直播活动管理',
+                description: '管理特定频道下的直播活动，同步微赞平台的直播状态',
+                type: 'success',
+                showIcon: true,
+                style: { marginBottom: '24px' }
+            }),
+
+            React.createElement(Card, {
+                key: 'live-table',
+                title: '直播活动列表',
+                extra: React.createElement(Button, {
+                    type: 'primary',
+                    onClick: () => message.info('正在同步微赞直播数据...')
+                }, '同步微赞数据')
+            }, React.createElement(Table, {
+                dataSource: liveData.lives?.map((item, index) => ({ ...item, key: index })) || [],
+                columns: liveColumns,
+                pagination: false,
+                size: 'small'
+            }))
+        ]);
+    };
+
+    // 渲染回放管理
+    const renderReplayManagement = () => {
+        const replayColumns = [
+            {
+                title: '回放信息',
+                dataIndex: 'title',
+                width: 200,
+                render: (text, record) => React.createElement('div', {}, [
+                    React.createElement('div', {
+                        key: 'title',
+                        style: { fontWeight: 'bold', color: '#1890ff', marginBottom: '4px' }
+                    }, text),
+                    React.createElement('div', {
+                        key: 'original',
+                        style: { fontSize: '12px', color: '#666' }
+                    }, `原直播: ${record.originalLive}`),
+                    React.createElement('div', {
+                        key: 'weizan',
+                        style: { fontSize: '12px', color: '#999', marginTop: '4px' }
+                    }, `微赞回放ID: ${record.weizan_replay_id}`)
+                ])
+            },
+            {
+                title: '状态',
+                dataIndex: 'status',
+                width: 100,
+                render: (status) => {
+                    const statusConfig = {
+                        available: { color: 'green', text: '可播放' },
+                        processing: { color: 'orange', text: '处理中' },
+                        failed: { color: 'red', text: '处理失败' }
+                    };
+                    const config = statusConfig[status] || { color: 'default', text: status };
+                    return React.createElement(Tag, { color: config.color }, config.text);
+                }
+            },
+            {
+                title: '时长',
+                dataIndex: 'duration',
+                width: 100
+            },
+            {
+                title: '文件大小',
+                dataIndex: 'fileSize',
+                width: 100
+            },
+            {
+                title: '画质',
+                dataIndex: 'quality',
+                width: 80
+            },
+            {
+                title: '观看次数',
+                dataIndex: 'views',
+                width: 100,
+                render: (views) => views.toLocaleString()
+            },
+            {
+                title: '生成时间',
+                dataIndex: 'created',
+                width: 150
+            },
+            {
+                title: '操作',
+                width: 150,
+                render: (_, record) => React.createElement(Space, {}, [
+                    React.createElement(Button, {
+                        key: 'play',
+                        size: 'small',
+                        type: 'primary',
+                        disabled: record.status !== 'available',
+                        onClick: () => playReplay(record)
+                    }, '播放'),
+                    React.createElement(Button, {
+                        key: 'download',
+                        size: 'small',
+                        disabled: record.status !== 'available',
+                        onClick: () => downloadReplay(record)
+                    }, '下载')
+                ])
+            }
+        ];
+
+        return React.createElement('div', {}, [
+            React.createElement(Alert, {
+                key: 'info',
+                message: '直播回放管理',
+                description: '管理由微赞生成的直播回放视频，支持播放和下载',
+                type: 'warning',
+                showIcon: true,
+                style: { marginBottom: '24px' }
+            }),
+
+            React.createElement(Card, {
+                key: 'replay-table',
+                title: '回放视频列表',
+                extra: React.createElement(Button, {
+                    onClick: () => message.info('正在同步微赞回放数据...')
+                }, '同步回放')
+            }, React.createElement(Table, {
+                dataSource: replayData.replays?.map((item, index) => ({ ...item, key: index })) || [],
+                columns: replayColumns,
+                pagination: false,
+                size: 'small'
+            }))
+        ]);
+    };
+
+    // 工具函数
+    const editChannel = (channel) => {
+        message.info(`编辑频道: ${channel.name}`);
+    };
+
+    const syncWithWeizan = (channel) => {
+        message.loading('正在与微赞同步...', 2);
+        setTimeout(() => {
+            message.success('同步成功！');
+        }, 2000);
+    };
+
+    const viewLiveDetail = (live) => {
+        message.info(`查看直播详情: ${live.title}`);
+    };
+
+    const syncLiveStatus = (live) => {
+        message.loading('正在同步直播状态...', 1.5);
+        setTimeout(() => {
+            message.success('状态同步成功！');
         }, 1500);
     };
 
-    const handleDelete = (id) => {
-        message.loading({ content: '正在删除...', key: 'delete' });
+    const generateReplay = (live) => {
+        message.loading('正在生成回放...', 2);
         setTimeout(() => {
-            setLiveData(prev => ({
-                ...prev,
-                liveList: prev.liveList.filter(l => l.id !== id)
-            }));
-            message.success({ content: '删除成功！', key: 'delete', duration: 2 });
-        }, 1000);
+            message.success('回放生成成功！');
+        }, 2000);
     };
-    
-    const moreActionsMenu = (record) => (
-      <Menu onClick={({ key }) => message.info(`Clicked ${key} for ${record.title}`)}>
-        <Menu.Item key="view-details">查看详情</Menu.Item>
-        <Menu.Item key="manage-comments">管理评论</Menu.Item>
-        <Menu.Item key="view-analytics">查看分析</Menu.Item>
-      </Menu>
-    );
 
-    const columns = [
+    const playReplay = (replay) => {
+        message.info(`播放回放: ${replay.title}`);
+        // 这里可以跳转到微赞的播放页面
+    };
+
+    const downloadReplay = (replay) => {
+        message.info(`下载回放: ${replay.title}`);
+    };
+
+    const tabItems = [
         {
-            title: '直播信息',
-            dataIndex: 'title',
-            key: 'info',
-            width: 350,
-            render: (_, record) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                    <img
-                        src={record.cover}
-                        alt={record.title}
-                        style={{ width: 120, height: 68, borderRadius: 8, objectFit: 'cover', background: 'var(--bg-color-dark)' }}
-                    />
-                    <div>
-                        <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>{record.title}</div>
-                        <div style={{ fontSize: 13, color: 'var(--text-secondary)' }} className="line-clamp-2">{record.description}</div>
-                    </div>
-                </div>
-            )
+            key: 'channels',
+            label: '📺 频道管理',
+            children: renderChannelManagement()
         },
         {
-            title: '主讲人',
-            dataIndex: 'presenter',
-            key: 'presenter',
-            render: (text, record) => (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Avatar src={record.presenterAvatar} />
-                    <span>{text}</span>
-                </div>
-            )
+            key: 'lives',
+            label: '🔴 直播管理',
+            children: renderLiveManagement()
         },
         {
-            title: '状态',
-            dataIndex: 'status',
-            key: 'status',
-            filters: [
-                { text: '直播中', value: 'live' },
-                { text: '即将开始', value: 'scheduled' },
-                { text: '已结束', value: 'ended' },
-                { text: '可回放', value: 'replay' },
-            ],
-            onFilter: (value, record) => record.status === value,
-            render: renderStatusTag
-        },
-        {
-            title: '开播时间',
-            dataIndex: 'startTime',
-            key: 'startTime',
-            sorter: (a, b) => moment(a.startTime).unix() - moment(b.startTime).unix(),
-            render: (text) => moment(text).format('YYYY-MM-DD HH:mm')
-        },
-        {
-            title: '观看数据',
-            dataIndex: 'viewerCount',
-            key: 'viewers',
-            sorter: (a, b) => a.peakViewers - b.peakViewers,
-            render: (text, record) => (
-                <div>
-                    <div><EyeOutlined style={{ marginRight: 8 }} />{record.peakViewers.toLocaleString()}</div>
-                    <div style={{ color: 'var(--text-secondary)', fontSize: 12 }}>实时: {record.viewerCount.toLocaleString()}</div>
-                </div>
-            )
-        },
-        {
-            title: '操作',
-            key: 'action',
-            fixed: 'right',
-            width: 150,
-            align: 'center',
-            render: (_, record) => (
-                <Space size="small">
-                    <Tooltip title="编辑">
-                        <Button shape="circle" icon={<EditOutlined />} onClick={() => showModal(record)} />
-                    </Tooltip>
-                    <Popconfirm
-                        title="确定删除这个直播吗?"
-                        onConfirm={() => handleDelete(record.id)}
-                        okText="确定"
-                        cancelText="取消"
-                        placement="topRight"
-                    >
-                        <Tooltip title="删除">
-                            <Button shape="circle" danger icon={<DeleteOutlined />} />
-                        </Tooltip>
-                    </Popconfirm>
-                    <Dropdown overlay={moreActionsMenu(record)} trigger={['click']}>
-                         <Button shape="circle" icon={<EllipsisOutlined />} />
-                    </Dropdown>
-                </Space>
-            ),
-        },
+            key: 'replays',
+            label: '📹 回放管理',
+            children: renderReplayManagement()
+        }
     ];
 
-    const LiveForm = () => (
-        <Form form={form} layout="vertical" onFinish={handleFormSubmit} name="liveForm">
-            <Tabs defaultActiveKey="1">
-                <Tabs.TabPane tab="基本设置" key="1">
-                    <Row gutter={24}>
-                        <Col span={12}>
-                            <Form.Item label="直播标题" name="title" rules={[{ required: true }]}><Input placeholder="请输入直播标题" /></Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="主讲人" name="presenter" rules={[{ required: true }]}><Input placeholder="请输入主讲人姓名" /></Form.Item>
-                        </Col>
-                    </Row>
-                    <Form.Item label="直播简介" name="description"><Input.TextArea rows={2} placeholder="介绍直播内容、主讲人等信息" /></Form.Item>
-                    <Row gutter={24}>
-                        <Col span={12}>
-                            <Form.Item label="计划开播时间" name="scheduleTime" rules={[{ required: true }]}>
-                                <DatePicker showTime style={{ width: '100%' }} format="YYYY-MM-DD HH:mm" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                             <Form.Item label="所属展会" name="exhibitionId">
-                                <Select placeholder="请选择展会">
-                                    <Select.Option value="exhibition_001">中国城市轨道交通博览会</Select.Option>
-                                    <Select.Option value="exhibition_002">轨道交通智能化展</Select.Option>
-                                    <Select.Option value="exhibition_003">城轨技术创新大会</Select.Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                     <Form.Item label="直播封面" name="coverUrl">
-                         <Upload listType="picture" maxCount={1} beforeUpload={() => false}>
-                            <Button icon={<UploadOutlined />}>上传封面</Button>
-                        </Upload>
-                    </Form.Item>
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="高级配置" key="2">
-                     <Row gutter={24}>
-                        <Col span={12}>
-                            <Form.Item label="直播类型" name="liveType">
-                                <Radio.Group>
-                                    <Radio value="live">📺 直播</Radio>
-                                    <Radio value="video">🎬 录播</Radio>
-                                </Radio.Group>
-                            </Form.Item>
-                        </Col>
-                         <Col span={12}>
-                            <Form.Item label="观看权限" name="accessLevel">
-                                <Select>
-                                    <Select.Option value="public">🌍 公开</Select.Option>
-                                    <Select.Option value="registered">👤 注册用户</Select.Option>
-                                    <Select.Option value="vip">⭐ VIP用户</Select.Option>
-                                    <Select.Option value="private">🔒 私有</Select.Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                    <Row gutter={24}>
-                        <Col span={8}> <Form.Item label="开启评论" name="enableComment" valuePropName="checked"><Switch /></Form.Item></Col>
-                        <Col span={8}> <Form.Item label="自动录制" name="autoRecord" valuePropName="checked"><Switch /></Form.Item></Col>
-                        <Col span={8}> <Form.Item label="图片直播" name="enableImageLive" valuePropName="checked"><Switch /></Form.Item></Col>
-                    </Row>
-                     <Row gutter={24}>
-                        <Col span={12}>
-                            <Form.Item label="画质设置" name="quality">
-                                <Select>
-                                    <Select.Option value="720p">720P 高清</Select.Option>
-                                    <Select.Option value="1080p">1080P 超清</Select.Option>
-                                    <Select.Option value="4k">4K 超高清</Select.Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="帧率(fps)" name="fps">
-                                <Select>
-                                    <Select.Option value={30}>30 fps</Select.Option>
-                                    <Select.Option value={60}>60 fps</Select.Option>
-                                </Select>
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Tabs.TabPane>
-            </Tabs>
-        </Form>
-    );
+    return React.createElement('div', { className: 'live-management-page' }, [
+        React.createElement('div', {
+            key: 'header',
+            style: {
+                marginBottom: '24px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+            }
+        }, [
+            React.createElement('h2', {
+                key: 'title',
+                style: { margin: 0, fontSize: '24px', fontWeight: 'bold', color: '#1e293b' }
+            }, '直播管理'),
+            React.createElement(Space, {
+                key: 'actions'
+            }, [
+                React.createElement(Button, {
+                    key: 'refresh',
+                    onClick: loadLiveData
+                }, '刷新数据'),
+                React.createElement(Button, {
+                    key: 'weizan',
+                    type: 'primary',
+                    onClick: () => window.open('https://www.vzan.com', '_blank')
+                }, '访问微赞后台')
+            ])
+        ]),
 
-    const renderLiveList = () => (
-        <div className="page-fade-in ruoyi-style-container">
-            <div className="ruoyi-query-form">
-                 <Form layout="inline">
-                    <Form.Item>
-                        <Input.Search
-                            placeholder="搜索直播标题、主讲人..."
-                            style={{ width: 240 }}
-                            allowClear
-                            onSearch={value => setSearchText(value)}
-                            onChange={e => e.target.value === '' && setSearchText('')}
-                             enterButton
-                        />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" icon={<VideoCameraAddOutlined />} onClick={() => showModal()}>
-                            新建直播
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </div>
+        React.createElement(Tabs, {
+            key: 'main-tabs',
+            items: tabItems,
+            defaultActiveKey: 'channels'
+        }),
 
-            <div className="ruoyi-table-box">
-                <Table
-                    rowKey="id"
-                    columns={columns}
-                    dataSource={liveData?.liveList}
-                    loading={loading}
-                    pagination={{ pageSize: 10 }}
-                    scroll={{ x: 1200 }}
-                />
-            </div>
-        </div>
-    );
-    
-    if (!liveData) {
-        return <div className="loading-spinner" style={{height: '100%'}}>加载中...</div>;
-    }
+        // 新增频道模态框（简化版）
+        React.createElement(Modal, {
+            key: 'channel-modal',
+            title: '新增直播频道',
+            open: modalVisible,
+            onCancel: () => setModalVisible(false),
+            onOk: () => {
+                message.success('频道创建成功！');
+                setModalVisible(false);
+            }
+        }, React.createElement(Form, {
+            form: form,
+            layout: 'vertical'
+        }, [
+            React.createElement(Form.Item, {
+                key: 'name',
+                name: 'name',
+                label: '频道名称',
+                rules: [{ required: true, message: '请输入频道名称' }]
+            }, React.createElement(Input, { placeholder: '请输入频道名称' })),
+            React.createElement(Form.Item, {
+                key: 'description',
+                name: 'description',
+                label: '频道描述'
+            }, React.createElement(Input.TextArea, { placeholder: '请输入频道描述' })),
+            React.createElement(Form.Item, {
+                key: 'provider',
+                name: 'provider',
+                label: '服务提供商',
+                initialValue: '微赞'
+            }, React.createElement(Select, {
+                disabled: true,
+                options: [{ value: '微赞', label: '微赞' }]
+            }))
+        ]))
+    ]);
+};
 
-    // Main Component Return
-    return (
-        <div className="page-container">
-            <div className="page-header">
-                <h1 className="page-title">直播管理</h1>
-                <p className="page-description">管理和监控所有直播活动，包括创建、编辑和查看直播状态。</p>
-            </div>
-            <Tabs
-                activeKey={activeTab}
-                onChange={setActiveTab}
-                tabBarExtraContent={{
-                    right: <Button onClick={fetchData} type="text" icon={<ReloadOutlined />}>刷新</Button>
-                }}
-            >
-                <Tabs.TabPane tab={<span><EyeOutlined /> 直播列表</span>} key="live-list">
-                    {renderLiveList()}
-                </Tabs.TabPane>
-                <Tabs.TabPane tab={<span><CommentOutlined /> 评论管理</span>} key="comment-management">
-                    <div style={{ padding: 24 }}>评论管理界面 (待开发)</div>
-                </Tabs.TabPane>
-                <Tabs.TabPane tab={<span><PictureOutlined /> 图片直播</span>} key="image-management">
-                    <div style={{ padding: 24 }}>图片直播管理界面 (待开发)</div>
-                </Tabs.TabPane>
-                <Tabs.TabPane tab={<span><HistoryOutlined /> 回放管理</span>} key="replay-management">
-                    <div style={{ padding: 24 }}>回放管理界面 (待开发)</div>
-                </Tabs.TabPane>
-            </Tabs>
-            <Modal
-                title={editingLive ? '编辑直播' : '新建直播'}
-                visible={isModalVisible}
-                onCancel={handleCancel}
-                onOk={() => form.submit()}
-                width={720}
-                okText="提交"
-                cancelText="取消"
-                destroyOnClose
-            >
-                <LiveForm />
-            </Modal>
-        </div>
-    );
-} 
+window.LiveManagement = LiveManagement; 
