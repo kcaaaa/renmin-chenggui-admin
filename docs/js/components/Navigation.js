@@ -32,6 +32,13 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             page: 'UserManagement'
         },
         {
+            key: 'message',
+            icon: '💬',
+            label: '消息管理',
+            title: 'APP系统消息推送管理',
+            page: 'MessageManagement'
+        },
+        {
             key: 'stats',
             icon: '📋',
             label: '行为统计',
