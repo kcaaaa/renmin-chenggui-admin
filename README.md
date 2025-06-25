@@ -145,6 +145,15 @@
 - [ ] v2.3.0 - 深度主题定制
 - [ ] v3.0.0 - 微前端架构重构
 
+## 部署状态
+
+- **本地预览**: `python -m http.server 8000`
+- **线上地址**: [https://kcaaaa.github.io/renmin-chenggui-admin/](https://kcaaaa.github.io/renmin-chenggui-admin/)
+- **最新部署触发**: <!-- DEPLOY_TIMESTAMP -->
+
+## 核心技术栈
+* **前端框架**: React.js (未使用JSX，通过`React.createElement`构建)
+
 ---
 
 <div align="center">
