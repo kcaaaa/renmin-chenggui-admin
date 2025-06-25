@@ -552,11 +552,30 @@ const LiveManagement = () => {
         setEditingLive(null);
         liveForm.resetFields();
         liveForm.setFieldsValue({
+            // 基本设置
             liveType: 'live',
-            enableComment: true,
-            autoRecord: true,
+            title: '',
+            presenter: '',
+            description: '',
+            
+            // 权限设置
             accessLevel: 'public',
-            quality: '1080p'
+            enableComment: true,
+            enableLike: true,
+            enableDanmu: false,
+            
+            // 录制设置
+            autoRecord: true,
+            recordQuality: '1080p',
+            quality: '1080p',
+            bitrate: '4000',
+            
+            // 营销设置
+            enableBooking: true,
+            remindTime: ['15', '60'],
+            enableWechatShare: true,
+            enableWeiboShare: false,
+            enableQQShare: false
         });
         setLiveModalVisible(true);
     };
@@ -786,150 +805,614 @@ const LiveManagement = () => {
                 liveForm.resetFields();
             },
             onOk: () => liveForm.submit(),
-            width: 800,
+            width: 900,
             okText: '保存',
-            cancelText: '取消'
+            cancelText: '取消',
+            bodyStyle: { maxHeight: '70vh', overflowY: 'auto' }
         }, React.createElement(Form, {
             form: liveForm,
             layout: 'vertical',
             onFinish: handleLiveSubmit
         }, [
-            React.createElement(Tabs, { defaultActiveKey: '1' }, [
-                React.createElement(Tabs.TabPane, { tab: '基本设置', key: '1' }, [
-                    React.createElement(Row, { gutter: 24 }, [
+            React.createElement(Tabs, { 
+                defaultActiveKey: 'basic',
+                type: 'card',
+                style: { marginBottom: 0 }
+            }, [
+                React.createElement(Tabs.TabPane, { 
+                    tab: React.createElement('span', {}, [
+                        React.createElement('span', { key: 'icon', style: { marginRight: '8px' } }, '⚙️'),
+                        React.createElement('span', { key: 'text' }, '基本设置')
+                    ]), 
+                    key: 'basic' 
+                }, [
+                    // 直播类型选择
+                    React.createElement('div', {
+                        key: 'type-section',
+                        style: { 
+                            background: '#f8fafc', 
+                            padding: '16px', 
+                            borderRadius: '8px', 
+                            marginBottom: '24px',
+                            border: '1px solid #e2e8f0'
+                        }
+                    }, [
+                        React.createElement('h4', { 
+                            key: 'type-title',
+                            style: { 
+                                margin: '0 0 12px 0', 
+                                color: '#1e293b', 
+                                fontSize: '14px',
+                                fontWeight: '600'
+                            } 
+                        }, '直播类型'),
+                        React.createElement(Form.Item, {
+                            key: 'type-item',
+                            name: 'liveType',
+                            style: { marginBottom: 0 }
+                        }, React.createElement(Radio.Group, {
+                            style: { width: '100%' }
+                        }, [
+                            React.createElement(Radio.Button, { 
+                                key: 'live',
+                                value: 'live',
+                                style: { 
+                                    height: '48px', 
+                                    lineHeight: '46px',
+                                    flex: 1,
+                                    textAlign: 'center',
+                                    marginRight: '8px'
+                                }
+                            }, [
+                                React.createElement('div', { key: 'content' }, [
+                                    React.createElement('div', { key: 'icon', style: { fontSize: '16px' } }, '📺'),
+                                    React.createElement('div', { key: 'text', style: { fontSize: '12px', marginTop: '2px' } }, '实时直播')
+                                ])
+                            ]),
+                            React.createElement(Radio.Button, { 
+                                key: 'video',
+                                value: 'video',
+                                style: { 
+                                    height: '48px', 
+                                    lineHeight: '46px',
+                                    flex: 1,
+                                    textAlign: 'center',
+                                    marginRight: '8px'
+                                }
+                            }, [
+                                React.createElement('div', { key: 'content' }, [
+                                    React.createElement('div', { key: 'icon', style: { fontSize: '16px' } }, '🎬'),
+                                    React.createElement('div', { key: 'text', style: { fontSize: '12px', marginTop: '2px' } }, '录播视频')
+                                ])
+                            ]),
+                            React.createElement(Radio.Button, { 
+                                key: 'image',
+                                value: 'image',
+                                style: { 
+                                    height: '48px', 
+                                    lineHeight: '46px',
+                                    flex: 1,
+                                    textAlign: 'center'
+                                }
+                            }, [
+                                React.createElement('div', { key: 'content' }, [
+                                    React.createElement('div', { key: 'icon', style: { fontSize: '16px' } }, '🖼️'),
+                                    React.createElement('div', { key: 'text', style: { fontSize: '12px', marginTop: '2px' } }, '图片直播')
+                                ])
+                            ])
+                        ]))
+                    ]),
+
+                    // 基本信息
+                    React.createElement(Row, { key: 'basic-info', gutter: [16, 16] }, [
                         React.createElement(Col, { span: 12 }, [
                             React.createElement(Form.Item, {
-                                label: '直播标题',
+                                label: React.createElement('span', {}, [
+                                    React.createElement('span', { key: 'star', style: { color: 'red' } }, '*'),
+                                    React.createElement('span', { key: 'text' }, ' 直播标题')
+                                ]),
                                 name: 'title',
                                 rules: [{ required: true, message: '请输入直播标题' }]
-                            }, React.createElement(Input, { placeholder: '请输入直播标题' }))
-                        ]),
-                        React.createElement(Col, { span: 12 }, [
-                            React.createElement(Form.Item, {
-                                label: '主讲人',
-                                name: 'presenter',
-                                rules: [{ required: true, message: '请输入主讲人姓名' }]
-                            }, React.createElement(Input, { placeholder: '请输入主讲人姓名' }))
-                        ])
-                    ]),
-                    React.createElement(Form.Item, {
-                        label: '直播简介',
-                        name: 'description'
-                    }, React.createElement(Input.TextArea, { rows: 2, placeholder: '介绍直播内容、主讲人等信息' })),
-                    React.createElement(Row, { gutter: 24 }, [
-                        React.createElement(Col, { span: 12 }, [
-                            React.createElement(Form.Item, {
-                                label: '计划开播时间',
-                                name: 'scheduleTime',
-                                rules: [{ required: true, message: '请选择开播时间' }]
-                            }, React.createElement(DatePicker, {
-                                showTime: true,
-                                style: { width: '100%' },
-                                format: 'YYYY-MM-DD HH:mm'
+                            }, React.createElement(Input, { 
+                                placeholder: '请输入直播标题',
+                                maxLength: 50,
+                                showCount: true
                             }))
                         ]),
                         React.createElement(Col, { span: 12 }, [
                             React.createElement(Form.Item, {
-                                label: '所属频道',
+                                label: React.createElement('span', {}, [
+                                    React.createElement('span', { key: 'star', style: { color: 'red' } }, '*'),
+                                    React.createElement('span', { key: 'text' }, ' 主讲人')
+                                ]),
+                                name: 'presenter',
+                                rules: [{ required: true, message: '请输入主讲人姓名' }]
+                            }, React.createElement(Input, { 
+                                placeholder: '请输入主讲人姓名',
+                                maxLength: 20
+                            }))
+                        ])
+                    ]),
+
+                    React.createElement(Form.Item, {
+                        key: 'description',
+                        label: '直播简介',
+                        name: 'description'
+                    }, React.createElement(Input.TextArea, { 
+                        rows: 3, 
+                        placeholder: '介绍直播内容、主要议题、主讲人背景等（选填）',
+                        maxLength: 200,
+                        showCount: true
+                    })),
+
+                    // 时间和频道
+                    React.createElement(Row, { key: 'time-channel', gutter: [16, 16] }, [
+                        React.createElement(Col, { span: 12 }, [
+                            React.createElement(Form.Item, {
+                                label: React.createElement('span', {}, [
+                                    React.createElement('span', { key: 'star', style: { color: 'red' } }, '*'),
+                                    React.createElement('span', { key: 'text' }, ' 计划开播时间')
+                                ]),
+                                name: 'scheduleTime',
+                                rules: [{ required: true, message: '请选择开播时间' }]
+                            }, React.createElement(DatePicker, {
+                                showTime: { format: 'HH:mm' },
+                                style: { width: '100%' },
+                                format: 'YYYY-MM-DD HH:mm',
+                                placeholder: 'Select date',
+                                disabledDate: (current) => current && current < window.moment().startOf('day')
+                            }))
+                        ]),
+                        React.createElement(Col, { span: 12 }, [
+                            React.createElement(Form.Item, {
+                                label: React.createElement('span', {}, [
+                                    React.createElement('span', { key: 'star', style: { color: 'red' } }, '*'),
+                                    React.createElement('span', { key: 'text' }, ' 所属频道')
+                                ]),
                                 name: 'channelId',
                                 rules: [{ required: true, message: '请选择频道' }]
                             }, React.createElement(Select, {
                                 placeholder: '请选择频道',
+                                allowClear: true,
                                 options: channelData.channels?.map(ch => ({
                                     value: ch.id,
-                                    label: ch.name
+                                    label: React.createElement('div', {}, [
+                                        React.createElement('div', { key: 'name', style: { fontWeight: '500' } }, ch.name),
+                                        React.createElement('div', { key: 'desc', style: { fontSize: '12px', color: '#666' } }, ch.description)
+                                    ])
                                 })) || []
                             }))
                         ])
                     ]),
+
+                    // 直播封面
                     React.createElement(Form.Item, {
+                        key: 'cover',
                         label: '直播封面',
-                        name: 'coverUrl'
-                    }, React.createElement(Upload, {
-                        listType: 'picture',
-                        maxCount: 1,
-                        beforeUpload: () => false
-                    }, React.createElement(Button, {}, '上传封面')))
-                ]),
-                React.createElement(Tabs.TabPane, { tab: '高级配置', key: '2' }, [
-                    React.createElement(Row, { gutter: 24 }, [
-                        React.createElement(Col, { span: 12 }, [
-                            React.createElement(Form.Item, {
-                                label: '直播类型',
-                                name: 'liveType'
-                            }, React.createElement(Radio.Group, {}, [
-                                React.createElement(Radio, { value: 'live' }, '📺 直播'),
-                                React.createElement(Radio, { value: 'video' }, '🎬 录播')
-                            ]))
-                        ]),
-                        React.createElement(Col, { span: 12 }, [
-                            React.createElement(Form.Item, {
-                                label: '观看权限',
-                                name: 'accessLevel'
-                            }, React.createElement(Select, {
-                                options: [
-                                    { value: 'public', label: '🌍 公开' },
-                                    { value: 'registered', label: '👤 注册用户' },
-                                    { value: 'vip', label: '⭐ VIP用户' },
-                                    { value: 'private', label: '🔒 私有' }
-                                ]
-                            }))
-                        ])
-                    ]),
-                    React.createElement(Row, { gutter: 24 }, [
-                        React.createElement(Col, { span: 8 }, [
-                            React.createElement(Form.Item, {
-                                label: '开启评论',
-                                name: 'enableComment',
-                                valuePropName: 'checked'
-                            }, React.createElement(Switch))
-                        ]),
-                        React.createElement(Col, { span: 8 }, [
-                            React.createElement(Form.Item, {
-                                label: '自动录制',
-                                name: 'autoRecord',
-                                valuePropName: 'checked'
-                            }, React.createElement(Switch))
-                        ]),
-                        React.createElement(Col, { span: 8 }, [
-                            React.createElement(Form.Item, {
-                                label: '画质设置',
-                                name: 'quality'
-                            }, React.createElement(Select, {
-                                options: [
-                                    { value: '720p', label: '720P 高清' },
-                                    { value: '1080p', label: '1080P 超清' },
-                                    { value: '4k', label: '4K 超高清' }
-                                ]
-                            }))
+                        name: 'coverUrl',
+                        extra: '推荐尺寸: 1920x1080，支持jpg、png格式，文件大小不超过5MB'
+                    }, [
+                        React.createElement(Upload, {
+                            key: 'upload',
+                            listType: 'picture-card',
+                            maxCount: 1,
+                            beforeUpload: (file) => {
+                                const isValidType = file.type === 'image/jpeg' || file.type === 'image/png';
+                                if (!isValidType) {
+                                    message.error('只能上传JPG/PNG格式的图片！');
+                                }
+                                const isValidSize = file.size / 1024 / 1024 < 5;
+                                if (!isValidSize) {
+                                    message.error('图片大小不能超过5MB！');
+                                }
+                                return false; // 阻止自动上传
+                            },
+                            onPreview: (file) => {
+                                // 预览功能
+                                const url = file.url || file.preview;
+                                if (url) {
+                                    window.open(url);
+                                }
+                            }
+                        }, React.createElement('div', {}, [
+                            React.createElement('div', { key: 'icon', style: { fontSize: '24px', marginBottom: '8px' } }, '📷'),
+                            React.createElement('div', { key: 'text', style: { fontSize: '14px' } }, '上传封面')
+                        ])),
+                        React.createElement('div', {
+                            key: 'templates',
+                            style: { marginTop: '8px' }
+                        }, [
+                            React.createElement('span', { 
+                                key: 'label',
+                                style: { fontSize: '12px', color: '#666', marginRight: '8px' } 
+                            }, '快速选择:'),
+                            React.createElement(Button, { 
+                                key: 'template1',
+                                size: 'small', 
+                                style: { marginRight: '8px' },
+                                onClick: () => message.info('已选择模板1')
+                            }, '商务模板'),
+                            React.createElement(Button, { 
+                                key: 'template2',
+                                size: 'small',
+                                style: { marginRight: '8px' },
+                                onClick: () => message.info('已选择模板2')
+                            }, '教育模板'),
+                            React.createElement(Button, { 
+                                key: 'template3',
+                                size: 'small',
+                                onClick: () => message.info('已选择模板3')
+                            }, '科技模板')
                         ])
                     ])
-                ])
-            ])
-        ])),
+                ]),
 
-        // 查看直播详情模态框
-        React.createElement(Modal, {
-            key: 'detail-modal',
-            title: '直播详情',
-            open: viewDetailModalVisible,
-            onCancel: () => setViewDetailModalVisible(false),
-            footer: null,
-            width: 600
-        }, selectedLive && React.createElement('div', {}, [
-            React.createElement('img', {
-                key: 'cover',
-                src: selectedLive.cover,
-                alt: selectedLive.title,
-                style: { width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '16px' }
-            }),
-            React.createElement('h3', { key: 'title' }, selectedLive.title),
-            React.createElement('p', { key: 'desc' }, selectedLive.description),
-            React.createElement('div', { key: 'info' }, [
-                React.createElement('p', { key: 'presenter' }, `主讲人: ${selectedLive.presenter}`),
-                React.createElement('p', { key: 'channel' }, `频道: ${selectedLive.channel}`),
-                React.createElement('p', { key: 'time' }, `开播时间: ${selectedLive.startTime}`),
-                React.createElement('p', { key: 'viewers' }, `观看数据: 实时${selectedLive.viewers} / 峰值${selectedLive.peakViewers}`)
+                React.createElement(Tabs.TabPane, { 
+                    tab: React.createElement('span', {}, [
+                        React.createElement('span', { key: 'icon', style: { marginRight: '8px' } }, '🛡️'),
+                        React.createElement('span', { key: 'text' }, '权限设置')
+                    ]), 
+                    key: 'permissions' 
+                }, [
+                    // 观看权限
+                    React.createElement('div', {
+                        key: 'access-section',
+                        style: { marginBottom: '24px' }
+                    }, [
+                        React.createElement('h4', { 
+                            key: 'access-title',
+                            style: { 
+                                margin: '0 0 12px 0', 
+                                color: '#1e293b', 
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            } 
+                        }, '观看权限'),
+                        React.createElement(Form.Item, {
+                            name: 'accessLevel',
+                            style: { marginBottom: 0 }
+                        }, React.createElement(Radio.Group, {
+                            style: { width: '100%' }
+                        }, [
+                            React.createElement('div', { key: 'public', style: { marginBottom: '12px' } }, [
+                                React.createElement(Radio, { value: 'public' }, [
+                                    React.createElement('div', { style: { display: 'inline-block', marginLeft: '8px' } }, [
+                                        React.createElement('div', { key: 'title', style: { fontWeight: '500' } }, '🌍 公开直播'),
+                                        React.createElement('div', { key: 'desc', style: { fontSize: '12px', color: '#666' } }, '所有人都可以观看，无需登录')
+                                    ])
+                                ])
+                            ]),
+                            React.createElement('div', { key: 'registered', style: { marginBottom: '12px' } }, [
+                                React.createElement(Radio, { value: 'registered' }, [
+                                    React.createElement('div', { style: { display: 'inline-block', marginLeft: '8px' } }, [
+                                        React.createElement('div', { key: 'title', style: { fontWeight: '500' } }, '👤 注册用户'),
+                                        React.createElement('div', { key: 'desc', style: { fontSize: '12px', color: '#666' } }, '需要注册登录后才能观看')
+                                    ])
+                                ])
+                            ]),
+                            React.createElement('div', { key: 'vip', style: { marginBottom: '12px' } }, [
+                                React.createElement(Radio, { value: 'vip' }, [
+                                    React.createElement('div', { style: { display: 'inline-block', marginLeft: '8px' } }, [
+                                        React.createElement('div', { key: 'title', style: { fontWeight: '500' } }, '⭐ VIP专享'),
+                                        React.createElement('div', { key: 'desc', style: { fontSize: '12px', color: '#666' } }, '仅VIP会员可以观看')
+                                    ])
+                                ])
+                            ]),
+                            React.createElement('div', { key: 'password', style: { marginBottom: '12px' } }, [
+                                React.createElement(Radio, { value: 'password' }, [
+                                    React.createElement('div', { style: { display: 'inline-block', marginLeft: '8px' } }, [
+                                        React.createElement('div', { key: 'title', style: { fontWeight: '500' } }, '🔒 密码保护'),
+                                        React.createElement('div', { key: 'desc', style: { fontSize: '12px', color: '#666' } }, '需要输入密码才能观看')
+                                    ])
+                                ])
+                            ])
+                        ]))
+                    ]),
+
+                    // 密码设置（条件显示）
+                    React.createElement(Form.Item, {
+                        key: 'password',
+                        label: '观看密码',
+                        name: 'accessPassword',
+                        dependencies: ['accessLevel'],
+                        rules: [
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (getFieldValue('accessLevel') === 'password' && !value) {
+                                        return Promise.reject(new Error('请设置观看密码'));
+                                    }
+                                    return Promise.resolve();
+                                }
+                            })
+                        ]
+                    }, React.createElement(Input.Password, { 
+                        placeholder: '请设置4-16位观看密码',
+                        maxLength: 16
+                    })),
+
+                    // 互动设置
+                    React.createElement('div', {
+                        key: 'interaction-section',
+                        style: { 
+                            background: '#f8fafc', 
+                            padding: '16px', 
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0'
+                        }
+                    }, [
+                        React.createElement('h4', { 
+                            key: 'interaction-title',
+                            style: { 
+                                margin: '0 0 16px 0', 
+                                color: '#1e293b', 
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            } 
+                        }, '互动功能'),
+                        React.createElement(Row, { gutter: [24, 16] }, [
+                            React.createElement(Col, { span: 8 }, [
+                                React.createElement(Form.Item, {
+                                    label: '评论互动',
+                                    name: 'enableComment',
+                                    valuePropName: 'checked',
+                                    style: { marginBottom: 0 }
+                                }, React.createElement(Switch, {
+                                    checkedChildren: '开启',
+                                    unCheckedChildren: '关闭'
+                                }))
+                            ]),
+                            React.createElement(Col, { span: 8 }, [
+                                React.createElement(Form.Item, {
+                                    label: '点赞功能',
+                                    name: 'enableLike',
+                                    valuePropName: 'checked',
+                                    style: { marginBottom: 0 }
+                                }, React.createElement(Switch, {
+                                    checkedChildren: '开启',
+                                    unCheckedChildren: '关闭'
+                                }))
+                            ]),
+                            React.createElement(Col, { span: 8 }, [
+                                React.createElement(Form.Item, {
+                                    label: '弹幕功能',
+                                    name: 'enableDanmu',
+                                    valuePropName: 'checked',
+                                    style: { marginBottom: 0 }
+                                }, React.createElement(Switch, {
+                                    checkedChildren: '开启',
+                                    unCheckedChildren: '关闭'
+                                }))
+                            ])
+                        ])
+                    ])
+                ]),
+
+                React.createElement(Tabs.TabPane, { 
+                    tab: React.createElement('span', {}, [
+                        React.createElement('span', { key: 'icon', style: { marginRight: '8px' } }, '📹'),
+                        React.createElement('span', { key: 'text' }, '录制设置')
+                    ]), 
+                    key: 'recording' 
+                }, [
+                    // 录制设置
+                    React.createElement('div', {
+                        key: 'record-section',
+                        style: { marginBottom: '24px' }
+                    }, [
+                        React.createElement(Row, { gutter: [24, 16] }, [
+                            React.createElement(Col, { span: 12 }, [
+                                React.createElement(Form.Item, {
+                                    label: '自动录制',
+                                    name: 'autoRecord',
+                                    valuePropName: 'checked',
+                                    extra: '直播开始时自动开启录制功能'
+                                }, React.createElement(Switch, {
+                                    checkedChildren: '开启',
+                                    unCheckedChildren: '关闭'
+                                }))
+                            ]),
+                            React.createElement(Col, { span: 12 }, [
+                                React.createElement(Form.Item, {
+                                    label: '录制质量',
+                                    name: 'recordQuality'
+                                }, React.createElement(Select, {
+                                    placeholder: '选择录制质量',
+                                    options: [
+                                        { value: '720p', label: '720P 标清 (节省存储)' },
+                                        { value: '1080p', label: '1080P 高清 (推荐)' },
+                                        { value: '4k', label: '4K 超清 (超大文件)' }
+                                    ]
+                                }))
+                            ])
+                        ])
+                    ]),
+
+                    // 推流设置
+                    React.createElement('div', {
+                        key: 'stream-section',
+                        style: { 
+                            background: '#f8fafc', 
+                            padding: '16px', 
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0'
+                        }
+                    }, [
+                        React.createElement('h4', { 
+                            key: 'stream-title',
+                            style: { 
+                                margin: '0 0 16px 0', 
+                                color: '#1e293b', 
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            } 
+                        }, '推流配置'),
+                        React.createElement(Row, { gutter: [24, 16] }, [
+                            React.createElement(Col, { span: 12 }, [
+                                React.createElement(Form.Item, {
+                                    label: '画质设置',
+                                    name: 'quality'
+                                }, React.createElement(Select, {
+                                    options: [
+                                        { value: '720p', label: '720P 高清' },
+                                        { value: '1080p', label: '1080P 超清 (推荐)' },
+                                        { value: '4k', label: '4K 超高清' }
+                                    ]
+                                }))
+                            ]),
+                            React.createElement(Col, { span: 12 }, [
+                                React.createElement(Form.Item, {
+                                    label: '码率设置',
+                                    name: 'bitrate'
+                                }, React.createElement(Select, {
+                                    placeholder: '选择码率',
+                                    options: [
+                                        { value: '2000', label: '2Mbps (720P推荐)' },
+                                        { value: '4000', label: '4Mbps (1080P推荐)' },
+                                        { value: '8000', label: '8Mbps (4K推荐)' },
+                                        { value: 'custom', label: '自定义码率' }
+                                    ]
+                                }))
+                            ])
+                        ]),
+                        React.createElement(Form.Item, {
+                            key: 'stream-key',
+                            label: '推流密钥',
+                            extra: '用于OBS等推流软件，创建后自动生成'
+                        }, React.createElement(Input, { 
+                            placeholder: '创建直播后自动生成推流密钥',
+                            disabled: true,
+                            addonAfter: React.createElement(Button, { 
+                                size: 'small',
+                                onClick: () => message.info('推流密钥将在创建后生成')
+                            }, '生成')
+                        }))
+                    ])
+                ]),
+
+                React.createElement(Tabs.TabPane, { 
+                    tab: React.createElement('span', {}, [
+                        React.createElement('span', { key: 'icon', style: { marginRight: '8px' } }, '🎯'),
+                        React.createElement('span', { key: 'text' }, '营销设置')
+                    ]), 
+                    key: 'marketing' 
+                }, [
+                    // 预约设置
+                    React.createElement('div', {
+                        key: 'booking-section',
+                        style: { marginBottom: '24px' }
+                    }, [
+                        React.createElement('h4', { 
+                            key: 'booking-title',
+                            style: { 
+                                margin: '0 0 16px 0', 
+                                color: '#1e293b', 
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            } 
+                        }, '预约提醒'),
+                        React.createElement(Form.Item, {
+                            key: 'enable-booking',
+                            label: '开启预约',
+                            name: 'enableBooking',
+                            valuePropName: 'checked',
+                            extra: '观众可以预约直播，系统将在开播前发送提醒'
+                        }, React.createElement(Switch, {
+                            checkedChildren: '开启',
+                            unCheckedChildren: '关闭'
+                        })),
+                        React.createElement(Form.Item, {
+                            key: 'booking-remind',
+                            label: '提前提醒时间',
+                            name: 'remindTime'
+                        }, React.createElement(Select, {
+                            placeholder: '选择提醒时间',
+                            mode: 'multiple',
+                            options: [
+                                { value: '1', label: '开播前1分钟' },
+                                { value: '5', label: '开播前5分钟' },
+                                { value: '15', label: '开播前15分钟' },
+                                { value: '30', label: '开播前30分钟' },
+                                { value: '60', label: '开播前1小时' },
+                                { value: '1440', label: '开播前1天' }
+                            ]
+                        }))
+                    ]),
+
+                    // 分享设置
+                    React.createElement('div', {
+                        key: 'share-section',
+                        style: { 
+                            background: '#f8fafc', 
+                            padding: '16px', 
+                            borderRadius: '8px',
+                            border: '1px solid #e2e8f0'
+                        }
+                    }, [
+                        React.createElement('h4', { 
+                            key: 'share-title',
+                            style: { 
+                                margin: '0 0 16px 0', 
+                                color: '#1e293b', 
+                                fontSize: '16px',
+                                fontWeight: '600'
+                            } 
+                        }, '分享推广'),
+                        React.createElement(Row, { gutter: [24, 16] }, [
+                            React.createElement(Col, { span: 8 }, [
+                                React.createElement(Form.Item, {
+                                    label: '微信分享',
+                                    name: 'enableWechatShare',
+                                    valuePropName: 'checked',
+                                    style: { marginBottom: 0 }
+                                }, React.createElement(Switch, {
+                                    checkedChildren: '开启',
+                                    unCheckedChildren: '关闭'
+                                }))
+                            ]),
+                            React.createElement(Col, { span: 8 }, [
+                                React.createElement(Form.Item, {
+                                    label: '微博分享',
+                                    name: 'enableWeiboShare',
+                                    valuePropName: 'checked',
+                                    style: { marginBottom: 0 }
+                                }, React.createElement(Switch, {
+                                    checkedChildren: '开启',
+                                    unCheckedChildren: '关闭'
+                                }))
+                            ]),
+                            React.createElement(Col, { span: 8 }, [
+                                React.createElement(Form.Item, {
+                                    label: 'QQ分享',
+                                    name: 'enableQQShare',
+                                    valuePropName: 'checked',
+                                    style: { marginBottom: 0 }
+                                }, React.createElement(Switch, {
+                                    checkedChildren: '开启',
+                                    unCheckedChildren: '关闭'
+                                }))
+                            ])
+                        ]),
+                        React.createElement(Form.Item, {
+                            key: 'share-title-field',
+                            label: '分享标题',
+                            name: 'shareTitle',
+                            extra: '不填写则使用直播标题'
+                        }, React.createElement(Input, { 
+                            placeholder: '自定义分享时显示的标题',
+                            maxLength: 60
+                        })),
+                        React.createElement(Form.Item, {
+                            key: 'share-desc',
+                            label: '分享描述',
+                            name: 'shareDescription',
+                            extra: '不填写则使用直播简介'
+                        }, React.createElement(Input.TextArea, { 
+                            rows: 2,
+                            placeholder: '自定义分享时显示的描述信息',
+                            maxLength: 120
+                        }))
+                    ])
+                ])
             ])
         ]))
     ]);
