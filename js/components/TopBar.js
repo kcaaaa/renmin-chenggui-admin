@@ -30,17 +30,15 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick, onLogout }
         ? [
             ...notifications.slice(0, 5).map((notif, i) => ({
                 key: `notif-${i}`,
-                label: (
-                    <div>
-                        <div style={{ fontWeight: 'bold' }}>{notif.title}</div>
-                        <div style={{ fontSize: '12px' }}>{notif.content}</div>
-                    </div>
+                label: React.createElement('div', {},
+                    React.createElement('div', { style: { fontWeight: 'bold' } }, notif.title),
+                    React.createElement('div', { style: { fontSize: '12px' } }, notif.content)
                 ),
             })),
             { type: 'divider' },
-            { key: 'view-all', label: <div style={{ textAlign: 'center' }}>查看全部</div> },
+            { key: 'view-all', label: React.createElement('div', { style: { textAlign: 'center' } }, '查看全部') },
         ]
-        : [{ key: 'empty', label: <div style={{ textAlign: 'center', padding: '12px' }}>暂无通知</div> }];
+        : [{ key: 'empty', label: React.createElement('div', { style: { textAlign: 'center', padding: '12px' } }, '暂无通知') }];
 
     const notificationMenu = { items: notificationItems, onClick: onNotificationClick };
 
@@ -71,12 +69,12 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick, onLogout }
             ),
             React.createElement(Space, { size: "middle" },
                 React.createElement(Tooltip, { title: "帮助文档" },
-                    React.createElement(Button, { shape: 'circle', icon: '❓' })
+                    React.createElement(Button, { shape: 'circle' }, '❓')
                 ),
                 React.createElement(Dropdown, { menu: notificationMenu, trigger: ['click'] },
                     React.createElement(Tooltip, { title: "通知" },
                         React.createElement(Badge, { count: unreadCount, size: 'small' },
-                            React.createElement(Button, { shape: 'circle', icon: '🔔' })
+                            React.createElement(Button, { shape: 'circle' }, '🔔')
                         )
                     )
                 ),
