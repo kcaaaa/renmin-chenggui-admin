@@ -32,13 +32,6 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             page: 'UserManagement'
         },
         {
-            key: 'profile',
-            icon: '📈',
-            label: '用户画像',
-            title: '用户行为分析与画像',
-            page: 'UserProfile'
-        },
-        {
             key: 'stats',
             icon: '📋',
             label: '行为统计',
@@ -46,11 +39,25 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             page: 'BehaviorStats'
         },
         {
+            key: 'operational',
+            icon: '📈',
+            label: '运营数据统计',
+            title: '核心运营指标与分模块统计',
+            page: 'OperationalStats'
+        },
+        {
             key: 'data',
             icon: '💾',
-            label: '数据管理',
-            title: '运营数据管理与备份',
+            label: '系统与资源管理',
+            title: '系统资源监控与管理',
             page: 'DataManagement'
+        },
+        {
+            key: 'traffic',
+            icon: '🎯',
+            label: '流量分配配置',
+            title: '推荐算法与流量分配',
+            page: 'TrafficAllocation'
         },
         {
             key: 'settings',
