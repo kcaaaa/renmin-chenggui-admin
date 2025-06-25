@@ -322,25 +322,32 @@ const ReviewManagement = () => {
         return React.createElement(Tag, { color: t.color, size: 'small' }, t.text);
     };
 
-    // AI评分渲染
-    const renderAIScore = (score) => {
-        let status = 'success';
-        let strokeColor = '#52c41a';
-        if (score < 0.5) {
-            status = 'exception';
-            strokeColor = '#ff4d4f';
-        } else if (score < 0.8) {
-            status = 'normal';
-            strokeColor = '#faad14';
+    // AI评分渲染 - 优化版
+    const renderAIScore = (score, record) => {
+        if (record.status === 'ai_reviewing') {
+            return React.createElement(Tag, { color: "blue" }, "AI审核中");
         }
+        if (score === undefined || score === null) {
+            return React.createElement(Tag, {}, "无评分");
+        }
+
+        let status = 'success';
+        if (score < 0.5) status = 'exception';
+        else if (score < 0.8) status = 'normal';
         
-        return React.createElement(Progress, {
-            type: 'circle',
-            percent: Math.round(score * 100),
-            size: 40,
-            status: status,
-            strokeColor: strokeColor
-        });
+        const percent = Math.round(score * 100);
+
+        return React.createElement('div', {
+            style: { display: 'flex', alignItems: 'center', justifyContent: 'flex-start', height: '100%' }
+        }, 
+            React.createElement(Progress, {
+                type: 'circle',
+                percent: percent,
+                width: 35, // 缩小尺寸
+                format: () => `${percent}`, // 直接在圈内显示百分比
+                status: status,
+            })
+        );
     };
 
     // 批量操作
@@ -420,7 +427,7 @@ const ReviewManagement = () => {
         {
             title: 'AI评分',
             dataIndex: ['aiResult', 'score'],
-            width: 80,
+            width: 90, // 调整列宽
             render: renderAIScore
         },
         {
@@ -826,7 +833,7 @@ const ReviewManagement = () => {
                     React.createElement(Col, { key: 'score', span: 8 },
                         React.createElement(Card, { size: 'small', title: 'AI评分' },
                         React.createElement('div', { style: { textAlign: 'center' } },
-                                renderAIScore(currentItem.aiResult?.score || 0)
+                                renderAIScore(currentItem.aiResult?.score || 0, currentItem)
                             )
                         )
                     ),
