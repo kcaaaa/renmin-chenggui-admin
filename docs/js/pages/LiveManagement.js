@@ -1,4 +1,4 @@
-// 直播管理页面 - 基于新功能规范重构，保留完整的直播管理功能
+// 直播管理页面 - 基于微赞API重构，直接调用微赞接口
 const LiveManagement = () => {
     const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, DatePicker, Upload, Radio, Switch, TimePicker } = antd;
     const [activeTab, setActiveTab] = React.useState('channels');
@@ -13,15 +13,57 @@ const LiveManagement = () => {
     const [selectedLive, setSelectedLive] = React.useState(null);
     const [channelForm] = Form.useForm();
     const [liveForm] = Form.useForm();
+    const [editingChannel, setEditingChannel] = React.useState(null);
+
+    // 微赞API配置
+    const VZAN_CONFIG = {
+        baseUrl: 'https://paas.vzan.com',
+        appId: 'your_app_id', // 需要配置
+        appSecret: 'your_app_secret', // 需要配置
+        accessToken: localStorage.getItem('vzan_access_token')
+    };
 
     React.useEffect(() => {
+        loadChannelData();
         loadLiveData();
+        loadReplayData();
     }, []);
 
-    const loadLiveData = () => {
+    // 调用微赞API获取频道数据
+    const loadChannelData = async () => {
         setLoading(true);
-        setTimeout(() => {
-            // 频道管理数据
+        try {
+            // 调用微赞频道管理API
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/channel/list`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setChannelData({
+                    channels: data.data?.map(channel => ({
+                        id: channel.channel_id,
+                        name: channel.channel_name,
+                        description: channel.description || '',
+                        status: channel.status === 1 ? 'active' : 'inactive',
+                        liveCount: channel.live_count || 0,
+                        totalViews: channel.total_views || 0,
+                        provider: '微赞',
+                        created: channel.create_time,
+                        vzan_channel_id: channel.channel_id
+                    })) || []
+                });
+            } else {
+                throw new Error('获取频道数据失败');
+            }
+        } catch (error) {
+            console.error('获取频道数据失败:', error);
+            message.error('获取频道数据失败，请检查网络连接');
+            // 使用模拟数据作为降级
             setChannelData({
                 channels: [
                     {
@@ -32,32 +74,60 @@ const LiveManagement = () => {
                         liveCount: 15,
                         totalViews: 125634,
                         provider: '微赞',
-                        created: '2024-01-10'
-                    },
-                    {
-                        id: 'channel_002',
-                        name: '技术分享频道',
-                        description: '技术讲座和分享直播',
-                        status: 'active',
-                        liveCount: 8,
-                        totalViews: 89245,
-                        provider: '微赞',
-                        created: '2024-01-15'
-                    },
-                    {
-                        id: 'channel_003',
-                        name: '协会活动频道',
-                        description: '协会官方活动直播',
-                        status: 'inactive',
-                        liveCount: 3,
-                        totalViews: 34567,
-                        provider: '微赞',
-                        created: '2024-02-01'
+                        created: '2024-01-10',
+                        vzan_channel_id: 'vzan_001'
                     }
                 ]
             });
+        } finally {
+            setLoading(false);
+        }
+    };
 
-            // 直播活动数据
+    // 调用微赞API获取直播数据（话题管理）
+    const loadLiveData = async () => {
+        try {
+            // 调用微赞话题管理API
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/topic/list`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setLiveData({
+                    lives: data.data?.map(topic => ({
+                        id: topic.topic_id,
+                        title: topic.topic_name,
+                        description: topic.description || '',
+                        presenter: topic.host_name || '',
+                        channel: topic.channel_name || '',
+                        channelId: topic.channel_id,
+                        status: mapVzanStatus(topic.status),
+                        startTime: topic.start_time,
+                        endTime: topic.end_time,
+                        viewers: topic.current_viewers || 0,
+                        peakViewers: topic.peak_viewers || 0,
+                        duration: formatDuration(topic.duration),
+                        provider: '微赞',
+                        vzan_topic_id: topic.topic_id,
+                        cover: topic.cover_url || 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live',
+                        liveType: topic.live_type || 'live',
+                        accessLevel: mapAccessLevel(topic.access_type),
+                        enableComment: topic.enable_comment === 1,
+                        autoRecord: topic.auto_record === 1,
+                        quality: topic.quality || '1080p'
+                    })) || []
+                });
+            } else {
+                throw new Error('获取直播数据失败');
+            }
+        } catch (error) {
+            console.error('获取直播数据失败:', error);
+            // 使用模拟数据作为降级
             setLiveData({
                 lives: [
                     {
@@ -74,62 +144,53 @@ const LiveManagement = () => {
                         peakViewers: 3421,
                         duration: '02:15:30',
                         provider: '微赞',
-                        weizan_id: 'wz_live_12345',
+                        vzan_topic_id: 'vz_topic_12345',
                         cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live1',
                         liveType: 'live',
                         accessLevel: 'public',
                         enableComment: true,
                         autoRecord: true,
                         quality: '1080p'
-                    },
-                    {
-                        id: 'live_002',
-                        title: '智能调度系统介绍',
-                        description: '深入解析智能调度系统的核心技术',
-                        presenter: '李专家',
-                        channel: '技术分享频道',
-                        channelId: 'channel_002',
-                        status: 'scheduled',
-                        startTime: '2024-01-16 09:30:00',
-                        endTime: null,
-                        viewers: 0,
-                        peakViewers: 0,
-                        duration: '00:00:00',
-                        provider: '微赞',
-                        weizan_id: 'wz_live_12346',
-                        cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live2',
-                liveType: 'live',
-                        accessLevel: 'registered',
-                enableComment: true,
-                autoRecord: true,
-                        quality: '1080p'
-                    },
-                    {
-                        id: 'live_003',
-                        title: '安全运营管理讲座',
-                        description: '城市轨道交通安全运营管理的实践经验分享',
-                        presenter: '王主任',
-                        channel: '协会活动频道',
-                        channelId: 'channel_003',
-                        status: 'ended',
-                        startTime: '2024-01-14 10:00:00',
-                        endTime: '2024-01-14 11:45:20',
-                        viewers: 0,
-                        peakViewers: 1876,
-                        duration: '01:45:20',
-                        provider: '微赞',
-                        weizan_id: 'wz_live_12347',
-                        cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live3',
-                        liveType: 'live',
-                accessLevel: 'public',
-                        enableComment: true,
-                        autoRecord: true,
-                        quality: '720p'
                     }
                 ]
             });
+        }
+    };
 
-            // 直播回放数据
+    // 调用微赞API获取回放数据
+    const loadReplayData = async () => {
+        try {
+            // 调用微赞回放管理API
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/replay/list`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setReplayData({
+                    replays: data.data?.map(replay => ({
+                        id: replay.replay_id,
+                        title: replay.replay_name,
+                        originalLive: replay.topic_name,
+                        originalLiveId: replay.topic_id,
+                        duration: formatDuration(replay.duration),
+                        fileSize: formatFileSize(replay.file_size),
+                        quality: replay.quality,
+                        status: mapReplayStatus(replay.status),
+                        views: replay.play_count || 0,
+                        created: replay.create_time,
+                        provider: '微赞',
+                        vzan_replay_id: replay.replay_id
+                    })) || []
+                });
+            }
+        } catch (error) {
+            console.error('获取回放数据失败:', error);
+            // 使用模拟数据作为降级
             setReplayData({
                 replays: [
                     {
@@ -144,41 +205,56 @@ const LiveManagement = () => {
                         views: 15634,
                         created: '2024-01-15 16:30:00',
                         provider: '微赞',
-                        weizan_replay_id: 'wz_replay_98765'
-                    },
-                    {
-                        id: 'replay_002',
-                        title: '智能化运维系统分享',
-                        originalLive: '技术分享会议',
-                        originalLiveId: 'live_002',
-                        duration: '01:30:45',
-                        fileSize: '850MB',
-                        quality: '720P',
-                        status: 'processing',
-                        views: 0,
-                        created: '2024-01-14 11:45:00',
-                        provider: '微赞',
-                        weizan_replay_id: 'wz_replay_98766'
-                    },
-                    {
-                        id: 'replay_003',
-                        title: '协会年度总结大会',
-                        originalLive: '协会年度会议',
-                        originalLiveId: 'live_003',
-                        duration: '03:20:15',
-                        fileSize: '2.1GB',
-                        quality: '1080P',
-                        status: 'available',
-                        views: 8923,
-                        created: '2024-01-13 18:20:00',
-                        provider: '微赞',
-                        weizan_replay_id: 'wz_replay_98767'
+                        vzan_replay_id: 'vz_replay_98765'
                     }
                 ]
             });
+        }
+    };
 
-            setLoading(false);
-        }, 800);
+    // 工具函数：映射微赞状态到本系统状态
+    const mapVzanStatus = (vzanStatus) => {
+        const statusMap = {
+            0: 'scheduled',  // 未开始
+            1: 'live',       // 直播中
+            2: 'ended',      // 已结束
+            3: 'cancelled'   // 已取消
+        };
+        return statusMap[vzanStatus] || 'scheduled';
+    };
+
+    const mapAccessLevel = (accessType) => {
+        const accessMap = {
+            0: 'public',     // 公开
+            1: 'registered', // 注册用户
+            2: 'vip',        // VIP用户
+            3: 'password'    // 密码保护
+        };
+        return accessMap[accessType] || 'public';
+    };
+
+    const mapReplayStatus = (status) => {
+        const statusMap = {
+            0: 'processing', // 处理中
+            1: 'available',  // 可用
+            2: 'failed'      // 失败
+        };
+        return statusMap[status] || 'processing';
+    };
+
+    const formatDuration = (seconds) => {
+        if (!seconds) return '00:00:00';
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const formatFileSize = (bytes) => {
+        if (!bytes) return '0MB';
+        const gb = bytes / (1024 * 1024 * 1024);
+        const mb = bytes / (1024 * 1024);
+        return gb >= 1 ? `${gb.toFixed(1)}GB` : `${mb.toFixed(0)}MB`;
     };
 
     // 渲染频道管理
@@ -200,7 +276,7 @@ const LiveManagement = () => {
                     React.createElement('div', {
                         key: 'provider',
                         style: { fontSize: '12px', color: '#999', marginTop: '4px' }
-                    }, `服务商: ${record.provider}`)
+                    }, `微赞频道ID: ${record.vzan_channel_id}`)
                 ])
             },
             {
@@ -240,11 +316,11 @@ const LiveManagement = () => {
                         onClick: () => editChannel(record)
                     }, '编辑'),
                     React.createElement(Button, {
-                        key: 'sync',
+                        key: 'refresh',
                         size: 'small',
                         type: 'primary',
-                        onClick: () => syncWithWeizan(record)
-                    }, '同步微赞')
+                        onClick: () => refreshChannelData(record)
+                    }, '刷新数据')
                 ])
             }
         ];
@@ -252,8 +328,8 @@ const LiveManagement = () => {
         return React.createElement('div', {}, [
             React.createElement(Alert, {
                 key: 'info',
-                message: '频道管理',
-                description: '管理在APP中展示的直播频道列表，与微赞平台保持同步',
+                message: '频道管理 - 微赞API集成',
+                description: '通过微赞开放平台API管理直播频道，实时获取频道数据和统计信息',
                 type: 'info',
                 showIcon: true,
                 style: { marginBottom: '24px' }
@@ -264,18 +340,20 @@ const LiveManagement = () => {
                 title: '直播频道列表',
                 extra: React.createElement(Space, {}, [
                     React.createElement(Button, {
-                        onClick: () => setChannelModalVisible(true)
-                    }, '新增频道'),
+                        onClick: () => createChannelViaMiczan()
+                    }, '新建频道'),
                     React.createElement(Button, {
                         type: 'primary',
-                        onClick: () => message.info('正在同步微赞数据...')
-                    }, '批量同步')
+                        loading: loading,
+                        onClick: () => loadChannelData()
+                    }, '刷新频道')
                 ])
             }, React.createElement(Table, {
                 dataSource: channelData.channels?.map((item, index) => ({ ...item, key: index })) || [],
                 columns: channelColumns,
                 pagination: false,
-                size: 'small'
+                size: 'small',
+                loading: loading
             }))
         ]);
     };
@@ -310,9 +388,9 @@ const LiveManagement = () => {
                             style: { fontSize: '12px', color: '#999' }
                         }, `主讲人: ${record.presenter}`),
                         React.createElement('div', {
-                            key: 'weizan',
+                            key: 'vzan',
                             style: { fontSize: '12px', color: '#999' }
-                        }, `微赞ID: ${record.weizan_id}`)
+                        }, `微赞话题ID: ${record.vzan_topic_id}`)
                     ])
                 ])
             },
@@ -324,7 +402,8 @@ const LiveManagement = () => {
                     const statusConfig = {
                         live: { color: 'red', text: '直播中' },
                         scheduled: { color: 'orange', text: '即将开始' },
-                        ended: { color: 'green', text: '已结束' }
+                        ended: { color: 'green', text: '已结束' },
+                        cancelled: { color: 'default', text: '已取消' }
                     };
                     const config = statusConfig[status] || { color: 'default', text: status };
                     return React.createElement(Tag, { color: config.color }, config.text);
@@ -373,24 +452,24 @@ const LiveManagement = () => {
                         key: 'start',
                         size: 'small',
                         type: 'primary',
-                        onClick: () => startLive(record)
+                        onClick: () => startLiveViaMiczan(record)
                     }, '开播'),
                     record.status === 'live' && React.createElement(Button, {
                         key: 'end',
                         size: 'small',
                         danger: true,
-                        onClick: () => endLive(record)
+                        onClick: () => endLiveViaMiczan(record)
                     }, '结束直播'),
                     record.status === 'ended' && React.createElement(Button, {
                         key: 'replay',
                         size: 'small',
-                        onClick: () => generateReplay(record)
+                        onClick: () => generateReplayViaMiczan(record)
                     }, '生成回放'),
                     React.createElement(Button, {
-                        key: 'sync',
+                        key: 'refresh',
                         size: 'small',
-                        onClick: () => syncLiveStatus(record)
-                    }, '同步状态')
+                        onClick: () => refreshLiveStatus(record)
+                    }, '刷新状态')
                 ])
             }
         ];
@@ -398,8 +477,8 @@ const LiveManagement = () => {
         return React.createElement('div', {}, [
             React.createElement(Alert, {
                 key: 'info',
-                message: '直播活动管理',
-                description: '管理特定频道下的直播活动，同步微赞平台的直播状态',
+                message: '直播管理 - 微赞话题API',
+                description: '通过微赞话题管理API创建和管理直播活动，实时获取直播状态和观看数据',
                 type: 'success',
                 showIcon: true,
                 style: { marginBottom: '24px' }
@@ -414,15 +493,17 @@ const LiveManagement = () => {
                         onClick: () => createNewLive()
                     }, '新建直播'),
                     React.createElement(Button, {
-                        onClick: () => message.info('正在同步微赞直播数据...')
-                    }, '同步微赞数据')
+                        loading: loading,
+                        onClick: () => loadLiveData()
+                    }, '刷新数据')
                 ])
             }, React.createElement(Table, {
                 dataSource: liveData.lives?.map((item, index) => ({ ...item, key: index })) || [],
                 columns: liveColumns,
                 pagination: { pageSize: 10 },
                 size: 'small',
-                scroll: { x: 1200 }
+                scroll: { x: 1200 },
+                loading: loading
             }))
         ]);
     };
@@ -444,9 +525,9 @@ const LiveManagement = () => {
                         style: { fontSize: '12px', color: '#666' }
                     }, `原直播: ${record.originalLive}`),
                     React.createElement('div', {
-                        key: 'weizan',
+                        key: 'vzan',
                         style: { fontSize: '12px', color: '#999', marginTop: '4px' }
-                    }, `微赞回放ID: ${record.weizan_replay_id}`)
+                    }, `微赞回放ID: ${record.vzan_replay_id}`)
                 ])
             },
             {
@@ -498,13 +579,13 @@ const LiveManagement = () => {
                         size: 'small',
                         type: 'primary',
                         disabled: record.status !== 'available',
-                        onClick: () => playReplay(record)
+                        onClick: () => playReplayViaMiczan(record)
                     }, '播放'),
                     React.createElement(Button, {
                         key: 'download',
                         size: 'small',
                         disabled: record.status !== 'available',
-                        onClick: () => downloadReplay(record)
+                        onClick: () => downloadReplayViaMiczan(record)
                     }, '下载')
                 ])
             }
@@ -513,8 +594,8 @@ const LiveManagement = () => {
         return React.createElement('div', {}, [
             React.createElement(Alert, {
                 key: 'info',
-                message: '直播回放管理',
-                description: '管理由微赞生成的直播回放视频，支持播放和下载',
+                message: '回放管理 - 微赞回放API',
+                description: '通过微赞回放API管理直播回放视频，支持在线播放和下载',
                 type: 'warning',
                 showIcon: true,
                 style: { marginBottom: '24px' }
@@ -524,27 +605,97 @@ const LiveManagement = () => {
                 key: 'replay-table',
                 title: '回放视频列表',
                 extra: React.createElement(Button, {
-                    onClick: () => message.info('正在同步微赞回放数据...')
-                }, '同步回放')
+                    loading: loading,
+                    onClick: () => loadReplayData()
+                }, '刷新回放')
             }, React.createElement(Table, {
                 dataSource: replayData.replays?.map((item, index) => ({ ...item, key: index })) || [],
                 columns: replayColumns,
                 pagination: false,
-                size: 'small'
+                size: 'small',
+                loading: loading
             }))
         ]);
     };
 
     // 工具函数
     const editChannel = (channel) => {
-        message.info(`编辑频道: ${channel.name}`);
+        setEditingChannel(channel);
+        channelForm.setFieldsValue(channel);
+        setChannelModalVisible(true);
     };
 
-    const syncWithWeizan = (channel) => {
-        message.loading('正在与微赞同步...', 2);
-        setTimeout(() => {
-            message.success('同步成功！');
-        }, 2000);
+    const refreshChannelData = async (channel) => {
+        message.loading('正在刷新频道数据...', 1);
+        try {
+            // 调用微赞API刷新单个频道数据
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/channel/detail`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ channel_id: channel.vzan_channel_id })
+            });
+            
+            if (response.ok) {
+                message.success('频道数据刷新成功！');
+                loadChannelData(); // 重新加载列表
+            } else {
+                throw new Error('刷新失败');
+            }
+        } catch (error) {
+            console.error('刷新频道数据失败:', error);
+            message.error('刷新失败，请稍后重试');
+        }
+    };
+
+    // 通过微赞API创建频道
+    const createChannelViaMiczan = () => {
+        setEditingChannel(null);
+        channelForm.resetFields();
+        setChannelModalVisible(true);
+    };
+
+    // 处理频道表单提交
+    const handleChannelSubmit = async (values) => {
+        try {
+            message.loading('正在创建频道...', 2);
+            
+            // 调用微赞API创建/编辑频道
+            const apiUrl = editingChannel 
+                ? `${VZAN_CONFIG.baseUrl}/api/channel/update`
+                : `${VZAN_CONFIG.baseUrl}/api/channel/create`;
+            
+            const requestData = {
+                channel_name: values.name,
+                description: values.description,
+                status: 1, // 默认启用
+                ...(editingChannel && { channel_id: editingChannel.vzan_channel_id })
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                message.success(editingChannel ? '频道更新成功！' : '频道创建成功！');
+                setChannelModalVisible(false);
+                channelForm.resetFields();
+                loadChannelData(); // 重新加载频道列表
+            } else {
+                throw new Error('操作失败');
+            }
+        } catch (error) {
+            console.error('频道操作失败:', error);
+            message.error('操作失败，请检查网络连接或稍后重试');
+        }
     };
 
     // 新建直播
@@ -596,114 +747,226 @@ const LiveManagement = () => {
         setViewDetailModalVisible(true);
     };
 
-    // 开始直播
-    const startLive = (live) => {
-        message.loading('正在开启直播...', 2);
-        setTimeout(() => {
-            // 更新直播状态
-            setLiveData(prev => ({
-                ...prev,
-                lives: prev.lives.map(l => 
-                    l.id === live.id 
-                        ? { ...l, status: 'live', startTime: new Date().toISOString().slice(0, 19).replace('T', ' ') }
-                        : l
-                )
-            }));
-            message.success('直播已开始！');
-        }, 2000);
-    };
+    // 通过微赞API开始直播
+    const startLiveViaMiczan = async (live) => {
+        try {
+            message.loading('正在开启直播...', 2);
+            
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/topic/start`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topic_id: live.vzan_topic_id })
+            });
 
-    // 结束直播
-    const endLive = (live) => {
-        message.loading('正在结束直播...', 2);
-        setTimeout(() => {
-            // 更新直播状态
-            setLiveData(prev => ({
-                ...prev,
-                lives: prev.lives.map(l => 
-                    l.id === live.id 
-                        ? { ...l, status: 'ended', endTime: new Date().toISOString().slice(0, 19).replace('T', ' ') }
-                        : l
-                )
-            }));
-            message.success('直播已结束！');
-        }, 2000);
-    };
-
-    const syncLiveStatus = (live) => {
-        message.loading('正在同步直播状态...', 1.5);
-        setTimeout(() => {
-            message.success('状态同步成功！');
-        }, 1500);
-    };
-
-    const generateReplay = (live) => {
-        message.loading('正在生成回放...', 2);
-        setTimeout(() => {
-            message.success('回放生成成功！');
-        }, 2000);
-    };
-
-    const playReplay = (replay) => {
-        message.info(`播放回放: ${replay.title}`);
-    };
-
-    const downloadReplay = (replay) => {
-        message.info(`下载回放: ${replay.title}`);
-    };
-
-    // 处理直播表单提交
-    const handleLiveSubmit = (values) => {
-        const { scheduleTime, channelId, ...rest } = values;
-        const selectedChannel = channelData.channels?.find(ch => ch.id === channelId);
-        const processedValues = {
-            ...rest,
-            channelId,
-            channel: selectedChannel?.name || '未知频道',
-            startTime: scheduleTime ? scheduleTime.format('YYYY-MM-DD HH:mm:ss') : null,
-        };
-
-        message.loading('正在保存直播信息...', 2);
-        setTimeout(() => {
-            if (editingLive) {
-                // 更新直播
+            if (response.ok) {
+                // 更新本地状态
                 setLiveData(prev => ({
                     ...prev,
                     lives: prev.lives.map(l => 
-                        l.id === editingLive.id 
-                            ? { 
-                                ...l, 
-                                ...processedValues, 
-                                weizan_id: l.weizan_id,
-                                cover: l.cover || 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live'
-                            }
+                        l.id === live.id 
+                            ? { ...l, status: 'live', startTime: new Date().toISOString().slice(0, 19).replace('T', ' ') }
                             : l
                     )
                 }));
-                message.success('直播信息更新成功！');
+                message.success('直播已开始！');
             } else {
-                // 新建直播
-                const newLive = {
-                    ...processedValues,
-                    id: `live_${Date.now()}`,
-                    status: 'scheduled',
-                    viewers: 0,
-                    peakViewers: 0,
-                    duration: '00:00:00',
-                    provider: '微赞',
-                    weizan_id: `wz_live_${Date.now()}`,
-                    cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live',
-                    endTime: null
-                };
-                 setLiveData(prev => ({
-                    ...prev,
-                    lives: [newLive, ...prev.lives]
-                }));
-                message.success('直播创建成功！');
+                throw new Error('开播失败');
             }
-            setLiveModalVisible(false);
-            liveForm.resetFields();
-        }, 2000);
+        } catch (error) {
+            console.error('开播失败:', error);
+            message.error('开播失败，请检查网络连接或稍后重试');
+        }
+    };
+
+    // 通过微赞API结束直播
+    const endLiveViaMiczan = async (live) => {
+        try {
+            message.loading('正在结束直播...', 2);
+            
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/topic/stop`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topic_id: live.vzan_topic_id })
+            });
+
+            if (response.ok) {
+                // 更新本地状态
+                setLiveData(prev => ({
+                    ...prev,
+                    lives: prev.lives.map(l => 
+                        l.id === live.id 
+                            ? { ...l, status: 'ended', endTime: new Date().toISOString().slice(0, 19).replace('T', ' ') }
+                            : l
+                    )
+                }));
+                message.success('直播已结束！');
+            } else {
+                throw new Error('结束直播失败');
+            }
+        } catch (error) {
+            console.error('结束直播失败:', error);
+            message.error('结束直播失败，请检查网络连接或稍后重试');
+        }
+    };
+
+    const refreshLiveStatus = async (live) => {
+        try {
+            message.loading('正在刷新直播状态...', 1);
+            
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/topic/detail`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topic_id: live.vzan_topic_id })
+            });
+
+            if (response.ok) {
+                message.success('状态刷新成功！');
+                loadLiveData(); // 重新加载列表
+            } else {
+                throw new Error('刷新失败');
+            }
+        } catch (error) {
+            console.error('刷新状态失败:', error);
+            message.error('刷新失败，请稍后重试');
+        }
+    };
+
+    const generateReplayViaMiczan = async (live) => {
+        try {
+            message.loading('正在生成回放...', 2);
+            
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/replay/generate`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ topic_id: live.vzan_topic_id })
+            });
+
+            if (response.ok) {
+                message.success('回放生成成功！');
+                loadReplayData(); // 刷新回放列表
+            } else {
+                throw new Error('生成回放失败');
+            }
+        } catch (error) {
+            console.error('生成回放失败:', error);
+            message.error('生成回放失败，请稍后重试');
+        }
+    };
+
+    const playReplayViaMiczan = (replay) => {
+        // 跳转到微赞播放页面或内嵌播放器
+        const playUrl = `${VZAN_CONFIG.baseUrl}/replay/play/${replay.vzan_replay_id}`;
+        window.open(playUrl, '_blank');
+        message.info(`播放回放: ${replay.title}`);
+    };
+
+    const downloadReplayViaMiczan = async (replay) => {
+        try {
+            message.loading('正在获取下载链接...', 2);
+            
+            const response = await fetch(`${VZAN_CONFIG.baseUrl}/api/replay/download`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ replay_id: replay.vzan_replay_id })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.download_url) {
+                    window.open(result.download_url, '_blank');
+                    message.success('下载链接已生成！');
+                } else {
+                    throw new Error('获取下载链接失败');
+                }
+            } else {
+                throw new Error('下载失败');
+            }
+        } catch (error) {
+            console.error('下载回放失败:', error);
+            message.error('下载失败，请稍后重试');
+        }
+    };
+
+    // 处理直播表单提交
+    const handleLiveSubmit = async (values) => {
+        try {
+            const { scheduleTime, channelId, ...rest } = values;
+            const selectedChannel = channelData.channels?.find(ch => ch.id === channelId);
+            
+            message.loading('正在保存直播信息...', 2);
+
+            // 构建微赞API请求数据
+            const requestData = {
+                topic_name: values.title,
+                description: values.description,
+                host_name: values.presenter,
+                channel_id: selectedChannel?.vzan_channel_id,
+                start_time: scheduleTime ? scheduleTime.format('YYYY-MM-DD HH:mm:ss') : null,
+                live_type: values.liveType,
+                access_type: mapAccessLevelToVzan(values.accessLevel),
+                enable_comment: values.enableComment ? 1 : 0,
+                auto_record: values.autoRecord ? 1 : 0,
+                quality: values.quality,
+                cover_url: values.coverUrl || '',
+                ...(values.accessLevel === 'password' && { access_password: values.accessPassword })
+            };
+
+            const apiUrl = editingLive 
+                ? `${VZAN_CONFIG.baseUrl}/api/topic/update`
+                : `${VZAN_CONFIG.baseUrl}/api/topic/create`;
+
+            if (editingLive) {
+                requestData.topic_id = editingLive.vzan_topic_id;
+            }
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${VZAN_CONFIG.accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                message.success(editingLive ? '直播信息更新成功！' : '直播创建成功！');
+                setLiveModalVisible(false);
+                liveForm.resetFields();
+                loadLiveData(); // 重新加载直播列表
+            } else {
+                throw new Error('操作失败');
+            }
+        } catch (error) {
+            console.error('直播操作失败:', error);
+            message.error('操作失败，请检查表单数据或稍后重试');
+        }
+    };
+
+    // 映射本系统访问级别到微赞API
+    const mapAccessLevelToVzan = (accessLevel) => {
+        const accessMap = {
+            'public': 0,     // 公开
+            'registered': 1, // 注册用户
+            'vip': 2,        // VIP用户
+            'password': 3    // 密码保护
+        };
+        return accessMap[accessLevel] || 0;
     };
 
     const tabItems = [
@@ -743,7 +1006,11 @@ const LiveManagement = () => {
             }, [
                 React.createElement(Button, {
                     key: 'refresh',
-                    onClick: loadLiveData
+                    onClick: () => {
+                        loadChannelData();
+                        loadLiveData();
+                        loadReplayData();
+                    }
                 }, '刷新数据'),
                 React.createElement(Button, {
                     key: 'weizan',
@@ -762,16 +1029,20 @@ const LiveManagement = () => {
         // 新增频道模态框
         React.createElement(Modal, {
             key: 'channel-modal',
-            title: '新增直播频道',
+            title: editingChannel ? '编辑频道' : '新建频道',
             open: channelModalVisible,
-            onCancel: () => setChannelModalVisible(false),
-            onOk: () => {
-                message.success('频道创建成功！');
+            onCancel: () => {
                 setChannelModalVisible(false);
-            }
+                channelForm.resetFields();
+                setEditingChannel(null);
+            },
+            onOk: () => channelForm.submit(),
+            okText: '保存',
+            cancelText: '取消'
         }, React.createElement(Form, {
             form: channelForm,
-            layout: 'vertical'
+            layout: 'vertical',
+            onFinish: handleChannelSubmit
         }, [
             React.createElement(Form.Item, {
                 key: 'name',
@@ -784,15 +1055,14 @@ const LiveManagement = () => {
                 name: 'description',
                 label: '频道描述'
             }, React.createElement(Input.TextArea, { placeholder: '请输入频道描述' })),
-            React.createElement(Form.Item, {
-                key: 'provider',
-                name: 'provider',
-                label: '服务提供商',
-                initialValue: '微赞'
-            }, React.createElement(Select, {
-                disabled: true,
-                options: [{ value: '微赞', label: '微赞' }]
-            }))
+            React.createElement(Alert, {
+                key: 'info',
+                message: '微赞API集成说明',
+                description: '频道将通过微赞开放平台API创建，确保您已配置正确的API权限',
+                type: 'info',
+                showIcon: true,
+                style: { marginTop: '16px' }
+            })
         ])),
 
         // 新建/编辑直播模态框
