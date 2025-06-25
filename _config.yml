@@ -6,7 +6,8 @@ url: "https://kcaaaa.github.io"
 # Build settings
 markdown: kramdown
 highlighter: rouge
-theme: minima
+source: .
+destination: _site
 
 # Exclude from processing
 exclude:
@@ -16,12 +17,25 @@ exclude:
   - "*.pptx"
   - README.md
   - .gitignore
+  - .git/
+  - .github/
 
 # Include files
 include:
   - .nojekyll
+  - js/
+  - index.html
 
 # Plugins
 plugins:
   - jekyll-feed
-  - jekyll-sitemap 
+  - jekyll-sitemap
+
+# Disable Jekyll processing for JavaScript files
+sass:
+  style: compressed
+
+# Keep files
+keep_files:
+  - js/
+  - index.html 
