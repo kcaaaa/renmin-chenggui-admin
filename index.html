@@ -175,6 +175,39 @@
             margin: 0;
         }
 
+        /* --- 5. Top Bar --- */
+        .top-bar {
+            background: var(--bg-white);
+            border-bottom: 1px solid var(--border-color-split);
+            padding: 0 var(--spacing-lg);
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .top-bar-left, .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+
+        .top-bar-left .page-title-in-bar {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .top-bar-right .ant-space,
+        .top-bar-right .ant-dropdown-trigger {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
         /* ------------------------------------ */
         /* --- ANT DESIGN OVERRIDES --- */
         /* ------------------------------------ */
@@ -229,6 +262,11 @@
         .ant-menu-item-selected:hover {
             background-color: var(--primary-color-dark) !important;
             color: var(--bg-white) !important;
+        }
+
+        .ant-menu-item .ant-menu-item-icon {
+            font-size: 16px;
+            width: 16px;
         }
 
         /* Cards */
