@@ -1,0 +1,27 @@
+title: 人民城轨2.0运营管理后台
+description: 人民城轨2.0运营管理系统，提供直播管理、用户管理、审核管理等功能
+baseurl: "/renmin-chenggui-admin"
+url: "https://kcaaaa.github.io"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude from processing
+exclude:
+  - 参考资料/
+  - "*.xlsx"
+  - "*.docx"
+  - "*.pptx"
+  - README.md
+  - .gitignore
+
+# Include files
+include:
+  - .nojekyll
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap 
