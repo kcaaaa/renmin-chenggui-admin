@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.0-fixed-js-files">
+    <meta name="version" content="2.1-layout-optimized">
     <title>人民城轨2.0运营管理后台</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚇</text></svg>">
     
@@ -13,7 +13,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="js/pages/LiveManagement.css">
@@ -21,345 +21,516 @@
     <!-- Enhanced Custom CSS -->
     <style>
         /* ------------------------- */
-        /* --- NEW DESIGN SYSTEM --- */
+        /* --- OPTIMIZED DESIGN SYSTEM --- */
         /* ------------------------- */
         
         /* --- 1. CSS Variables --- */
         :root {
-            /* Color System */
-            --primary-color: #4f46e5; /* Indigo 600 */
-            --primary-color-light: #e0e7ff; /* Indigo 100 */
-            --primary-color-dark: #3730a3; /* Indigo 800 */
+            /* Color System - 优化配色方案 */
+            --primary-color: #1890ff; /* Ant Design Primary Blue */
+            --primary-color-light: #e6f7ff;
+            --primary-color-dark: #0050b3;
             
-            --success-color: #16a34a; /* Green 600 */
-            --warning-color: #f97316; /* Orange 500 */
-            --error-color: #dc2626; /* Red 600 */
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #ff4d4f;
+            --info-color: #1890ff;
             
-            --bg-color-light: #f8fafc; /* Slate 50 */
-            --bg-color-dark: #eef2ff; /* Indigo 50 */
+            /* Background Colors */
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #fafafa;
+            --bg-white: #ffffff;
             
-            --surface-bg: rgba(255, 255, 255, 0.5); /* Semi-transparent white for glassmorphism */
-            --surface-bg-opaque: #ffffff;
-
-            --text-primary: #1e293b; /* Slate 800 */
-            --text-secondary: #64748b; /* Slate 500 */
-            --border-color: rgba(226, 232, 240, 0.6); /* Slate 200 with alpha */
+            /* Text Colors */
+            --text-primary: #262626;
+            --text-secondary: #595959;
+            --text-tertiary: #8c8c8c;
+            --text-quaternary: #bfbfbf;
+            
+            /* Border Colors */
+            --border-color-base: #d9d9d9;
+            --border-color-split: #f0f0f0;
             
             /* Shadow System */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
-            --shadow-inset: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+            --shadow-1: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-3: 0 6px 16px rgba(0, 0, 0, 0.12);
+            
+            /* Spacing */
+            --spacing-xs: 8px;
+            --spacing-sm: 12px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            
+            /* Border Radius */
+            --border-radius-sm: 6px;
+            --border-radius-base: 8px;
+            --border-radius-lg: 12px;
         }
 
-        /* --- 2. Base & Typography --- */
-        * { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
+        /* --- 2. Reset & Base --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color-light);
-            background-image: linear-gradient(180deg, var(--bg-color-dark) 0%, var(--bg-color-light) 25%);
+        html, body {
+            height: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-size: 14px;
+            line-height: 1.5715;
             color: var(--text-primary);
+            background-color: var(--bg-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- 3. Layout System --- */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
             overflow: hidden;
         }
 
-        /* --- 3. Main Layout --- */
-        .app-container, .main-layout { 
-            height: 100vh; 
-            width: 100vw;
-            display: flex; 
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 32px;
-            overflow-y: auto;
-            height: 100vh;
-        }
-
-        /* --- 4. Sidebar (Glassmorphism) --- */
-        .main-nav { 
-            width: 250px;
-            background: var(--surface-bg);
-            border-right: 1px solid var(--border-color);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        /* --- 4. Sidebar --- */
+        .main-nav {
+            width: 256px;
+            min-width: 256px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border-color-split);
             height: 100vh;
             overflow-y: auto;
-            flex-shrink: 0;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 10;
+            transition: all 0.2s;
         }
-        
+
         .nav-logo {
-            padding: 24px 20px;
+            padding: var(--spacing-lg) var(--spacing-md);
             text-align: center;
-            font-size: 20px;
-            font-weight: 700;
+            border-bottom: 1px solid var(--border-color-split);
+            background: var(--bg-white);
+            position: sticky;
+            top: 0;
+            z-index: 11;
+        }
+
+        .nav-logo h1 {
+            font-size: 18px;
+            font-weight: 600;
             color: var(--text-primary);
+            margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: var(--spacing-xs);
         }
 
         .nav-menu {
             flex: 1;
-            padding: 8px;
+            padding: var(--spacing-md) var(--spacing-xs);
         }
 
-        .nav-icon { 
-            margin-right: 14px; 
-            font-size: 20px; 
-            width: 24px;
-            text-align: center;
-            opacity: 0.8;
-        }
-        
-        /* --- 5. Top Bar --- */
-        .top-bar {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px) saturate(180%);
-            border-bottom: 1px solid var(--border-color);
-            padding: 0 32px;
-            height: 64px;
+        /* --- 5. Main Content --- */
+        .main-content {
+            flex: 1;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
-        
-        /* --- 6. Content & Page Header --- */
+
+        .content-wrapper {
+            flex: 1;
+            padding: var(--spacing-lg);
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+
+        /* --- 6. Page Header --- */
         .page-header {
-            margin-bottom: 32px;
+            margin-bottom: var(--spacing-lg);
+            background: var(--bg-white);
+            padding: var(--spacing-lg);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-1);
         }
 
         .page-title {
-            font-size: 32px;
-            font-weight: 700;
+            font-size: 24px;
+            font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 8px;
+            margin: 0 0 var(--spacing-xs) 0;
         }
 
         .page-description {
             color: var(--text-secondary);
-            font-size: 16px;
+            font-size: 14px;
+            margin: 0;
         }
 
         /* ------------------------------------ */
-        /* --- ANT DESIGN COMPONENT OVERRIDES --- */
+        /* --- ANT DESIGN OVERRIDES --- */
         /* ------------------------------------ */
         
-        /* --- Layout --- */
-        .ant-layout { background: transparent !important; }
-        .ant-layout-content { background: transparent !important; }
-        .ant-layout-sider {
+        /* Layout */
+        .ant-layout {
             background: transparent !important;
-            box-shadow: none !important;
+            height: 100vh;
         }
 
-        /* --- Menu --- */
+        .ant-layout-sider {
+            background: var(--bg-white) !important;
+            border-right: 1px solid var(--border-color-split) !important;
+        }
+
+        .ant-layout-content {
+            background: var(--bg-primary) !important;
+            padding: 0 !important;
+            overflow: auto;
+        }
+
+        /* Menu */
         .ant-menu {
             background: transparent !important;
             border: none !important;
-        }
-        
-        .ant-menu-item {
-            margin: 4px 0 !important;
-            border-radius: 8px !important;
-            padding: 12px 16px !important;
-            display: flex !important;
-            align-items: center !important;
-            height: auto !important;
-            line-height: 1.5 !important;
-            font-weight: 500;
-            color: #334155 !important; /* Slate 700 */
-        }
-        
-        .ant-menu-item-selected {
-            background: var(--primary-color) !important;
-            color: white !important;
-            font-weight: 600 !important;
-            box-shadow: var(--shadow-md);
-        }
-        
-        .ant-menu-item:not(.ant-menu-item-selected):hover {
-            background: rgba(79, 70, 229, 0.08) !important;
-            color: var(--primary-color) !important;
-        }
-        
-        .ant-menu-item-selected .ant-menu-item-icon, 
-        .ant-menu-item-selected .nav-icon {
-            opacity: 1 !important;
+            font-size: 14px;
         }
 
-        /* --- Cards --- */
+        .ant-menu-item {
+            margin: 4px 0 !important;
+            border-radius: var(--border-radius-base) !important;
+            height: 40px !important;
+            line-height: 40px !important;
+            padding: 0 var(--spacing-md) !important;
+            display: flex !important;
+            align-items: center !important;
+            font-weight: 400;
+            transition: all 0.2s;
+        }
+
+        .ant-menu-item:hover {
+            background-color: var(--primary-color-light) !important;
+            color: var(--primary-color) !important;
+        }
+
+        .ant-menu-item-selected {
+            background-color: var(--primary-color) !important;
+            color: var(--bg-white) !important;
+            font-weight: 500;
+        }
+
+        .ant-menu-item-selected:hover {
+            background-color: var(--primary-color-dark) !important;
+            color: var(--bg-white) !important;
+        }
+
+        /* Cards */
         .ant-card {
-            background: var(--surface-bg-opaque) !important;
-            border-radius: 16px !important;
-            border: 1px solid var(--border-color) !important;
-            box-shadow: var(--shadow-sm) !important;
-            transition: all 0.3s ease !important;
+            background: var(--bg-white) !important;
+            border-radius: var(--border-radius-lg) !important;
+            border: 1px solid var(--border-color-split) !important;
+            box-shadow: var(--shadow-1) !important;
+            margin-bottom: var(--spacing-lg);
+            transition: all 0.3s ease;
         }
 
         .ant-card:hover {
-            box-shadow: var(--shadow-lg) !important;
-            transform: translateY(-4px);
-            border-color: rgba(79, 70, 229, 0.4) !important;
+            box-shadow: var(--shadow-2) !important;
+            border-color: var(--primary-color-light) !important;
         }
-        
+
         .ant-card-head {
-            border-bottom: 1px solid var(--border-color) !important;
+            border-bottom: 1px solid var(--border-color-split) !important;
+            padding: 0 var(--spacing-lg) !important;
+            min-height: 56px !important;
+        }
+
+        .ant-card-head-title {
+            font-size: 16px !important;
             font-weight: 600 !important;
-            padding: 0 24px !important;
-            min-height: 60px !important;
+            color: var(--text-primary) !important;
         }
-        
+
         .ant-card-body {
-             padding: 24px !important;
+            padding: var(--spacing-lg) !important;
         }
 
-        /* --- Tabs --- */
-        .ant-tabs-nav {
-            margin-bottom: 24px !important;
+        /* Tables */
+        .ant-table-wrapper {
+            background: var(--bg-white) !important;
+            border-radius: var(--border-radius-lg) !important;
+            overflow: hidden;
+            box-shadow: var(--shadow-1) !important;
         }
 
-        .ant-tabs-tab {
+        .ant-table {
+            background: transparent !important;
+        }
+
+        .ant-table-thead > tr > th {
+            background: var(--bg-secondary) !important;
+            border-bottom: 1px solid var(--border-color-split) !important;
             font-weight: 600 !important;
             color: var(--text-secondary) !important;
-            padding: 12px 4px !important;
-            margin: 0 16px !important;
-        }
-
-        .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-            color: var(--primary-color) !important;
-        }
-        
-        .ant-tabs-ink-bar {
-            background: var(--primary-color) !important;
-            height: 3px !important;
-            border-radius: 3px;
-        }
-
-        /* --- Tables --- */
-        .ant-table-wrapper {
-            background: var(--surface-bg-opaque) !important;
-            border-radius: 12px !important;
-            border: 1px solid var(--border-color) !important;
-            overflow: hidden !important;
-        }
-        
-        .ant-table {
-             background: transparent !important;
-        }
-        
-        .ant-table-thead > tr > th {
-            background: #f8fafc !important; /* Slate 50 */
-            border-bottom: 1px solid var(--border-color) !important;
-            font-weight: 600 !important;
-            color: var(--text-secondary);
-            text-transform: uppercase;
             font-size: 12px;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-        
-        .ant-table-tbody > tr:hover > td {
-            background: var(--bg-color-dark) !important;
+            padding: var(--spacing-md) var(--spacing-md) !important;
         }
 
-        /* --- Buttons --- */
+        .ant-table-tbody > tr > td {
+            border-bottom: 1px solid var(--border-color-split) !important;
+            padding: var(--spacing-md) var(--spacing-md) !important;
+        }
+
+        .ant-table-tbody > tr:hover > td {
+            background: var(--bg-secondary) !important;
+        }
+
+        /* Buttons */
         .ant-btn {
-            border-radius: 8px !important;
-            font-weight: 600 !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 6px !important;
-            padding: 8px 16px !important;
-            height: auto !important;
-            box-shadow: var(--shadow-sm) !important;
+            border-radius: var(--border-radius-base) !important;
+            font-weight: 500 !important;
+            height: 32px !important;
+            padding: 0 var(--spacing-md) !important;
+            font-size: 14px !important;
+            line-height: 30px !important;
             transition: all 0.2s ease !important;
+            box-shadow: none !important;
         }
-        
-        .ant-btn:hover {
-             transform: translateY(-1px);
-             box-shadow: var(--shadow-md) !important;
+
+        .ant-btn:hover, .ant-btn:focus {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-1) !important;
         }
-        
+
         .ant-btn-primary {
             background: var(--primary-color) !important;
             border-color: var(--primary-color) !important;
         }
-        
-        .ant-btn-primary:hover {
+
+        .ant-btn-primary:hover, .ant-btn-primary:focus {
             background: var(--primary-color-dark) !important;
             border-color: var(--primary-color-dark) !important;
         }
 
-        .ant-btn-default:hover {
-            border-color: var(--primary-color) !important;
+        /* Tabs */
+        .ant-tabs {
+            color: var(--text-primary);
+        }
+
+        .ant-tabs-nav {
+            margin-bottom: var(--spacing-lg) !important;
+        }
+
+        .ant-tabs-tab {
+            padding: var(--spacing-sm) 4px !important;
+            margin: 0 var(--spacing-lg) 0 0 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+        }
+
+        .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
             color: var(--primary-color) !important;
+            font-weight: 600 !important;
         }
 
-        .ant-btn-dangerous {
-            background: var(--error-color) !important;
-            border-color: var(--error-color) !important;
-            color: white !important;
+        .ant-tabs-ink-bar {
+            background: var(--primary-color) !important;
+            height: 3px !important;
         }
 
-        /* --- Statistic Cards --- */
+        /* Forms */
+        .ant-form-item-label > label {
+            font-weight: 500 !important;
+            color: var(--text-primary) !important;
+        }
+
+        .ant-input, .ant-select-selector {
+            border-radius: var(--border-radius-base) !important;
+            border-color: var(--border-color-base) !important;
+        }
+
+        .ant-input:hover, .ant-select-selector:hover {
+            border-color: var(--primary-color) !important;
+        }
+
+        .ant-input:focus, .ant-input-focused {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+        }
+
+        /* Modal */
+        .ant-modal-content {
+            border-radius: var(--border-radius-lg) !important;
+        }
+
+        .ant-modal-header {
+            border-bottom: 1px solid var(--border-color-split) !important;
+            padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md) var(--spacing-lg) !important;
+        }
+
+        .ant-modal-title {
+            font-size: 18px !important;
+            font-weight: 600 !important;
+        }
+
+        .ant-modal-body {
+            padding: var(--spacing-lg) !important;
+        }
+
+        /* Stats */
         .ant-statistic-title {
             color: var(--text-secondary) !important;
             font-weight: 500 !important;
             font-size: 14px !important;
+            margin-bottom: var(--spacing-xs) !important;
         }
 
         .ant-statistic-content {
-            font-size: 30px !important;
-            font-weight: 700 !important;
             color: var(--text-primary) !important;
+            font-size: 28px !important;
+            font-weight: 600 !important;
         }
-        
-        /* --------------------- */
+
+        /* ------------------------------------ */
         /* --- UTILITY CLASSES --- */
-        /* --------------------- */
+        /* ------------------------------------ */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+            background: var(--bg-white);
+        }
+
+        .loading-content {
+            text-align: center;
+            padding: var(--spacing-xl);
+        }
+
+        .loading-icon {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .loading-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .loading-dots div {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            animation: loading-bounce 1.4s ease-in-out infinite both;
+        }
+
+        .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes loading-bounce {
+            0%, 80%, 100% { 
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
         .page-fade-in {
-            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeIn 0.5s ease-out;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
         }
 
-        .loading-spinner { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            flex-direction: column;
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-nav {
+                width: 200px;
+                min-width: 200px;
+            }
+            
+            .content-wrapper {
+                padding: var(--spacing-md);
+            }
+            
+            .page-header {
+                padding: var(--spacing-md);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-nav {
+                position: fixed;
+                left: -256px;
+                z-index: 100;
+                transition: left 0.3s ease;
+            }
+            
+            .main-nav.open {
+                left: 0;
+            }
+            
+            .main-content {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div id="app">
         <div class="loading-spinner">
-            <div style="text-align: center;">
-                <div style="font-size: 48px; margin-bottom: 16px;">🚇</div>
-                <div style="font-size: 20px; font-weight: bold; margin-bottom: 16px;">人民城轨2.0运营管理后台</div>
+            <div class="loading-content">
+                <div class="loading-icon">🚇</div>
+                <div class="loading-title">人民城轨2.0运营管理后台</div>
                 <div class="loading-dots">
                     <div></div>
                     <div></div>
                     <div></div>
                 </div>
-                <div style="margin-top: 16px; color: #64748b;">正在加载...</div>
+                <div class="loading-text">正在初始化系统...</div>
             </div>
         </div>
     </div>

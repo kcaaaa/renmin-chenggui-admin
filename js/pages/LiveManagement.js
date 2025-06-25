@@ -98,10 +98,10 @@ const LiveManagement = () => {
                         provider: '微赞',
                         weizan_id: 'wz_live_12346',
                         cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live2',
-                        liveType: 'live',
+                liveType: 'live',
                         accessLevel: 'registered',
-                        enableComment: true,
-                        autoRecord: true,
+                enableComment: true,
+                autoRecord: true,
                         quality: '1080p'
                     },
                     {
@@ -121,7 +121,7 @@ const LiveManagement = () => {
                         weizan_id: 'wz_live_12347',
                         cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live3',
                         liveType: 'live',
-                        accessLevel: 'public',
+                accessLevel: 'public',
                         enableComment: true,
                         autoRecord: true,
                         quality: '720p'
@@ -676,7 +676,7 @@ const LiveManagement = () => {
                     cover: 'https://placehold.co/120x68/e0e7ff/4f46e5?text=Live',
                     endTime: null
                 };
-                setLiveData(prev => ({
+                 setLiveData(prev => ({
                     ...prev,
                     lives: [newLive, ...prev.lives]
                 }));

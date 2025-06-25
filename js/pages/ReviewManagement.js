@@ -28,7 +28,7 @@ const ReviewManagement = () => {
                 loadImageQueue();
                 break;
             case 'video':
-                loadVideoQueue();
+            loadVideoQueue();
                 break;
             case 'interaction':
                 loadInteractionQueue();
@@ -126,7 +126,7 @@ const ReviewManagement = () => {
                     submitTime: '2024-01-15 14:30:25',
                     status: 'pending',
                     priority: 'high',
-                    duration: '05:42',
+                            duration: '05:42',
                     fileSize: '126.5MB',
                     resolution: '1920x1080',
                     aiResult: {
@@ -434,18 +434,18 @@ const ReviewManagement = () => {
                     onClick: () => showDetail(record)
                 }, '详情'),
                 (record.status === 'pending' || record.status === 'manual_review') ? [
-                    React.createElement(Button, {
-                        key: 'approve',
-                        type: 'primary',
-                        size: 'small',
+                React.createElement(Button, {
+                    key: 'approve',
+                    type: 'primary',
+                    size: 'small',
                         onClick: () => handleSingleReview(record, 'approve')
-                    }, '通过'),
-                    React.createElement(Button, {
-                        key: 'reject',
-                        danger: true,
-                        size: 'small',
+                }, '通过'),
+                React.createElement(Button, {
+                    key: 'reject',
+                    danger: true,
+                    size: 'small',
                         onClick: () => handleSingleReview(record, 'reject')
-                    }, '拒绝')
+                }, '拒绝')
                 ] : null
             ].filter(Boolean))
         }
@@ -477,13 +477,13 @@ const ReviewManagement = () => {
             dataIndex: 'title',
             width: 250,
             render: (text, record) => React.createElement('div', {}, [
-                React.createElement('div', {
-                    key: 'title',
-                    style: { fontWeight: 'bold', marginBottom: '4px' }
-                }, text),
-                React.createElement('div', {
-                    key: 'meta',
-                    style: { fontSize: '12px', color: '#666' }
+                    React.createElement('div', {
+                        key: 'title',
+                        style: { fontWeight: 'bold', marginBottom: '4px' }
+                    }, text),
+                    React.createElement('div', {
+                        key: 'meta',
+                        style: { fontSize: '12px', color: '#666' }
                 }, `${record.duration} | ${record.fileSize} | ${record.resolution}`)
             ])
         }
@@ -557,8 +557,8 @@ const ReviewManagement = () => {
                     count: stats.image.pending,
                     size: 'small',
                     style: { marginLeft: 8 }
-                })
-            ]),
+                    })
+                ]),
             children: React.createElement(Card, {
                 title: '图文内容审核',
                 extra: React.createElement(Space, {}, [
@@ -600,35 +600,35 @@ const ReviewManagement = () => {
                     count: stats.video.pending,
                     size: 'small',
                     style: { marginLeft: 8 }
-                })
-            ]),
+                        })
+                    ]),
             children: React.createElement(Card, {
                 title: '视频内容审核',
                 extra: React.createElement(Space, {}, [
-                    React.createElement(Button, {
-                        type: 'primary',
-                        disabled: selectedRows.length === 0,
-                        onClick: () => handleBatchReview('approve')
-                    }, `批量通过 (${selectedRows.length})`),
-                    React.createElement(Button, {
-                        danger: true,
-                        disabled: selectedRows.length === 0,
-                        onClick: () => handleBatchReview('reject')
+                        React.createElement(Button, {
+                            type: 'primary',
+                            disabled: selectedRows.length === 0,
+                            onClick: () => handleBatchReview('approve')
+                        }, `批量通过 (${selectedRows.length})`),
+                        React.createElement(Button, {
+                            danger: true,
+                            disabled: selectedRows.length === 0,
+                            onClick: () => handleBatchReview('reject')
                     }, `批量拒绝 (${selectedRows.length})`)
                 ])
             }, React.createElement(Table, {
                 columns: videoColumns,
                 dataSource: videoQueue,
-                loading: loading,
+                    loading: loading,
                 rowSelection: {
                     selectedRowKeys: selectedRows,
                     onChange: setSelectedRows
                 },
-                scroll: { x: 1200 },
-                pagination: {
+                    scroll: { x: 1200 },
+                    pagination: {
                     total: videoQueue.length,
                     pageSize: 10,
-                    showSizeChanger: true,
+                        showSizeChanger: true,
                     showTotal: (total) => `共 ${total} 条记录`
                 }
             }))
@@ -648,12 +648,12 @@ const ReviewManagement = () => {
             children: React.createElement(Card, {
                 title: '用户互动内容审核',
                 extra: React.createElement(Space, {}, [
-                    React.createElement(Button, {
+                        React.createElement(Button, {
                         type: 'primary',
                         disabled: selectedRows.length === 0,
                         onClick: () => handleBatchReview('approve')
                     }, `批量通过 (${selectedRows.length})`),
-                    React.createElement(Button, {
+                        React.createElement(Button, {
                         danger: true,
                         disabled: selectedRows.length === 0,
                         onClick: () => handleBatchReview('reject')
@@ -686,8 +686,8 @@ const ReviewManagement = () => {
                     count: stats.special.pending,
                     size: 'small',
                     style: { marginLeft: 8 }
-                })
-            ]),
+                                })
+                            ]),
             children: React.createElement(Card, {
                 title: '特殊审批流程',
                 extra: React.createElement(Alert, {
@@ -825,7 +825,7 @@ const ReviewManagement = () => {
                 React.createElement(Row, { key: 'ai-content', gutter: 16 }, [
                     React.createElement(Col, { key: 'score', span: 8 },
                         React.createElement(Card, { size: 'small', title: 'AI评分' },
-                            React.createElement('div', { style: { textAlign: 'center' } },
+                        React.createElement('div', { style: { textAlign: 'center' } },
                                 renderAIScore(currentItem.aiResult?.score || 0)
                             )
                         )

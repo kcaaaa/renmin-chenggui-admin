@@ -448,9 +448,9 @@ const DataManagement = () => {
                         width: 100,
                         render: (value) => `${value}ms`
                     },
-                    {
-                        title: '状态',
-                        width: 100,
+        {
+            title: '状态',
+            width: 100,
                         render: (_, record) => React.createElement(Badge, {
                             status: record.success >= 99 ? 'success' : record.success >= 95 ? 'warning' : 'error',
                             text: record.success >= 99 ? '正常' : record.success >= 95 ? '警告' : '异常'
@@ -577,4 +577,4 @@ const DataManagement = () => {
     ]);
 };
 
-window.DataManagement = DataManagement;
+window.DataManagement = DataManagement; 

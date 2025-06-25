@@ -230,17 +230,17 @@ const UserManagement = () => {
                             description: '技术标准制定和技术指导',
                             memberCount: 45,
                             createTime: '2020-01-15'
-                        }
-                    ]
-                },
-                {
+                                }
+                            ]
+                        },
+                        {
                     id: 'ORG004',
                     key: 'ORG004',
                     name: '北京国际会展公司',
                     type: 'exhibition',
                     parentId: null,
                     level: 1,
-                    status: 'active',
+                            status: 'active',
                     description: '专业会展服务提供商',
                     memberCount: 125,
                     createTime: '2023-06-10'
@@ -536,7 +536,7 @@ const UserManagement = () => {
                     style: { fontWeight: 'bold', marginBottom: '4px' }
                 }, record.realName),
                 React.createElement('div', {
-                    key: 'username',
+                        key: 'username',
                     style: { fontSize: '12px', color: '#666' }
                 }, `@${record.username}`)
             ])
@@ -772,20 +772,20 @@ const UserManagement = () => {
                         }, '新增用户')
                     ])
                 }, [
-                    React.createElement(Table, {
+                React.createElement(Table, {
                         key: 'user-table',
-                        columns: userColumns,
-                        dataSource: users,
-                        loading: loading,
+                    columns: userColumns,
+                    dataSource: users,
+                    loading: loading,
                         scroll: { x: 1200 },
-                        pagination: {
+                    pagination: {
                             total: users.length,
                             pageSize: 10,
-                            showSizeChanger: true,
-                            showQuickJumper: true,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
                             showTotal: (total) => `共 ${total} 条记录`
-                        }
-                    })
+                    }
+                })
                 ])
             ])
         },
@@ -818,24 +818,24 @@ const UserManagement = () => {
                                 React.createElement('p', {
                                     key: 'template-desc'
                                 }, '请先下载标准模板，按照格式填写用户信息'),
-                                React.createElement(Space, {
+                    React.createElement(Space, {
                                     key: 'template-buttons'
-                                }, [
-                                    React.createElement(Button, {
+                    }, [
+                        React.createElement(Button, {
                                         key: 'excel-template',
                                         onClick: () => downloadTemplate('xlsx')
                                     }, '下载Excel模板'),
-                                    React.createElement(Button, {
+                        React.createElement(Button, {
                                         key: 'csv-template',
                                         onClick: () => downloadTemplate('csv')
                                     }, '下载CSV模板')
                                 ])
-                            ])
-                        ]),
+                    ])
+                ]),
                         React.createElement(Col, { key: 'upload-col', span: 12 }, [
-                            React.createElement(Card, {
+                        React.createElement(Card, {
                                 key: 'upload-card',
-                                size: 'small',
+                            size: 'small',
                                 title: '上传导入文件'
                             }, [
                                 React.createElement('p', {
@@ -866,15 +866,15 @@ const UserManagement = () => {
                                         className: 'ant-upload-hint'
                                     }, '单次最多导入1000个用户')
                                 ]),
-                                React.createElement('div', {
+                            React.createElement('div', {
                                     key: 'upload-actions',
                                     style: { marginTop: 16, textAlign: 'center' }
-                                }, [
-                                    React.createElement(Button, {
+                    }, [
+                        React.createElement(Button, {
                                         key: 'import-btn',
-                                        type: 'primary',
+                            type: 'primary',
                                         loading: loading,
-                                        onClick: () => {
+                            onClick: () => {
                                             handleBatchImport({ importType: 'excel' });
                                         }
                                     }, '开始导入')
@@ -921,7 +921,7 @@ const UserManagement = () => {
                     key: 'audit-card',
                     title: '操作日志'
                 }, [
-                    React.createElement(Table, {
+                React.createElement(Table, {
                         key: 'audit-table',
                         columns: [
                             { title: '操作人', dataIndex: 'operatorName', width: 100 },
@@ -935,12 +935,12 @@ const UserManagement = () => {
                             { title: '操作详情', dataIndex: 'details', ellipsis: true },
                             { title: '操作时间', dataIndex: 'timestamp', width: 150 }
                         ],
-                        dataSource: auditLogs,
-                        loading: loading,
-                        pagination: {
+                    dataSource: auditLogs,
+                    loading: loading,
+                    pagination: {
                             total: auditLogs.length,
-                            pageSize: 20,
-                            showSizeChanger: true,
+                        pageSize: 20,
+                        showSizeChanger: true,
                             showTotal: (total) => `共 ${total} 条记录`
                         }
                     })
@@ -973,32 +973,32 @@ const UserManagement = () => {
                 layout: 'vertical',
                 onFinish: (values) => {
                     message.success(currentUser ? '用户信息已更新' : '用户创建成功');
-                    setModalVisible(false);
-                    loadUsers();
+                            setModalVisible(false);
+                            loadUsers();
                 }
             }, [
-                React.createElement(Form.Item, {
+                    React.createElement(Form.Item, {
                     key: 'username',
-                    name: 'username',
+                        name: 'username',
                     label: '用户名',
-                    rules: [{ required: true, message: '请输入用户名' }]
+                        rules: [{ required: true, message: '请输入用户名' }]
                 }, React.createElement(Input, { placeholder: '请输入用户名' })),
                 
-                React.createElement(Form.Item, {
+                    React.createElement(Form.Item, {
                     key: 'realName',
-                    name: 'realName',
+                        name: 'realName',
                     label: '真实姓名',
-                    rules: [{ required: true, message: '请输入真实姓名' }]
+                        rules: [{ required: true, message: '请输入真实姓名' }]
                 }, React.createElement(Input, { placeholder: '请输入真实姓名' })),
                 
-                React.createElement(Form.Item, {
+                    React.createElement(Form.Item, {
                     key: 'userType',
-                    name: 'userType',
+                        name: 'userType',
                     label: '用户类型',
-                    rules: [{ required: true, message: '请选择用户类型' }]
-                }, React.createElement(Select, {
-                    placeholder: '请选择用户类型',
-                    options: [
+                        rules: [{ required: true, message: '请选择用户类型' }]
+                    }, React.createElement(Select, {
+                        placeholder: '请选择用户类型',
+                        options: [
                         { value: 'user', label: '普通用户' },
                         { value: 'association', label: '协会用户' },
                         { value: 'exhibition', label: '会展用户' },
@@ -1010,14 +1010,14 @@ const UserManagement = () => {
                     key: 'submit',
                     style: { textAlign: 'right', marginTop: 24 }
                 }, [
-                    React.createElement(Button, {
+                React.createElement(Button, {
                         key: 'cancel',
                         onClick: () => setModalVisible(false),
                         style: { marginRight: 8 }
-                    }, '取消'),
-                    React.createElement(Button, {
+                }, '取消'),
+                React.createElement(Button, {
                         key: 'submit',
-                        type: 'primary',
+                    type: 'primary',
                         htmlType: 'submit'
                     }, currentUser ? '更新' : '创建')
                 ])
@@ -1039,34 +1039,34 @@ const UserManagement = () => {
                 layout: 'vertical',
                 onFinish: (values) => {
                     message.success(currentOrg?.id ? '组织信息已更新' : '组织创建成功');
-                    setOrgModalVisible(false);
-                    loadOrganizations();
-                }
-            }, [
-                React.createElement(Form.Item, {
-                    key: 'name',
-                    name: 'name',
+                            setOrgModalVisible(false);
+                            loadOrganizations();
+                    }
+        }, [
+            React.createElement(Form.Item, {
+                key: 'name',
+                name: 'name',
                     label: '组织名称',
-                    rules: [{ required: true, message: '请输入组织名称' }]
-                }, React.createElement(Input, { placeholder: '请输入组织名称' })),
+                rules: [{ required: true, message: '请输入组织名称' }]
+            }, React.createElement(Input, { placeholder: '请输入组织名称' })),
                 
-                React.createElement(Form.Item, {
+                    React.createElement(Form.Item, {
                     key: 'type',
-                    name: 'type',
+                        name: 'type',
                     label: '组织类型',
-                    rules: [{ required: true, message: '请选择组织类型' }]
-                }, React.createElement(Select, {
-                    placeholder: '请选择组织类型',
-                    options: [
-                        { value: 'admin', label: '管理部门' },
-                        { value: 'association', label: '协会组织' },
+                        rules: [{ required: true, message: '请选择组织类型' }]
+                    }, React.createElement(Select, {
+                        placeholder: '请选择组织类型',
+                        options: [
+                            { value: 'admin', label: '管理部门' },
+                            { value: 'association', label: '协会组织' },
                         { value: 'exhibition', label: '会展公司' },
                         { value: 'committee', label: '委员会' },
                         { value: 'group', label: '工作组' }
                     ]
                 })),
                 
-                React.createElement(Form.Item, {
+            React.createElement(Form.Item, {
                     key: 'submit',
                     style: { textAlign: 'right', marginTop: 24 }
                 }, [
