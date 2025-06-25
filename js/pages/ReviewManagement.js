@@ -432,29 +432,41 @@ const ReviewManagement = () => {
         },
         {
             title: '操作',
-            width: 180,
+            width: 200, // 增加列宽以防止折叠
             fixed: 'right',
-            render: (_, record) => React.createElement(Space, { size: 'small' }, [
-                React.createElement(Button, {
-                    key: 'detail',
-                    size: 'small',
-                    onClick: () => showDetail(record)
-                }, '详情'),
-                (record.status === 'pending' || record.status === 'manual_review') ? [
-                React.createElement(Button, {
-                    key: 'approve',
-                    type: 'primary',
-                    size: 'small',
-                        onClick: () => handleSingleReview(record, 'approve')
-                }, '通过'),
-                React.createElement(Button, {
-                    key: 'reject',
-                    danger: true,
-                    size: 'small',
-                        onClick: () => handleSingleReview(record, 'reject')
-                }, '拒绝')
-                ] : null
-            ].filter(Boolean))
+            render: (_, record) => {
+                const actions = [
+                    React.createElement(Button, {
+                        key: 'detail',
+                        type: 'link', // 优化为链接按钮，更紧凑
+                        size: 'small',
+                        onClick: () => showDetail(record)
+                    }, '详情'),
+                ];
+
+                // 根据状态条件渲染审核按钮
+                if (record.status === 'pending' || record.status === 'manual_review') {
+                    actions.push(
+                        React.createElement(Button, {
+                            key: 'approve',
+                            type: 'primary',
+                            size: 'small',
+                            onClick: () => handleSingleReview(record, 'approve')
+                        }, '通过')
+                    );
+                    actions.push(
+                        React.createElement(Button, {
+                            key: 'reject',
+                            type: 'link', // 优化为链接按钮，更紧凑
+                            danger: true,
+                            size: 'small',
+                            onClick: () => handleSingleReview(record, 'reject')
+                        }, '拒绝')
+                    );
+                }
+                
+                return React.createElement(Space, { size: 'small' }, actions);
+            }
         }
     ];
 
