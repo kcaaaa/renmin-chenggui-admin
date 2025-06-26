@@ -1,5 +1,5 @@
 // 顶部操作栏组件
-const TopBar = ({ user, notifications, onNotificationClick, onLogout }) => {
+const TopBar = ({ user, notifications, onNotificationClick, onLogout, onPageChange }) => {
     const { Badge, Dropdown, Avatar, Space, Button, Tooltip, Modal } = antd;
     
     // 用户菜单
@@ -19,6 +19,12 @@ const TopBar = ({ user, notifications, onNotificationClick, onLogout }) => {
                 cancelText: '取消',
                 onOk: () => onLogout && onLogout(),
             });
+        } else if (key === 'profile') {
+            // 跳转到个人中心页面
+            onPageChange && onPageChange('personal-center');
+        } else if (key === 'settings') {
+            // 跳转到账户设置页面
+            onPageChange && onPageChange('account-settings');
         }
     };
 

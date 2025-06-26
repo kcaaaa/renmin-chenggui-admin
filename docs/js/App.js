@@ -242,6 +242,14 @@ const App = () => {
             case 'SystemSettings':
                 console.log('Rendering SystemSettings');
                 return React.createElement(window.SystemSettings);
+            case 'personal-center':
+            case 'PersonalCenter':
+                console.log('Rendering PersonalCenter');
+                return React.createElement(window.PersonalCenter);
+            case 'account-settings':
+            case 'AccountSettings':
+                console.log('Rendering AccountSettings');
+                return React.createElement(window.AccountSettings);
             default:
                 console.log('Rendering default Dashboard for:', currentPage);
                 return React.createElement(window.Dashboard);
@@ -332,7 +340,8 @@ const App = () => {
                     user: user,
                     notifications: notifications,
                     onNotificationClick: handleNotificationClick,
-                    onLogout: handleLogout
+                    onLogout: handleLogout,
+                    onPageChange: handlePageChange
                 })),
 
                 // 主内容区
