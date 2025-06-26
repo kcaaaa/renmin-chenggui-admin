@@ -39,6 +39,13 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             page: 'MessageManagement'
         },
         {
+            key: 'booth',
+            icon: '🏢',
+            label: '展位管理',
+            title: '展会展位信息管理',
+            page: 'BoothManagement'
+        },
+        {
             key: 'stats',
             icon: '📋',
             label: '行为统计',
