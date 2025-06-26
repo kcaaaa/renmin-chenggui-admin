@@ -1,6 +1,9 @@
-// 审核管理页面 - 基于新功能规范重构
+﻿// 审核管理页面 - 基于新功能规范重构
 const ReviewManagement = () => {
-    const { Tabs, Table, Card, Button, Space, Tag, Input, Select, Modal, Progress, Alert, Tooltip, Row, Col, Descriptions, Badge, Statistic, Form, message } = antd;
+    const { Tabs, Table, Card, Button, Space, Tag, Input, Select, Modal, Progress, Alert, Tooltip, Row, Col, Descriptions, Badge, Statistic, Form, message, DatePicker, RangePicker } = antd;
+    const { Search } = Input;
+    const { Option } = Select;
+    const { RangePicker: DateRangePicker } = DatePicker;
     
     const [activeTab, setActiveTab] = React.useState('image');
     const [imageQueue, setImageQueue] = React.useState([]);
@@ -11,6 +14,15 @@ const ReviewManagement = () => {
     const [selectedRows, setSelectedRows] = React.useState([]);
     const [modalVisible, setModalVisible] = React.useState(false);
     const [currentItem, setCurrentItem] = React.useState(null);
+    
+    // 搜索和筛选状态
+    const [searchText, setSearchText] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState('all');
+    const [typeFilter, setTypeFilter] = React.useState('all');
+    const [authorTypeFilter, setAuthorTypeFilter] = React.useState('all');
+    const [timeRange, setTimeRange] = React.useState(null);
+    const [priorityFilter, setPriorityFilter] = React.useState('all');
+    
     const [stats, setStats] = React.useState({
         image: { pending: 145, approved: 892, rejected: 23 },
         video: { pending: 56, approved: 234, rejected: 12 },
@@ -20,7 +32,230 @@ const ReviewManagement = () => {
 
     React.useEffect(() => {
         loadCurrentQueue();
-    }, [activeTab]);
+    }, [activeTab, searchText, statusFilter, typeFilter, authorTypeFilter, timeRange, priorityFilter]);
+
+    // 重置筛选条件
+    const resetFilters = () => {
+        setSearchText('');
+        setStatusFilter('all');
+        setTypeFilter('all');
+        setAuthorTypeFilter('all');
+        setTimeRange(null);
+        setPriorityFilter('all');
+    };
+
+    // 导出数据
+    const handleExport = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        message.loading('正在导出数据...', 2);
+        setTimeout(() => {
+            message.success(`已导出 ${filteredData.length} 条${getTabDisplayName(activeTab)}数据`);
+        }, 2000);
+    };
+
+    // 获取当前Tab的数据
+    const getCurrentData = () => {
+        switch(activeTab) {
+            case 'image': return imageQueue;
+            case 'video': return videoQueue;
+            case 'interaction': return interactionQueue;
+            case 'special': return specialQueue;
+            default: return [];
+        }
+    };
+
+    // 获取Tab显示名称
+    const getTabDisplayName = (tab) => {
+        const names = {
+            image: '图文内容',
+            video: '视频内容', 
+            interaction: '互动内容',
+            special: '特殊审核'
+        };
+        return names[tab] || '内容';
+    };
+
+    // 数据筛选逻辑
+    const filterData = (data) => {
+        return data.filter(item => {
+            // 文本搜索
+            if (searchText && !item.title?.toLowerCase().includes(searchText.toLowerCase()) && 
+                !item.content?.toLowerCase().includes(searchText.toLowerCase()) &&
+                !item.author?.toLowerCase().includes(searchText.toLowerCase())) {
+                return false;
+            }
+            
+            // 状态筛选
+            if (statusFilter !== 'all' && item.status !== statusFilter) {
+                return false;
+            }
+            
+            // 类型筛选
+            if (typeFilter !== 'all' && item.type !== typeFilter) {
+                return false;
+            }
+            
+            // 作者类型筛选
+            if (authorTypeFilter !== 'all' && item.authorType !== authorTypeFilter) {
+                return false;
+            }
+            
+            // 优先级筛选
+            if (priorityFilter !== 'all' && item.priority !== priorityFilter) {
+                return false;
+            }
+            
+            // 时间范围筛选
+            if (timeRange && timeRange.length === 2) {
+                const itemTime = new Date(item.submitTime);
+                const startTime = timeRange[0].startOf('day');
+                const endTime = timeRange[1].endOf('day');
+                if (itemTime < startTime || itemTime > endTime) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+    };
+
+    // 渲染搜索和筛选工具栏
+    const renderSearchToolbar = () => {
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'search-row',
+                gutter: [16, 16],
+                align: 'middle'
+            }, [
+                React.createElement(Col, { span: 6 }, [
+                    React.createElement(Search, {
+                        placeholder: `搜索${getTabDisplayName(activeTab)}名称、内容或作者`,
+                        value: searchText,
+                        onChange: (e) => setSearchText(e.target.value),
+                        onSearch: (value) => setSearchText(value),
+                        allowClear: true,
+                        enterButton: true
+                    })
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "状态筛选",
+                        value: statusFilter,
+                        onChange: setStatusFilter,
+                        style: { width: '100%' }
+                    }, [
+                        React.createElement(Option, { value: 'all' }, '全部状态'),
+                        React.createElement(Option, { value: 'pending' }, '待审核'),
+                        React.createElement(Option, { value: 'ai_reviewing' }, 'AI审核中'),
+                        React.createElement(Option, { value: 'manual_review' }, '人工复审'),
+                        React.createElement(Option, { value: 'approved' }, '已通过'),
+                        React.createElement(Option, { value: 'rejected' }, '未通过'),
+                        React.createElement(Option, { value: 'pending_dingding' }, '等待钉钉审批'),
+                        React.createElement(Option, { value: 'joint_review' }, '联合审核中')
+                    ])
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "作者类型",
+                        value: authorTypeFilter,
+                        onChange: setAuthorTypeFilter,
+                        style: { width: '100%' }
+                    }, [
+                        React.createElement(Option, { value: 'all' }, '全部作者'),
+                        React.createElement(Option, { value: 'user' }, '普通用户'),
+                        React.createElement(Option, { value: 'association' }, '协会'),
+                        React.createElement(Option, { value: 'exhibition' }, '会展')
+                    ])
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "优先级",
+                        value: priorityFilter,
+                        onChange: setPriorityFilter,
+                        style: { width: '100%' }
+                    }, [
+                        React.createElement(Option, { value: 'all' }, '全部优先级'),
+                        React.createElement(Option, { value: 'high' }, '高优先级'),
+                        React.createElement(Option, { value: 'normal' }, '普通优先级'),
+                        React.createElement(Option, { value: 'low' }, '低优先级')
+                    ])
+                ]),
+                React.createElement(Col, { span: 5 }, [
+                    React.createElement(DateRangePicker, {
+                        placeholder: ['开始时间', '结束时间'],
+                        value: timeRange,
+                        onChange: setTimeRange,
+                        style: { width: '100%' },
+                        format: 'YYYY-MM-DD'
+                    })
+                ]),
+                React.createElement(Col, { span: 4 }, [
+                    React.createElement(Space, {}, [
+                        React.createElement(Button, {
+                            onClick: resetFilters
+                        }, '重置'),
+                        React.createElement(Button, {
+                            type: 'primary',
+                            onClick: () => loadCurrentQueue()
+                        }, '搜索')
+                    ])
+                ])
+            ])
+        ]);
+    };
+
+    // 渲染批量操作工具栏
+    const renderBatchToolbar = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '12px 16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'batch-row',
+                justify: 'space-between',
+                align: 'middle'
+            }, [
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, [
+                        React.createElement('span', {
+                            style: { color: '#666' }
+                        }, `共 ${filteredData.length} 条记录`),
+                        selectedRows.length > 0 && React.createElement('span', {
+                            style: { color: '#1890ff' }
+                        }, `已选择 ${selectedRows.length} 条`)
+                    ])
+                ]),
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, [
+                        React.createElement(Button, {
+                            type: 'primary',
+                            disabled: selectedRows.length === 0,
+                            onClick: () => handleBatchReview('approve')
+                        }, `批量通过 (${selectedRows.length})`),
+                        React.createElement(Button, {
+                            danger: true,
+                            disabled: selectedRows.length === 0,
+                            onClick: () => handleBatchReview('reject')
+                        }, `批量拒绝 (${selectedRows.length})`),
+                        React.createElement(Button, {
+                            onClick: handleExport
+                        }, '导出数据'),
+                        React.createElement(Button, {
+                            onClick: () => loadCurrentQueue()
+                        }, '刷新')
+                    ])
+                ])
+            ])
+        ]);
+    };
 
     const loadCurrentQueue = () => {
         switch(activeTab) {
@@ -576,38 +811,28 @@ const ReviewManagement = () => {
                     count: stats.image.pending,
                     size: 'small',
                     style: { marginLeft: 8 }
-                    })
-                ]),
-            children: React.createElement(Card, {
-                title: '图文内容审核',
-                extra: React.createElement(Space, {}, [
-                    React.createElement(Button, {
-                        type: 'primary',
-                        disabled: selectedRows.length === 0,
-                        onClick: () => handleBatchReview('approve')
-                    }, `批量通过 (${selectedRows.length})`),
-                    React.createElement(Button, {
-                        danger: true,
-                        disabled: selectedRows.length === 0,
-                        onClick: () => handleBatchReview('reject')
-                    }, `批量拒绝 (${selectedRows.length})`)
-                ])
-            }, React.createElement(Table, {
-                columns: imageColumns,
-                dataSource: imageQueue,
-                loading: loading,
-                rowSelection: {
-                    selectedRowKeys: selectedRows,
-                    onChange: setSelectedRows
-                },
-                scroll: { x: 1200 },
-                pagination: {
-                    total: imageQueue.length,
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total) => `共 ${total} 条记录`
-                }
-            }))
+                })
+            ]),
+            children: React.createElement('div', {}, [
+                renderSearchToolbar(),
+                renderBatchToolbar(),
+                React.createElement(Table, {
+                    columns: imageColumns,
+                    dataSource: filterData(imageQueue),
+                    loading: loading,
+                    rowSelection: {
+                        selectedRowKeys: selectedRows,
+                        onChange: setSelectedRows
+                    },
+                    scroll: { x: 1200 },
+                    pagination: {
+                        total: filterData(imageQueue).length,
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        showTotal: (total, range) => `显示 ${range[0]}-${range[1]} 条，共 ${total} 条记录`
+                    }
+                })
+            ])
         },
         {
             key: 'video',
@@ -619,38 +844,28 @@ const ReviewManagement = () => {
                     count: stats.video.pending,
                     size: 'small',
                     style: { marginLeft: 8 }
-                        })
-                    ]),
-            children: React.createElement(Card, {
-                title: '视频内容审核',
-                extra: React.createElement(Space, {}, [
-                        React.createElement(Button, {
-                            type: 'primary',
-                            disabled: selectedRows.length === 0,
-                            onClick: () => handleBatchReview('approve')
-                        }, `批量通过 (${selectedRows.length})`),
-                        React.createElement(Button, {
-                            danger: true,
-                            disabled: selectedRows.length === 0,
-                            onClick: () => handleBatchReview('reject')
-                    }, `批量拒绝 (${selectedRows.length})`)
-                ])
-            }, React.createElement(Table, {
-                columns: videoColumns,
-                dataSource: videoQueue,
+                })
+            ]),
+            children: React.createElement('div', {}, [
+                renderSearchToolbar(),
+                renderBatchToolbar(),
+                React.createElement(Table, {
+                    columns: videoColumns,
+                    dataSource: filterData(videoQueue),
                     loading: loading,
-                rowSelection: {
-                    selectedRowKeys: selectedRows,
-                    onChange: setSelectedRows
-                },
+                    rowSelection: {
+                        selectedRowKeys: selectedRows,
+                        onChange: setSelectedRows
+                    },
                     scroll: { x: 1200 },
                     pagination: {
-                    total: videoQueue.length,
-                    pageSize: 10,
+                        total: filterData(videoQueue).length,
+                        pageSize: 10,
                         showSizeChanger: true,
-                    showTotal: (total) => `共 ${total} 条记录`
-                }
-            }))
+                        showTotal: (total, range) => `显示 ${range[0]}-${range[1]} 条，共 ${total} 条记录`
+                    }
+                })
+            ])
         },
         {
             key: 'interaction',
@@ -664,36 +879,26 @@ const ReviewManagement = () => {
                     style: { marginLeft: 8 }
                 })
             ]),
-            children: React.createElement(Card, {
-                title: '用户互动内容审核',
-                extra: React.createElement(Space, {}, [
-                        React.createElement(Button, {
-                        type: 'primary',
-                        disabled: selectedRows.length === 0,
-                        onClick: () => handleBatchReview('approve')
-                    }, `批量通过 (${selectedRows.length})`),
-                        React.createElement(Button, {
-                        danger: true,
-                        disabled: selectedRows.length === 0,
-                        onClick: () => handleBatchReview('reject')
-                    }, `批量拒绝 (${selectedRows.length})`)
-                ])
-            }, React.createElement(Table, {
-                columns: interactionColumns,
-                dataSource: interactionQueue,
-                loading: loading,
-                rowSelection: {
-                    selectedRowKeys: selectedRows,
-                    onChange: setSelectedRows
-                },
-                scroll: { x: 1200 },
-                pagination: {
-                    total: interactionQueue.length,
-                    pageSize: 15,
-                    showSizeChanger: true,
-                    showTotal: (total) => `共 ${total} 条记录`
-                }
-            }))
+            children: React.createElement('div', {}, [
+                renderSearchToolbar(),
+                renderBatchToolbar(),
+                React.createElement(Table, {
+                    columns: interactionColumns,
+                    dataSource: filterData(interactionQueue),
+                    loading: loading,
+                    rowSelection: {
+                        selectedRowKeys: selectedRows,
+                        onChange: setSelectedRows
+                    },
+                    scroll: { x: 1200 },
+                    pagination: {
+                        total: filterData(interactionQueue).length,
+                        pageSize: 15,
+                        showSizeChanger: true,
+                        showTotal: (total, range) => `显示 ${range[0]}-${range[1]} 条，共 ${total} 条记录`
+                    }
+                })
+            ])
         },
         {
             key: 'special',
@@ -705,28 +910,31 @@ const ReviewManagement = () => {
                     count: stats.special.pending,
                     size: 'small',
                     style: { marginLeft: 8 }
-                                })
-                            ]),
-            children: React.createElement(Card, {
-                title: '特殊审批流程',
-                extra: React.createElement(Alert, {
-                    message: '协会内容需钉钉审批，会展内容需联合审核',
+                })
+            ]),
+            children: React.createElement('div', {}, [
+                React.createElement(Alert, {
+                    message: '特殊审批流程',
+                    description: '协会内容需钉钉审批，会展内容需联合审核',
                     type: 'info',
                     showIcon: true,
-                    style: { maxWidth: 400 }
+                    style: { marginBottom: '16px' }
+                }),
+                renderSearchToolbar(),
+                renderBatchToolbar(),
+                React.createElement(Table, {
+                    columns: specialColumns,
+                    dataSource: filterData(specialQueue),
+                    loading: loading,
+                    scroll: { x: 1200 },
+                    pagination: {
+                        total: filterData(specialQueue).length,
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        showTotal: (total, range) => `显示 ${range[0]}-${range[1]} 条，共 ${total} 条记录`
+                    }
                 })
-            }, React.createElement(Table, {
-                columns: specialColumns,
-                dataSource: specialQueue,
-                loading: loading,
-                scroll: { x: 1200 },
-                pagination: {
-                    total: specialQueue.length,
-                    pageSize: 10,
-                    showSizeChanger: true,
-                    showTotal: (total) => `共 ${total} 条记录`
-                }
-            }))
+            ])
         }
     ];
 

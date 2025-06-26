@@ -1,7 +1,6 @@
 // 顶部操作栏组件
-const TopBar = ({ user, notifications, onSearch, onNotificationClick, onLogout }) => {
-    const { Input, Badge, Dropdown, Avatar, Space, Button, Tooltip, Modal } = antd;
-    const [searchValue, setSearchValue] = React.useState('');
+const TopBar = ({ user, notifications, onNotificationClick, onLogout }) => {
+    const { Badge, Dropdown, Avatar, Space, Button, Tooltip, Modal } = antd;
     
     // 用户菜单
     const userMenuItems = [
@@ -41,8 +40,6 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick, onLogout }
         : [{ key: 'empty', label: React.createElement('div', { style: { textAlign: 'center', padding: '12px' } }, '暂无通知') }];
 
     const notificationMenu = { items: notificationItems, onClick: onNotificationClick };
-
-    const handleSearch = (value) => value.trim() && onSearch?.(value);
     
     const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
@@ -55,21 +52,12 @@ const TopBar = ({ user, notifications, onSearch, onNotificationClick, onLogout }
         ),
         // Right Side
         React.createElement('div', { className: 'top-bar-right' },
-            React.createElement(Input.Search, {
-                placeholder: "搜索...",
-                style: { width: 250 },
-                onSearch: handleSearch,
-                allowClear: true,
-            }),
-            React.createElement(Tooltip, { title: "批量审核" },
-                React.createElement(Button, { type: 'primary' }, '批量审核')
-            ),
-            React.createElement(Tooltip, { title: "导出报表" },
-                React.createElement(Button, {}, '导出')
-            ),
             React.createElement(Space, { size: "middle" },
                 React.createElement(Tooltip, { title: "帮助文档" },
-                    React.createElement(Button, { shape: 'circle' }, '❓')
+                    React.createElement(Button, { 
+                        shape: 'circle',
+                        onClick: () => window.open('https://github.com/kcaaaa/renmin-chenggui-admin/wiki', '_blank')
+                    }, '❓')
                 ),
                 React.createElement(Dropdown, { menu: notificationMenu, trigger: ['click'] },
                     React.createElement(Tooltip, { title: "通知" },

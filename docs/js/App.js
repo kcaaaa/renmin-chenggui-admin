@@ -127,18 +127,6 @@ const App = () => {
         }
     };
 
-    const handleSearch = (value) => {
-        console.log('搜索:', value);
-        
-        // 记录搜索行为
-        if (isAuthenticated) {
-            AuthUtils.logActivity('search', {
-                query: value,
-                timestamp: new Date().toISOString()
-            });
-        }
-    };
-
     const handleNotificationClick = () => {
         console.log('查看全部通知');
         handlePageChange('notifications');
@@ -343,7 +331,6 @@ const App = () => {
                 }, React.createElement(TopBar, {
                     user: user,
                     notifications: notifications,
-                    onSearch: handleSearch,
                     onNotificationClick: handleNotificationClick,
                     onLogout: handleLogout
                 })),
