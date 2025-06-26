@@ -1,83 +1,83 @@
-﻿// 瀵艰埅缁勪欢
+// 导航组件
 const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) => {
     const { Menu } = antd;
     
     const menuItems = [
         {
             key: 'dashboard',
-            icon: '馃搳',
-            label: '棣栭〉',
-            title: '瀹炴椂鏌ョ湅鏍稿績杩愯惀鎸囨爣',
+            icon: '📊',
+            label: '首页',
+            title: '实时查看核心运营指标',
             page: 'Dashboard'
         },
         {
             key: 'review',
-            icon: '馃攳',
-            label: '瀹℃牳绠＄悊',
-            title: '鍐呭瀹℃牳涓庣鐞?,
+            icon: '🔍',
+            label: '审核管理',
+            title: '内容审核与管理',
             page: 'ReviewManagement'
         },
         {
             key: 'live',
-            icon: '馃摵',
-            label: '鐩存挱绠＄悊',
-            title: '鐩存挱鍐呭绠＄悊',
+            icon: '📺',
+            label: '直播管理',
+            title: '直播内容管理',
             page: 'LiveManagement'
         },
         {
             key: 'user',
-            icon: '馃懃',
-            label: '鐢ㄦ埛绠＄悊',
-            title: '鐢ㄦ埛淇℃伅鏌ヨ涓庣鐞?,
+            icon: '👥',
+            label: '用户管理',
+            title: '用户信息查询与管理',
             page: 'UserManagement'
         },
         {
             key: 'message',
-            icon: '馃挰',
-            label: '娑堟伅绠＄悊',
-            title: 'APP绯荤粺娑堟伅鎺ㄩ€佺鐞?,
+            icon: '💬',
+            label: '消息管理',
+            title: 'APP系统消息推送管理',
             page: 'MessageManagement'
         },
         {
             key: 'booth',
-            icon: '馃彚',
-            label: '灞曚綅绠＄悊',
-            title: '灞曚細灞曚綅淇℃伅绠＄悊',
+            icon: '🏢',
+            label: '展位管理',
+            title: '展会展位信息管理',
             page: 'BoothManagement'
         },
         {
             key: 'stats',
-            icon: '馃搵',
-            label: '琛屼负缁熻',
-            title: '鐢ㄦ埛琛屼负鏁版嵁缁熻',
+            icon: '📋',
+            label: '行为统计',
+            title: '用户行为数据统计',
             page: 'BehaviorStats'
         },
         {
             key: 'operational',
-            icon: '馃搱',
-            label: '杩愯惀鏁版嵁缁熻',
-            title: '鏍稿績杩愯惀鎸囨爣涓庡垎妯″潡缁熻',
+            icon: '📈',
+            label: '运营数据统计',
+            title: '核心运营指标与分模块统计',
             page: 'OperationalStats'
         },
         {
             key: 'data',
-            icon: '馃捑',
-            label: '绯荤粺涓庤祫婧愮鐞?,
-            title: '绯荤粺璧勬簮鐩戞帶涓庣鐞?,
+            icon: '💾',
+            label: '系统与资源管理',
+            title: '系统资源监控与管理',
             page: 'DataManagement'
         },
         {
             key: 'traffic',
-            icon: '馃幆',
-            label: '娴侀噺鍒嗛厤閰嶇疆',
-            title: '鎺ㄨ崘绠楁硶涓庢祦閲忓垎閰?,
+            icon: '🎯',
+            label: '流量分配配置',
+            title: '推荐算法与流量分配',
             page: 'TrafficAllocation'
         },
         {
             key: 'settings',
-            icon: '鈿欙笍',
-            label: '绯荤粺璁剧疆',
-            title: '绯荤粺閰嶇疆涓庣鐞?,
+            icon: '⚙️',
+            label: '系统设置',
+            title: '系统配置与管理',
             page: 'SystemSettings'
         }
     ];
@@ -104,7 +104,7 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             transition: 'width 0.3s'
         }
     }, [
-        // 瀵艰埅澶撮儴
+        // 导航头部
         React.createElement('div', {
             key: 'header',
             style: {
@@ -128,10 +128,10 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
                 React.createElement('span', {
                     key: 'icon',
                     style: { marginRight: collapsed ? 0 : '8px' }
-                }, '馃殗'),
+                }, '🚇'),
                 !collapsed && React.createElement('span', {
                     key: 'text'
-                }, '浜烘皯鍩庤建2.0')
+                }, '人民城轨2.0')
             ]),
             !collapsed && React.createElement('button', {
                 key: 'toggle',
@@ -143,11 +143,11 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
                     padding: '4px',
                     borderRadius: '4px'
                 },
-                title: '鏀惰捣鑿滃崟'
-            }, '鈼€')
+                title: '收起菜单'
+            }, '◀')
         ]),
         
-        // 鏀惰捣鎸夐挳锛堟姌鍙犵姸鎬侊級
+        // 收起按钮（折叠状态）
         collapsed && React.createElement('div', {
             key: 'expand-btn',
             style: {
@@ -164,10 +164,10 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
                 padding: '4px',
                 borderRadius: '4px'
             },
-            title: '灞曞紑鑿滃崟'
-        }, '鈻?)),
+            title: '展开菜单'
+        }, '▶')),
         
-        // 鑿滃崟椤?
+        // 菜单项
         React.createElement(Menu, {
             key: 'menu',
             mode: 'inline',
