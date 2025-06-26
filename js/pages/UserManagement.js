@@ -1,6 +1,10 @@
 // 用户管理页面 - 基于新功能规范重构
 const UserManagement = () => {
     const { Table, Card, Button, Space, Tag, Input, Select, Modal, Tabs, Tooltip, Avatar, Tree, Form, Switch, DatePicker, Upload, Descriptions, Alert, Row, Col, Timeline, Transfer, Cascader, message } = antd;
+    const { Search } = Input;
+    const { Option } = Select;
+    const { RangePicker: DateRangePicker } = DatePicker;
+    
     const [activeTab, setActiveTab] = React.useState('users');
     const [users, setUsers] = React.useState([]);
     const [organizations, setOrganizations] = React.useState([]);
@@ -21,6 +25,15 @@ const UserManagement = () => {
     const [orgForm] = Form.useForm();
     const [importForm] = Form.useForm();
 
+    // 搜索和筛选状态
+    const [searchText, setSearchText] = React.useState('');
+    const [userTypeFilter, setUserTypeFilter] = React.useState('all');
+    const [statusFilter, setStatusFilter] = React.useState('all');
+    const [certificationFilter, setCertificationFilter] = React.useState('all');
+    const [securityLevelFilter, setSecurityLevelFilter] = React.useState('all');
+    const [importSourceFilter, setImportSourceFilter] = React.useState('all');
+    const [timeRange, setTimeRange] = React.useState(null);
+
     React.useEffect(() => {
         if (activeTab === 'users') {
             loadUsers();
@@ -35,7 +48,7 @@ const UserManagement = () => {
         } else if (activeTab === 'import') {
             // 导入功能页面不需要额外加载
         }
-    }, [activeTab]);
+    }, [activeTab, searchText, userTypeFilter, statusFilter, certificationFilter, securityLevelFilter, importSourceFilter, timeRange]);
 
     const loadUsers = () => {
         setLoading(true);
@@ -455,6 +468,463 @@ const UserManagement = () => {
         }, 600);
     };
 
+    // 重置筛选条件
+    const resetFilters = () => {
+        setSearchText('');
+        setUserTypeFilter('all');
+        setStatusFilter('all');
+        setCertificationFilter('all');
+        setSecurityLevelFilter('all');
+        setImportSourceFilter('all');
+        setTimeRange(null);
+    };
+
+    // 导出数据
+    const handleExport = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        message.loading('正在导出数据...', 2);
+        setTimeout(() => {
+            message.success(`已导出 ${filteredData.length} 条${getTabDisplayName(activeTab)}数据`);
+        }, 2000);
+    };
+
+    // 获取当前Tab的数据
+    const getCurrentData = () => {
+        switch(activeTab) {
+            case 'users': return users;
+            case 'organizations': return organizations;
+            case 'roles': return roles;
+            case 'audit': return auditLogs;
+            default: return [];
+        }
+    };
+
+    // 获取Tab显示名称
+    const getTabDisplayName = (tab) => {
+        const names = {
+            users: '用户',
+            organizations: '组织机构',
+            roles: '角色',
+            audit: '审计日志'
+        };
+        return names[tab] || '数据';
+    };
+
+    // 数据筛选逻辑
+    const filterData = (data) => {
+        if (!data || data.length === 0) return [];
+        
+        return data.filter(item => {
+            // 根据不同Tab应用不同的筛选逻辑
+            if (activeTab === 'users') {
+                return filterUsers(item);
+            } else if (activeTab === 'organizations') {
+                return filterOrganizations(item);
+            } else if (activeTab === 'roles') {
+                return filterRoles(item);
+            } else if (activeTab === 'audit') {
+                return filterAuditLogs(item);
+            }
+            return true;
+        });
+    };
+
+    // 用户筛选逻辑
+    const filterUsers = (user) => {
+        // 文本搜索
+        if (searchText && 
+            !user.username?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !user.realName?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !user.email?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !user.orgName?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 用户类型筛选
+        if (userTypeFilter !== 'all' && user.userType !== userTypeFilter) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && user.status !== statusFilter) {
+            return false;
+        }
+        
+        // 认证状态筛选
+        if (certificationFilter !== 'all' && user.certification !== certificationFilter) {
+            return false;
+        }
+        
+        // 安全等级筛选
+        if (securityLevelFilter !== 'all' && user.securityLevel !== securityLevelFilter) {
+            return false;
+        }
+        
+        // 导入来源筛选
+        if (importSourceFilter !== 'all' && user.importSource !== importSourceFilter) {
+            return false;
+        }
+        
+        // 时间范围筛选（注册时间）
+        if (timeRange && timeRange.length === 2) {
+            const itemTime = new Date(user.registerTime);
+            const startTime = timeRange[0].startOf('day');
+            const endTime = timeRange[1].endOf('day');
+            if (itemTime < startTime || itemTime > endTime) {
+                return false;
+            }
+        }
+        
+        return true;
+    };
+
+    // 组织筛选逻辑
+    const filterOrganizations = (org) => {
+        // 文本搜索
+        if (searchText && 
+            !org.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !org.description?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 组织类型筛选
+        if (userTypeFilter !== 'all' && org.type !== userTypeFilter) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && org.status !== statusFilter) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // 角色筛选逻辑
+    const filterRoles = (role) => {
+        // 文本搜索
+        if (searchText && 
+            !role.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !role.code?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !role.description?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 角色类型筛选
+        if (userTypeFilter !== 'all' && role.type !== userTypeFilter) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && role.status !== statusFilter) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // 审计日志筛选逻辑
+    const filterAuditLogs = (log) => {
+        // 文本搜索
+        if (searchText && 
+            !log.operator?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !log.operatorName?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !log.action?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !log.targetName?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 操作结果筛选
+        if (statusFilter !== 'all' && log.result !== statusFilter) {
+            return false;
+        }
+        
+        // 风险等级筛选
+        if (securityLevelFilter !== 'all' && log.riskLevel !== securityLevelFilter) {
+            return false;
+        }
+        
+        // 时间范围筛选
+        if (timeRange && timeRange.length === 2) {
+            const itemTime = new Date(log.timestamp);
+            const startTime = timeRange[0].startOf('day');
+            const endTime = timeRange[1].endOf('day');
+            if (itemTime < startTime || itemTime > endTime) {
+                return false;
+            }
+        }
+        
+        return true;
+    };
+
+    // 渲染搜索和筛选工具栏
+    const renderSearchToolbar = () => {
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'search-row',
+                gutter: [16, 16],
+                align: 'middle'
+            }, [
+                React.createElement(Col, { span: 6 }, [
+                    React.createElement(Search, {
+                        placeholder: getSearchPlaceholder(),
+                        value: searchText,
+                        onChange: (e) => setSearchText(e.target.value),
+                        onSearch: (value) => setSearchText(value),
+                        allowClear: true,
+                        enterButton: true
+                    })
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: getTypeFilterPlaceholder(),
+                        value: userTypeFilter,
+                        onChange: setUserTypeFilter,
+                        style: { width: '100%' }
+                    }, getTypeFilterOptions())
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "状态筛选",
+                        value: statusFilter,
+                        onChange: setStatusFilter,
+                        style: { width: '100%' }
+                    }, getStatusFilterOptions())
+                ]),
+                getExtraFilterColumn(),
+                React.createElement(Col, { span: 5 }, [
+                    React.createElement(DateRangePicker, {
+                        placeholder: ['开始时间', '结束时间'],
+                        value: timeRange,
+                        onChange: setTimeRange,
+                        style: { width: '100%' },
+                        format: 'YYYY-MM-DD'
+                    })
+                ]),
+                React.createElement(Col, { span: 4 }, [
+                    React.createElement(Space, {}, [
+                        React.createElement(Button, {
+                            onClick: resetFilters
+                        }, '重置'),
+                        React.createElement(Button, {
+                            type: 'primary',
+                            onClick: () => {
+                                if (activeTab === 'users') loadUsers();
+                                else if (activeTab === 'organizations') loadOrganizations();
+                                else if (activeTab === 'roles') loadRoles();
+                                else if (activeTab === 'audit') loadAuditLogs();
+                            }
+                        }, '搜索')
+                    ])
+                ])
+            ])
+        ]);
+    };
+
+    // 渲染批量操作工具栏
+    const renderBatchToolbar = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '12px 16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'batch-row',
+                justify: 'space-between',
+                align: 'middle'
+            }, [
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, [
+                        React.createElement('span', {
+                            style: { color: '#666' }
+                        }, `共 ${filteredData.length} 条记录`),
+                        selectedRows.length > 0 && React.createElement('span', {
+                            style: { color: '#1890ff' }
+                        }, `已选择 ${selectedRows.length} 条`)
+                    ])
+                ]),
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, getBatchOperationButtons())
+                ])
+            ])
+        ]);
+    };
+
+    // 获取搜索框占位符
+    const getSearchPlaceholder = () => {
+        const placeholders = {
+            users: '搜索用户名、姓名、邮箱或组织',
+            organizations: '搜索组织名称或描述',
+            roles: '搜索角色名称、代码或描述',
+            audit: '搜索操作员、操作或目标'
+        };
+        return placeholders[activeTab] || '搜索...';
+    };
+
+    // 获取类型筛选占位符
+    const getTypeFilterPlaceholder = () => {
+        const placeholders = {
+            users: '用户类型',
+            organizations: '组织类型',
+            roles: '角色类型',
+            audit: '操作类型'
+        };
+        return placeholders[activeTab] || '类型筛选';
+    };
+
+    // 获取类型筛选选项
+    const getTypeFilterOptions = () => {
+        const optionsMap = {
+            users: [
+                React.createElement(Option, { value: 'all' }, '全部类型'),
+                React.createElement(Option, { value: 'admin' }, '系统管理员'),
+                React.createElement(Option, { value: 'user' }, '普通用户'),
+                React.createElement(Option, { value: 'association' }, '协会用户'),
+                React.createElement(Option, { value: 'exhibition' }, '会展用户')
+            ],
+            organizations: [
+                React.createElement(Option, { value: 'all' }, '全部类型'),
+                React.createElement(Option, { value: 'admin' }, '管理部门'),
+                React.createElement(Option, { value: 'association' }, '协会组织'),
+                React.createElement(Option, { value: 'exhibition' }, '会展公司'),
+                React.createElement(Option, { value: 'group' }, '工作组')
+            ],
+            roles: [
+                React.createElement(Option, { value: 'all' }, '全部类型'),
+                React.createElement(Option, { value: 'admin' }, '管理角色'),
+                React.createElement(Option, { value: 'business' }, '业务角色'),
+                React.createElement(Option, { value: 'user' }, '用户角色')
+            ]
+        };
+        return optionsMap[activeTab] || [React.createElement(Option, { value: 'all' }, '全部类型')];
+    };
+
+    // 获取状态筛选选项
+    const getStatusFilterOptions = () => {
+        const optionsMap = {
+            users: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'active' }, '正常'),
+                React.createElement(Option, { value: 'suspended' }, '停用'),
+                React.createElement(Option, { value: 'locked' }, '锁定')
+            ],
+            organizations: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'active' }, '正常'),
+                React.createElement(Option, { value: 'suspended' }, '停用')
+            ],
+            roles: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'active' }, '启用'),
+                React.createElement(Option, { value: 'disabled' }, '禁用')
+            ],
+            audit: [
+                React.createElement(Option, { value: 'all' }, '全部结果'),
+                React.createElement(Option, { value: 'success' }, '成功'),
+                React.createElement(Option, { value: 'failed' }, '失败'),
+                React.createElement(Option, { value: 'warning' }, '警告')
+            ]
+        };
+        return optionsMap[activeTab] || [React.createElement(Option, { value: 'all' }, '全部状态')];
+    };
+
+    // 获取额外筛选列
+    const getExtraFilterColumn = () => {
+        if (activeTab === 'users') {
+            return React.createElement(Col, { span: 3 }, [
+                React.createElement(Select, {
+                    placeholder: "认证状态",
+                    value: certificationFilter,
+                    onChange: setCertificationFilter,
+                    style: { width: '100%' }
+                }, [
+                    React.createElement(Option, { value: 'all' }, '全部认证'),
+                    React.createElement(Option, { value: 'verified' }, '已认证'),
+                    React.createElement(Option, { value: 'unverified' }, '未认证'),
+                    React.createElement(Option, { value: 'pending' }, '待认证')
+                ])
+            ]);
+        } else if (activeTab === 'audit') {
+            return React.createElement(Col, { span: 3 }, [
+                React.createElement(Select, {
+                    placeholder: "风险等级",
+                    value: securityLevelFilter,
+                    onChange: setSecurityLevelFilter,
+                    style: { width: '100%' }
+                }, [
+                    React.createElement(Option, { value: 'all' }, '全部等级'),
+                    React.createElement(Option, { value: 'low' }, '低风险'),
+                    React.createElement(Option, { value: 'medium' }, '中风险'),
+                    React.createElement(Option, { value: 'high' }, '高风险')
+                ])
+            ]);
+        }
+        return React.createElement(Col, { span: 3 }, []);
+    };
+
+    // 获取批量操作按钮
+    const getBatchOperationButtons = () => {
+        const buttons = [
+            React.createElement(Button, {
+                onClick: handleExport
+            }, '导出数据'),
+            React.createElement(Button, {
+                onClick: () => {
+                    if (activeTab === 'users') loadUsers();
+                    else if (activeTab === 'organizations') loadOrganizations();
+                    else if (activeTab === 'roles') loadRoles();
+                    else if (activeTab === 'audit') loadAuditLogs();
+                }
+            }, '刷新')
+        ];
+
+        if (activeTab === 'users' && selectedRows.length > 0) {
+            buttons.unshift(
+                React.createElement(Button, {
+                    type: 'primary',
+                    disabled: selectedRows.length === 0,
+                    onClick: () => handleBatchUserOperation('activate')
+                }, `批量激活 (${selectedRows.length})`),
+                React.createElement(Button, {
+                    danger: true,
+                    disabled: selectedRows.length === 0,
+                    onClick: () => handleBatchUserOperation('suspend')
+                }, `批量停用 (${selectedRows.length})`)
+            );
+        }
+
+        return buttons;
+    };
+
+    // 批量用户操作
+    const handleBatchUserOperation = (action) => {
+        if (selectedRows.length === 0) {
+            message.warning('请选择要操作的用户');
+            return;
+        }
+
+        const actionText = action === 'activate' ? '激活' : '停用';
+        Modal.confirm({
+            title: `确认${actionText}选中的用户？`,
+            content: `将对 ${selectedRows.length} 个用户执行${actionText}操作`,
+            onOk: () => {
+                setLoading(true);
+                setTimeout(() => {
+                    setSelectedRows([]);
+                    loadUsers();
+                    message.success(`已${actionText} ${selectedRows.length} 个用户`);
+                }, 1000);
+            }
+        });
+    };
+
     // 用户身份类型渲染
     const renderUserType = (type) => {
         const typeMap = {
@@ -490,38 +960,6 @@ const UserManagement = () => {
         };
         const config = statusMap[status] || { color: 'default', text: status };
         return React.createElement(Tag, { color: config.color }, config.text);
-    };
-
-    // 用户批量导入处理
-    const handleBatchImport = (values) => {
-        setLoading(true);
-        
-        // 模拟批量导入处理
-        setTimeout(() => {
-            message.success(`成功导入 ${values.importType === 'excel' ? 'Excel' : 'CSV'} 文件中的用户数据`);
-            setImportModalVisible(false);
-            importForm.resetFields();
-            loadUsers(); // 重新加载用户列表
-            setLoading(false);
-        }, 2000);
-    };
-
-    // 下载导入模板
-    const downloadTemplate = (type) => {
-        const headers = ['用户名', '真实姓名', '手机号', '邮箱', '用户类型', '所属组织', '角色'];
-        const csvContent = headers.join(',') + '\n' +
-            'example_user,示例用户,13800138000,user@example.com,user,个人用户,普通用户\n' +
-            'association_user,协会用户,13800138001,association@example.com,association,中国城市轨道交通协会,协会管理员\n' +
-            'exhibition_user,会展用户,13800138002,exhibition@example.com,exhibition,北京国际会展公司,会展管理员';
-        
-        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `用户导入模板.${type}`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     };
 
     // 用户表格列定义

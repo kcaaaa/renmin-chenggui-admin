@@ -1,6 +1,10 @@
-// 直播管理页面 - 基于微赞API重构，直接调用微赞接口
+﻿// 直播管理页面 - 基于微赞API重构，直接调用微赞接口
 const LiveManagement = () => {
     const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, DatePicker, Upload, Radio, Switch, TimePicker } = antd;
+    const { Search } = Input;
+    const { Option } = Select;
+    const { RangePicker: DateRangePicker } = DatePicker;
+    
     const [activeTab, setActiveTab] = React.useState('channels');
     const [channelData, setChannelData] = React.useState({});
     const [liveData, setLiveData] = React.useState({});
@@ -15,6 +19,15 @@ const LiveManagement = () => {
     const [liveForm] = Form.useForm();
     const [editingChannel, setEditingChannel] = React.useState(null);
 
+    // 搜索和筛选状态
+    const [searchText, setSearchText] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState('all');
+    const [channelFilter, setChannelFilter] = React.useState('all');
+    const [qualityFilter, setQualityFilter] = React.useState('all');
+    const [accessLevelFilter, setAccessLevelFilter] = React.useState('all');
+    const [timeRange, setTimeRange] = React.useState(null);
+    const [selectedRows, setSelectedRows] = React.useState([]);
+
     // 微赞API配置 - 模拟环境
     const VZAN_CONFIG = {
         baseUrl: 'https://paas.vzan.com',
@@ -27,7 +40,391 @@ const LiveManagement = () => {
         loadChannelData();
         loadLiveData();
         loadReplayData();
-    }, []);
+    }, [activeTab, searchText, statusFilter, channelFilter, qualityFilter, accessLevelFilter, timeRange]);
+
+    // 重置筛选条件
+    const resetFilters = () => {
+        setSearchText('');
+        setStatusFilter('all');
+        setChannelFilter('all');
+        setQualityFilter('all');
+        setAccessLevelFilter('all');
+        setTimeRange(null);
+    };
+
+    // 导出数据
+    const handleExport = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        message.loading('正在导出数据...', 2);
+        setTimeout(() => {
+            message.success(`已导出 ${filteredData.length} 条${getTabDisplayName(activeTab)}数据`);
+        }, 2000);
+    };
+
+    // 获取当前Tab的数据
+    const getCurrentData = () => {
+        switch(activeTab) {
+            case 'channels': return channelData.channels || [];
+            case 'lives': return liveData.lives || [];
+            case 'replays': return replayData.replays || [];
+            default: return [];
+        }
+    };
+
+    // 获取Tab显示名称
+    const getTabDisplayName = (tab) => {
+        const names = {
+            channels: '频道',
+            lives: '直播',
+            replays: '回放'
+        };
+        return names[tab] || '数据';
+    };
+
+    // 数据筛选逻辑
+    const filterData = (data) => {
+        if (!data || data.length === 0) return [];
+        
+        return data.filter(item => {
+            // 根据不同Tab应用不同的筛选逻辑
+            if (activeTab === 'channels') {
+                return filterChannels(item);
+            } else if (activeTab === 'lives') {
+                return filterLives(item);
+            } else if (activeTab === 'replays') {
+                return filterReplays(item);
+            }
+            return true;
+        });
+    };
+
+    // 频道筛选逻辑
+    const filterChannels = (channel) => {
+        // 文本搜索
+        if (searchText && 
+            !channel.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !channel.description?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && channel.status !== statusFilter) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // 直播筛选逻辑
+    const filterLives = (live) => {
+        // 文本搜索
+        if (searchText && 
+            !live.title?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !live.description?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !live.presenter?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && live.status !== statusFilter) {
+            return false;
+        }
+        
+        // 频道筛选
+        if (channelFilter !== 'all' && live.channelId !== channelFilter) {
+            return false;
+        }
+        
+        // 画质筛选
+        if (qualityFilter !== 'all' && live.quality !== qualityFilter) {
+            return false;
+        }
+        
+        // 访问权限筛选
+        if (accessLevelFilter !== 'all' && live.accessLevel !== accessLevelFilter) {
+            return false;
+        }
+        
+        // 时间范围筛选
+        if (timeRange && timeRange.length === 2) {
+            const itemTime = new Date(live.startTime);
+            const startTime = timeRange[0].startOf('day');
+            const endTime = timeRange[1].endOf('day');
+            if (itemTime < startTime || itemTime > endTime) {
+                return false;
+            }
+        }
+        
+        return true;
+    };
+
+    // 回放筛选逻辑
+    const filterReplays = (replay) => {
+        // 文本搜索
+        if (searchText && 
+            !replay.title?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !replay.originalLive?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && replay.status !== statusFilter) {
+            return false;
+        }
+        
+        // 画质筛选
+        if (qualityFilter !== 'all' && replay.quality !== qualityFilter) {
+            return false;
+        }
+        
+        // 时间范围筛选
+        if (timeRange && timeRange.length === 2) {
+            const itemTime = new Date(replay.created);
+            const startTime = timeRange[0].startOf('day');
+            const endTime = timeRange[1].endOf('day');
+            if (itemTime < startTime || itemTime > endTime) {
+                return false;
+            }
+        }
+        
+        return true;
+    };
+
+    // 渲染搜索和筛选工具栏
+    const renderSearchToolbar = () => {
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'search-row',
+                gutter: [16, 16],
+                align: 'middle'
+            }, [
+                React.createElement(Col, { span: 6 }, [
+                    React.createElement(Search, {
+                        placeholder: getSearchPlaceholder(),
+                        value: searchText,
+                        onChange: (e) => setSearchText(e.target.value),
+                        onSearch: (value) => setSearchText(value),
+                        allowClear: true,
+                        enterButton: true
+                    })
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "状态筛选",
+                        value: statusFilter,
+                        onChange: setStatusFilter,
+                        style: { width: '100%' }
+                    }, getStatusFilterOptions())
+                ]),
+                getExtraFilterColumns(),
+                React.createElement(Col, { span: 5 }, [
+                    React.createElement(DateRangePicker, {
+                        placeholder: ['开始时间', '结束时间'],
+                        value: timeRange,
+                        onChange: setTimeRange,
+                        style: { width: '100%' },
+                        format: 'YYYY-MM-DD'
+                    })
+                ]),
+                React.createElement(Col, { span: 4 }, [
+                    React.createElement(Space, {}, [
+                        React.createElement(Button, {
+                            onClick: resetFilters
+                        }, '重置'),
+                        React.createElement(Button, {
+                            type: 'primary',
+                            onClick: () => {
+                                if (activeTab === 'channels') loadChannelData();
+                                else if (activeTab === 'lives') loadLiveData();
+                                else if (activeTab === 'replays') loadReplayData();
+                            }
+                        }, '搜索')
+                    ])
+                ])
+            ])
+        ]);
+    };
+
+    // 渲染批量操作工具栏
+    const renderBatchToolbar = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '12px 16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'batch-row',
+                justify: 'space-between',
+                align: 'middle'
+            }, [
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, [
+                        React.createElement('span', {
+                            style: { color: '#666' }
+                        }, `共 ${filteredData.length} 条记录`),
+                        selectedRows.length > 0 && React.createElement('span', {
+                            style: { color: '#1890ff' }
+                        }, `已选择 ${selectedRows.length} 条`)
+                    ])
+                ]),
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, getBatchOperationButtons())
+                ])
+            ])
+        ]);
+    };
+
+    // 获取搜索框占位符
+    const getSearchPlaceholder = () => {
+        const placeholders = {
+            channels: '搜索频道名称或描述',
+            lives: '搜索直播标题、描述或主讲人',
+            replays: '搜索回放标题或原始直播'
+        };
+        return placeholders[activeTab] || '搜索...';
+    };
+
+    // 获取状态筛选选项
+    const getStatusFilterOptions = () => {
+        const optionsMap = {
+            channels: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'active' }, '启用'),
+                React.createElement(Option, { value: 'inactive' }, '禁用')
+            ],
+            lives: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'live' }, '直播中'),
+                React.createElement(Option, { value: 'scheduled' }, '即将开始'),
+                React.createElement(Option, { value: 'ended' }, '已结束'),
+                React.createElement(Option, { value: 'cancelled' }, '已取消')
+            ],
+            replays: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'available' }, '可用'),
+                React.createElement(Option, { value: 'processing' }, '处理中'),
+                React.createElement(Option, { value: 'failed' }, '失败')
+            ]
+        };
+        return optionsMap[activeTab] || [React.createElement(Option, { value: 'all' }, '全部状态')];
+    };
+
+    // 获取额外筛选列
+    const getExtraFilterColumns = () => {
+        if (activeTab === 'lives') {
+            return [
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "频道筛选",
+                        value: channelFilter,
+                        onChange: setChannelFilter,
+                        style: { width: '100%' }
+                    }, [
+                        React.createElement(Option, { value: 'all' }, '全部频道'),
+                        React.createElement(Option, { value: 'vzan_001' }, '展会直播频道'),
+                        React.createElement(Option, { value: 'vzan_002' }, '技术分享频道'),
+                        React.createElement(Option, { value: 'vzan_003' }, '协会活动频道')
+                    ])
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "画质筛选",
+                        value: qualityFilter,
+                        onChange: setQualityFilter,
+                        style: { width: '100%' }
+                    }, [
+                        React.createElement(Option, { value: 'all' }, '全部画质'),
+                        React.createElement(Option, { value: '1080p' }, '1080P'),
+                        React.createElement(Option, { value: '720p' }, '720P'),
+                        React.createElement(Option, { value: '480p' }, '480P')
+                    ])
+                ])
+            ];
+        } else if (activeTab === 'replays') {
+            return [
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "画质筛选",
+                        value: qualityFilter,
+                        onChange: setQualityFilter,
+                        style: { width: '100%' }
+                    }, [
+                        React.createElement(Option, { value: 'all' }, '全部画质'),
+                        React.createElement(Option, { value: '1080P' }, '1080P'),
+                        React.createElement(Option, { value: '720P' }, '720P'),
+                        React.createElement(Option, { value: '480P' }, '480P')
+                    ])
+                ]),
+                React.createElement(Col, { span: 3 }, [])
+            ];
+        }
+        return [
+            React.createElement(Col, { span: 3 }, []),
+            React.createElement(Col, { span: 3 }, [])
+        ];
+    };
+
+    // 获取批量操作按钮
+    const getBatchOperationButtons = () => {
+        const buttons = [
+            React.createElement(Button, {
+                onClick: handleExport
+            }, '导出数据'),
+            React.createElement(Button, {
+                onClick: () => {
+                    if (activeTab === 'channels') loadChannelData();
+                    else if (activeTab === 'lives') loadLiveData();
+                    else if (activeTab === 'replays') loadReplayData();
+                }
+            }, '刷新')
+        ];
+
+        if (activeTab === 'lives' && selectedRows.length > 0) {
+            buttons.unshift(
+                React.createElement(Button, {
+                    type: 'primary',
+                    disabled: selectedRows.length === 0,
+                    onClick: () => handleBatchLiveOperation('generateReplay')
+                }, `批量生成回放 (${selectedRows.length})`),
+                React.createElement(Button, {
+                    danger: true,
+                    disabled: selectedRows.length === 0,
+                    onClick: () => handleBatchLiveOperation('end')
+                }, `批量结束直播 (${selectedRows.length})`)
+            );
+        }
+
+        return buttons;
+    };
+
+    // 批量直播操作
+    const handleBatchLiveOperation = (action) => {
+        if (selectedRows.length === 0) {
+            message.warning('请选择要操作的直播');
+            return;
+        }
+
+        const actionText = action === 'generateReplay' ? '生成回放' : '结束直播';
+        Modal.confirm({
+            title: `确认${actionText}选中的直播？`,
+            content: `将对 ${selectedRows.length} 个直播执行${actionText}操作`,
+            onOk: () => {
+                setLoading(true);
+                setTimeout(() => {
+                    setSelectedRows([]);
+                    loadLiveData();
+                    message.success(`已${actionText} ${selectedRows.length} 个直播`);
+                }, 1000);
+            }
+        });
+    };
 
     // 模拟微赞API获取频道数据
     const loadChannelData = async () => {

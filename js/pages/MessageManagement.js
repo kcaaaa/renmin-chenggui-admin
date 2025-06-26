@@ -2,7 +2,12 @@
 const MessageManagement = () => {
     console.log('MessageManagement component is rendering...');
     
-    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, DatePicker, Radio, Switch, TreeSelect, Divider, Statistic, Progress } = antd;
+    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, DatePicker, Radio, Switch, TreeSelect, Divider, Statistic, Progress, Tooltip, Descriptions, Badge, Upload } = antd;
+    const { Search } = Input;
+    const { Option } = Select;
+    const { RangePicker: DateRangePicker } = DatePicker;
+    const { TextArea } = Input;
+    
     const [activeTab, setActiveTab] = React.useState('push');
     
     // 状态管理
@@ -13,9 +18,18 @@ const MessageManagement = () => {
     const [editingTemplate, setEditingTemplate] = React.useState(null);
     const [selectedMessage, setSelectedMessage] = React.useState(null);
     const [loading, setLoading] = React.useState(false);
+    const [selectedRows, setSelectedRows] = React.useState([]);
     
     const [pushForm] = Form.useForm();
     const [templateForm] = Form.useForm();
+    
+    // 搜索和筛选状态
+    const [searchText, setSearchText] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState('all');
+    const [typeFilter, setTypeFilter] = React.useState('all');
+    const [priorityFilter, setPriorityFilter] = React.useState('all');
+    const [targetFilter, setTargetFilter] = React.useState('all');
+    const [timeRange, setTimeRange] = React.useState(null);
     
     // 模拟数据
     const [messageData, setMessageData] = React.useState({
@@ -165,6 +179,408 @@ const MessageManagement = () => {
         sending: { label: '发送中', color: 'blue' },
         sent: { label: '已发送', color: 'green' },
         failed: { label: '发送失败', color: 'red' }
+    };
+
+    // 重置筛选条件
+    const resetFilters = () => {
+        setSearchText('');
+        setStatusFilter('all');
+        setTypeFilter('all');
+        setPriorityFilter('all');
+        setTargetFilter('all');
+        setTimeRange(null);
+    };
+
+    // 导出数据
+    const handleExport = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        message.loading('正在导出数据...', 2);
+        setTimeout(() => {
+            message.success(`已导出 ${filteredData.length} 条${getTabDisplayName(activeTab)}数据`);
+        }, 2000);
+    };
+
+    // 获取当前Tab的数据
+    const getCurrentData = () => {
+        switch(activeTab) {
+            case 'push': return messageData.pushRecords;
+            case 'template': return messageData.templates;
+            case 'records': return messageData.pushRecords;
+            case 'schedules': return [];
+            default: return [];
+        }
+    };
+
+    // 获取Tab显示名称
+    const getTabDisplayName = (tab) => {
+        const names = {
+            push: '推送记录',
+            template: '消息模板',
+            records: '推送记录',
+            schedules: '定时推送'
+        };
+        return names[tab] || '数据';
+    };
+
+    // 数据筛选逻辑
+    const filterData = (data) => {
+        if (!data || data.length === 0) return [];
+        
+        return data.filter(item => {
+            // 根据不同Tab应用不同的筛选逻辑
+            if (activeTab === 'push') {
+                return filterPushRecords(item);
+            } else if (activeTab === 'template') {
+                return filterTemplates(item);
+            } else if (activeTab === 'records') {
+                return filterPushRecords(item);
+            } else if (activeTab === 'schedules') {
+                return filterSchedules(item);
+            }
+            return true;
+        });
+    };
+
+    // 消息筛选逻辑
+    const filterPushRecords = (record) => {
+        // 文本搜索
+        if (searchText && 
+            !record.title?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !record.content?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && record.status !== statusFilter) {
+            return false;
+        }
+        
+        // 类型筛选
+        if (typeFilter !== 'all' && record.type !== typeFilter) {
+            return false;
+        }
+        
+        // 优先级筛选
+        if (priorityFilter !== 'all' && record.priority !== priorityFilter) {
+            return false;
+        }
+        
+        // 目标用户筛选
+        if (targetFilter !== 'all' && record.targetType !== targetFilter) {
+            return false;
+        }
+        
+        // 时间范围筛选
+        if (timeRange && timeRange.length === 2) {
+            const itemTime = new Date(record.sendTime);
+            const startTime = timeRange[0].startOf('day');
+            const endTime = timeRange[1].endOf('day');
+            if (itemTime < startTime || itemTime > endTime) {
+                return false;
+            }
+        }
+        
+        return true;
+    };
+
+    // 模板筛选逻辑
+    const filterTemplates = (template) => {
+        // 文本搜索
+        if (searchText && 
+            !template.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !template.content?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !template.title?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && template.status !== statusFilter) {
+            return false;
+        }
+        
+        // 类型筛选
+        if (typeFilter !== 'all' && template.type !== typeFilter) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // 定时推送筛选逻辑
+    const filterSchedules = (schedule) => {
+        // 文本搜索
+        if (searchText && 
+            !schedule.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !schedule.messageTitle?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && schedule.status !== statusFilter) {
+            return false;
+        }
+        
+        // 类型筛选
+        if (typeFilter !== 'all' && schedule.messageType !== typeFilter) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // 渲染搜索和筛选工具栏
+    const renderSearchToolbar = () => {
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'search-row',
+                gutter: [16, 16],
+                align: 'middle'
+            }, [
+                React.createElement(Col, { span: 6 }, [
+                    React.createElement(Search, {
+                        placeholder: getSearchPlaceholder(),
+                        value: searchText,
+                        onChange: (e) => setSearchText(e.target.value),
+                        onSearch: (value) => setSearchText(value),
+                        allowClear: true,
+                        enterButton: true
+                    })
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "状态筛选",
+                        value: statusFilter,
+                        onChange: setStatusFilter,
+                        style: { width: '100%' }
+                    }, getStatusFilterOptions())
+                ]),
+                React.createElement(Col, { span: 3 }, [
+                    React.createElement(Select, {
+                        placeholder: "类型筛选",
+                        value: typeFilter,
+                        onChange: setTypeFilter,
+                        style: { width: '100%' }
+                    }, getTypeFilterOptions())
+                ]),
+                getExtraFilterColumn(),
+                React.createElement(Col, { span: 5 }, [
+                    React.createElement(DateRangePicker, {
+                        placeholder: ['开始时间', '结束时间'],
+                        value: timeRange,
+                        onChange: setTimeRange,
+                        style: { width: '100%' },
+                        format: 'YYYY-MM-DD'
+                    })
+                ]),
+                React.createElement(Col, { span: 4 }, [
+                    React.createElement(Space, {}, [
+                        React.createElement(Button, {
+                            onClick: resetFilters
+                        }, '重置'),
+                        React.createElement(Button, {
+                            type: 'primary',
+                            onClick: () => {
+                                if (activeTab === 'push') loadMessageData();
+                                else if (activeTab === 'template') loadMessageData();
+                                else if (activeTab === 'records') loadMessageData();
+                                else if (activeTab === 'schedules') loadMessageData();
+                            }
+                        }, '搜索')
+                    ])
+                ])
+            ])
+        ]);
+    };
+
+    // 渲染批量操作工具栏
+    const renderBatchToolbar = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        return React.createElement(Card, {
+            style: { marginBottom: '16px' },
+            bodyStyle: { padding: '12px 16px' }
+        }, [
+            React.createElement(Row, {
+                key: 'batch-row',
+                justify: 'space-between',
+                align: 'middle'
+            }, [
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, [
+                        React.createElement('span', {
+                            style: { color: '#666' }
+                        }, `共 ${filteredData.length} 条记录`),
+                        selectedRows.length > 0 && React.createElement('span', {
+                            style: { color: '#1890ff' }
+                        }, `已选择 ${selectedRows.length} 条`)
+                    ])
+                ]),
+                React.createElement(Col, {}, [
+                    React.createElement(Space, {}, getBatchOperationButtons())
+                ])
+            ])
+        ]);
+    };
+
+    // 获取搜索框占位符
+    const getSearchPlaceholder = () => {
+        const placeholders = {
+            push: '搜索消息标题或内容',
+            template: '搜索模板名称、内容或描述',
+            records: '搜索推送标题或内容',
+            schedules: '搜索计划名称或消息标题'
+        };
+        return placeholders[activeTab] || '搜索...';
+    };
+
+    // 获取状态筛选选项
+    const getStatusFilterOptions = () => {
+        const optionsMap = {
+            push: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'sent' }, '已发送'),
+                React.createElement(Option, { value: 'scheduled' }, '待发送'),
+                React.createElement(Option, { value: 'failed' }, '发送失败'),
+                React.createElement(Option, { value: 'expired' }, '已过期')
+            ],
+            template: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'active' }, '启用'),
+                React.createElement(Option, { value: 'inactive' }, '禁用')
+            ],
+            records: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'success' }, '推送成功'),
+                React.createElement(Option, { value: 'failed' }, '推送失败'),
+                React.createElement(Option, { value: 'pending' }, '推送中')
+            ],
+            schedules: [
+                React.createElement(Option, { value: 'all' }, '全部状态'),
+                React.createElement(Option, { value: 'active' }, '启用'),
+                React.createElement(Option, { value: 'paused' }, '暂停'),
+                React.createElement(Option, { value: 'completed' }, '已完成'),
+                React.createElement(Option, { value: 'cancelled' }, '已取消')
+            ]
+        };
+        return optionsMap[activeTab] || [React.createElement(Option, { value: 'all' }, '全部状态')];
+    };
+
+    // 获取类型筛选选项
+    const getTypeFilterOptions = () => {
+        const optionsMap = {
+            push: [
+                React.createElement(Option, { value: 'all' }, '全部类型'),
+                React.createElement(Option, { value: 'system' }, '系统消息'),
+                React.createElement(Option, { value: 'review' }, '审核消息'),
+                React.createElement(Option, { value: 'activity' }, '活动消息'),
+                React.createElement(Option, { value: 'security' }, '安全提醒'),
+                React.createElement(Option, { value: 'update' }, '更新通知')
+            ],
+            template: [
+                React.createElement(Option, { value: 'all' }, '全部类型'),
+                React.createElement(Option, { value: 'system' }, '系统通知'),
+                React.createElement(Option, { value: 'review' }, '审核通知'),
+                React.createElement(Option, { value: 'activity' }, '活动推广'),
+                React.createElement(Option, { value: 'security' }, '安全提醒'),
+                React.createElement(Option, { value: 'update' }, '更新公告')
+            ],
+            records: [
+                React.createElement(Option, { value: 'all' }, '全部类型'),
+                React.createElement(Option, { value: 'system' }, '系统通知'),
+                React.createElement(Option, { value: 'review' }, '审核通知'),
+                React.createElement(Option, { value: 'activity' }, '活动推广'),
+                React.createElement(Option, { value: 'security' }, '安全提醒')
+            ],
+            schedules: [
+                React.createElement(Option, { value: 'all' }, '全部类型'),
+                React.createElement(Option, { value: 'system' }, '系统通知'),
+                React.createElement(Option, { value: 'activity' }, '活动推广'),
+                React.createElement(Option, { value: 'security' }, '安全提醒')
+            ]
+        };
+        return optionsMap[activeTab] || [React.createElement(Option, { value: 'all' }, '全部类型')];
+    };
+
+    // 获取额外筛选列
+    const getExtraFilterColumn = () => {
+        if (activeTab === 'push') {
+            return React.createElement(Col, { span: 3 }, [
+                React.createElement(Select, {
+                    placeholder: "优先级",
+                    value: priorityFilter,
+                    onChange: setPriorityFilter,
+                    style: { width: '100%' }
+                }, [
+                    React.createElement(Option, { value: 'all' }, '全部优先级'),
+                    React.createElement(Option, { value: 'high' }, '高优先级'),
+                    React.createElement(Option, { value: 'normal' }, '普通优先级'),
+                    React.createElement(Option, { value: 'low' }, '低优先级')
+                ])
+            ]);
+        }
+        return React.createElement(Col, { span: 3 }, []);
+    };
+
+    // 获取批量操作按钮
+    const getBatchOperationButtons = () => {
+        const buttons = [
+            React.createElement(Button, {
+                onClick: handleExport
+            }, '导出数据'),
+            React.createElement(Button, {
+                onClick: () => {
+                    if (activeTab === 'push') loadMessageData();
+                    else if (activeTab === 'template') loadMessageData();
+                    else if (activeTab === 'records') loadMessageData();
+                    else if (activeTab === 'schedules') loadMessageData();
+                }
+            }, '刷新')
+        ];
+
+        if (activeTab === 'push' && selectedRows.length > 0) {
+            buttons.unshift(
+                React.createElement(Button, {
+                    type: 'primary',
+                    disabled: selectedRows.length === 0,
+                    onClick: () => handleBatchMessageOperation('publish')
+                }, `批量发布 (${selectedRows.length})`),
+                React.createElement(Button, {
+                    danger: true,
+                    disabled: selectedRows.length === 0,
+                    onClick: () => handleBatchMessageOperation('delete')
+                }, `批量删除 (${selectedRows.length})`)
+            );
+        }
+
+        return buttons;
+    };
+
+    // 批量消息操作
+    const handleBatchMessageOperation = (action) => {
+        if (selectedRows.length === 0) {
+            message.warning('请选择要操作的消息');
+            return;
+        }
+
+        const actionText = action === 'publish' ? '发布' : '删除';
+        Modal.confirm({
+            title: `确认${actionText}选中的消息？`,
+            content: `将对 ${selectedRows.length} 条消息执行${actionText}操作`,
+            onOk: () => {
+                setLoading(true);
+                setTimeout(() => {
+                    setSelectedRows([]);
+                    loadMessageData();
+                    message.success(`已${actionText} ${selectedRows.length} 条消息`);
+                }, 1000);
+            }
+        });
     };
 
     // 渲染推送管理

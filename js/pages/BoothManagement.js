@@ -2,8 +2,10 @@
 const BoothManagement = () => {
     console.log('BoothManagement component is rendering...');
     
-    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, Upload, Tree, Image, Divider, Statistic, Progress, InputNumber, Radio, Switch } = antd;
+    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, Upload, Tree, Image, Divider, Statistic, Progress, InputNumber, Radio, Switch, Search } = antd;
     const { TextArea } = Input;
+    const { Option } = Select;
+    const { RangePicker: DateRangePicker } = DatePicker;
     
     // 状态管理
     const [activeTab, setActiveTab] = React.useState('venue');
@@ -131,6 +133,14 @@ const BoothManagement = () => {
         }
     });
 
+    // 搜索和筛选状态
+    const [searchText, setSearchText] = React.useState('');
+    const [statusFilter, setStatusFilter] = React.useState('all');
+    const [typeFilter, setTypeFilter] = React.useState('all');
+    const [venueFilter, setVenueFilter] = React.useState('all');
+    const [floorFilter, setFloorFilter] = React.useState('all');
+    const [timeRange, setTimeRange] = React.useState(null);
+
     React.useEffect(() => {
         loadBoothData();
     }, []);
@@ -146,6 +156,134 @@ const BoothManagement = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // 重置筛选条件
+    const resetFilters = () => {
+        setSearchText('');
+        setStatusFilter('all');
+        setTypeFilter('all');
+        setVenueFilter('all');
+        setFloorFilter('all');
+        setTimeRange(null);
+    };
+
+    // 导出数据
+    const handleExport = () => {
+        const currentData = getCurrentData();
+        const filteredData = filterData(currentData);
+        
+        message.loading('正在导出数据...', 2);
+        setTimeout(() => {
+            message.success(`已导出 ${filteredData.length} 条${getTabDisplayName(activeTab)}数据`);
+        }, 2000);
+    };
+
+    // 获取当前Tab的数据
+    const getCurrentData = () => {
+        switch(activeTab) {
+            case 'venue': return boothData.venues;
+            case 'floor': return boothData.floors;
+            case 'company': return boothData.companies;
+            default: return [];
+        }
+    };
+
+    // 获取Tab显示名称
+    const getTabDisplayName = (tab) => {
+        const names = {
+            venue: '场馆',
+            floor: '楼层分区',
+            company: '参展公司'
+        };
+        return names[tab] || '数据';
+    };
+
+    // 数据筛选逻辑
+    const filterData = (data) => {
+        if (!data || data.length === 0) return [];
+        
+        return data.filter(item => {
+            // 根据不同Tab应用不同的筛选逻辑
+            if (activeTab === 'venue') {
+                return filterVenues(item);
+            } else if (activeTab === 'floor') {
+                return filterFloors(item);
+            } else if (activeTab === 'company') {
+                return filterCompanies(item);
+            }
+            return true;
+        });
+    };
+
+    // 场馆筛选逻辑
+    const filterVenues = (venue) => {
+        // 文本搜索
+        if (searchText && 
+            !venue.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !venue.description?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !venue.address?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && venue.status !== statusFilter) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // 楼层筛选逻辑
+    const filterFloors = (floor) => {
+        // 文本搜索
+        if (searchText && 
+            !floor.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !floor.description?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !floor.venueName?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && floor.status !== statusFilter) {
+            return false;
+        }
+        
+        // 场馆筛选
+        if (venueFilter !== 'all' && floor.venueId !== venueFilter) {
+            return false;
+        }
+        
+        return true;
+    };
+
+    // 公司筛选逻辑
+    const filterCompanies = (company) => {
+        // 文本搜索
+        if (searchText && 
+            !company.name?.toLowerCase().includes(searchText.toLowerCase()) && 
+            !company.description?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !company.contactPerson?.toLowerCase().includes(searchText.toLowerCase()) &&
+            !company.boothLocation?.toLowerCase().includes(searchText.toLowerCase())) {
+            return false;
+        }
+        
+        // 状态筛选
+        if (statusFilter !== 'all' && company.status !== statusFilter) {
+            return false;
+        }
+        
+        // 类型筛选
+        if (typeFilter !== 'all' && company.category !== typeFilter) {
+            return false;
+        }
+        
+        // 楼层筛选
+        if (floorFilter !== 'all' && company.floorId !== floorFilter) {
+            return false;
+        }
+        
+        return true;
     };
 
     // 渲染场馆管理
