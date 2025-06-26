@@ -186,13 +186,16 @@ const ReviewManagement = () => {
                     ])
                 ]),
                 React.createElement(Col, { span: 5 }, [
-                    React.createElement(DateRangePicker, {
-                        placeholder: ['开始时间', '结束时间'],
-                        value: timeRange,
-                        onChange: setTimeRange,
-                        style: { width: '100%' },
-                        format: 'YYYY-MM-DD'
-                    })
+                    React.createElement('div', {
+                        style: { 
+                            height: '32px', 
+                            lineHeight: '32px', 
+                            color: '#999',
+                            textAlign: 'center',
+                            background: '#f5f5f5',
+                            borderRadius: '6px'
+                        }
+                    }, '时间筛选（暂未开放）')
                 ]),
                 React.createElement(Col, { span: 4 }, [
                     React.createElement(Space, {}, [

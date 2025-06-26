@@ -698,13 +698,16 @@ const UserManagement = () => {
                 ]),
                 getExtraFilterColumn(),
                 React.createElement(Col, { span: 5 }, [
-                    React.createElement(DateRangePicker, {
-                        placeholder: ['开始时间', '结束时间'],
-                        value: timeRange,
-                        onChange: setTimeRange,
-                        style: { width: '100%' },
-                        format: 'YYYY-MM-DD'
-                    })
+                    React.createElement('div', {
+                        style: { 
+                            height: '32px', 
+                            lineHeight: '32px', 
+                            color: '#999',
+                            textAlign: 'center',
+                            background: '#f5f5f5',
+                            borderRadius: '6px'
+                        }
+                    }, '时间筛选（暂未开放）')
                 ]),
                 React.createElement(Col, { span: 4 }, [
                     React.createElement(Space, {}, [
@@ -1193,6 +1196,12 @@ const UserManagement = () => {
             key: 'users',
             label: '用户管理',
             children: React.createElement('div', {}, [
+                // 搜索和筛选工具栏
+                renderSearchToolbar(),
+                
+                // 批量操作工具栏
+                renderBatchToolbar(),
+                
                 React.createElement(Card, {
                     key: 'user-card',
                     title: '用户列表',
@@ -1213,11 +1222,15 @@ const UserManagement = () => {
                 React.createElement(Table, {
                         key: 'user-table',
                     columns: userColumns,
-                    dataSource: users,
+                    dataSource: filterData(users),
                     loading: loading,
+                    rowSelection: {
+                        selectedRowKeys: selectedRows,
+                        onChange: setSelectedRows
+                    },
                         scroll: { x: 1200 },
                     pagination: {
-                            total: users.length,
+                            total: filterData(users).length,
                             pageSize: 10,
                         showSizeChanger: true,
                         showQuickJumper: true,
