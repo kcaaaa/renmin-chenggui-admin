@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="version" content="2.1-layout-optimized">
-    <title>人民城轨2.0运营管理后台</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚇</text></svg>">
+    <title>浜烘皯鍩庤建2.0杩愯惀绠＄悊鍚庡彴</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>馃殗</text></svg>">
     
     <!-- Ant Design CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd.min.css">
@@ -26,7 +26,7 @@
         
         /* --- 1. CSS Variables --- */
         :root {
-            /* Color System - 优化配色方案 */
+            /* Color System - 浼樺寲閰嶈壊鏂规 */
             --primary-color: #1890ff; /* Ant Design Primary Blue */
             --primary-color-light: #e6f7ff;
             --primary-color-dark: #0050b3;
@@ -561,14 +561,14 @@
     <div id="app">
         <div class="loading-spinner">
             <div class="loading-content">
-                <div class="loading-icon">🚇</div>
-                <div class="loading-title">人民城轨2.0运营管理后台</div>
+                <div class="loading-icon">馃殗</div>
+                <div class="loading-title">浜烘皯鍩庤建2.0杩愯惀绠＄悊鍚庡彴</div>
                 <div class="loading-dots">
                     <div></div>
                     <div></div>
                     <div></div>
                 </div>
-                <div class="loading-text">正在初始化系统...</div>
+                <div class="loading-text">姝ｅ湪鍒濆鍖栫郴缁?..</div>
             </div>
         </div>
     </div>
@@ -580,18 +580,18 @@
     <script src="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd-with-locales.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 
-    <!-- Application Scripts - 修复加载顺序 -->
-    <!-- 工具类 -->
+    <!-- Application Scripts - 淇鍔犺浇椤哄簭 -->
+    <!-- 宸ュ叿绫?-->
     <script src="js/utils/mockData.js"></script>
     <script src="js/utils/auth.js"></script>
     
-    <!-- 基础组件 -->
+    <!-- 鍩虹缁勪欢 -->
     <script src="js/components/ErrorBoundary.js"></script>
     <script src="js/components/LoginPage.js"></script>
     <script src="js/components/Navigation.js"></script>
     <script src="js/components/TopBar.js"></script>
     
-    <!-- 页面组件 -->
+    <!-- 椤甸潰缁勪欢 -->
     <script src="js/pages/Dashboard.js"></script>
     <script src="js/pages/ReviewManagement.js"></script>
     <script src="js/pages/LiveManagement.js"></script>
@@ -605,11 +605,11 @@
     <script src="js/pages/TrafficAllocation.js"></script>
     <script src="js/pages/SystemSettings.js"></script>
     
-    <!-- 主应用 - 必须最后加载 -->
+    <!-- 涓诲簲鐢?- 蹇呴』鏈€鍚庡姞杞?-->
     <script src="js/App.js"></script>
 
     <script>
-        // 全局错误处理
+        // 鍏ㄥ眬閿欒澶勭悊
         window.addEventListener('error', function(e) {
             console.error('Global error:', e.error);
         });
@@ -618,17 +618,17 @@
             console.error('Unhandled promise rejection:', e.reason);
         });
 
-        // 启动应用
+        // 鍚姩搴旂敤
         try {
-            console.log('🚀 启动人民城轨2.0运营管理后台...');
+            console.log('馃殌 鍚姩浜烘皯鍩庤建2.0杩愯惀绠＄悊鍚庡彴...');
             ReactDOM.render(React.createElement(App), document.getElementById('app'));
-            console.log('✅ 应用启动成功!');
+            console.log('鉁?搴旂敤鍚姩鎴愬姛!');
         } catch (error) {
-            console.error('❌ 应用启动失败:', error);
+            console.error('鉂?搴旂敤鍚姩澶辫触:', error);
             document.getElementById('app').innerHTML = `
                 <div class="error-boundary">
-                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
-                    <h2>应用启动失败</h2>
+                    <div style="font-size: 48px; margin-bottom: 16px;">鈿狅笍</div>
+                    <h2>搴旂敤鍚姩澶辫触</h2>
                     <p style="margin: 16px 0; color: #6b7280;">${error.message}</p>
                     <button onclick="location.reload()" style="
                         padding: 8px 16px; 
@@ -638,7 +638,7 @@
                         border-radius: 4px; 
                         cursor: pointer;
                         font-size: 14px;
-                    ">重新加载</button>
+                    ">閲嶆柊鍔犺浇</button>
                 </div>
             `;
         }
