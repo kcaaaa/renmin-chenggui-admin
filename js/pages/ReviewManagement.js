@@ -285,12 +285,73 @@ const ReviewManagement = () => {
                     key: 'IMG001',
                     type: 'image',
                     title: '智能列车展示图片',
-                    content: '展示最新智能列车技术的高清图片集',
+                    content: '展示最新智能列车技术的高清图片集，包含列车外观设计、内部座椅布局、智能控制面板等多个角度的专业摄影作品。这些图片清晰展示了现代城市轨道交通的技术进步和人性化设计理念。',
+                    fullContent: `# 智能列车技术展示
+
+## 项目概述
+本次展示的智能列车采用了最新的自动驾驶技术和智能控制系统，代表了城市轨道交通的未来发展方向。
+
+## 技术特点
+- **自动驾驶**: 采用AI智能驾驶系统，提高运行安全性
+- **节能环保**: 使用新型电池技术，降低能耗30%
+- **智能服务**: 车内配备智能助手，提供个性化服务
+
+## 设计理念
+以人为本，科技创新，绿色出行。`,
                     author: '北京轨道交通协会',
                     authorType: 'association',
+                    authorInfo: {
+                        name: '北京轨道交通协会',
+                        role: '官方认证协会',
+                        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+                        verified: true,
+                        memberSince: '2020-03-15'
+                    },
                     submitTime: '2024-01-15 14:30:25',
                     status: 'pending',
                     priority: 'high',
+                    mediaFiles: [
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=300&h=200&fit=crop',
+                            name: '列车外观1.jpg',
+                            size: '2.1MB',
+                            resolution: '1920x1080'
+                        },
+                        {
+                            type: 'image', 
+                            url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=300&h=200&fit=crop',
+                            name: '车厢内部.jpg',
+                            size: '1.8MB',
+                            resolution: '1920x1080'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=300&h=200&fit=crop',
+                            name: '控制面板.jpg',
+                            size: '1.5MB', 
+                            resolution: '1920x1080'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop',
+                            name: '站台对接.jpg',
+                            size: '2.3MB',
+                            resolution: '1920x1080'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1516205651411-aef33a44f7c2?w=300&h=200&fit=crop',
+                            name: '技术细节.jpg',
+                            size: '1.8MB',
+                            resolution: '1920x1080'
+                        }
+                    ],
                     aiResult: {
                         score: 0.92,
                         riskLevel: 'low',
@@ -305,12 +366,67 @@ const ReviewManagement = () => {
                     key: 'IMG002',
                     type: 'image',
                     title: '地铁安全宣传海报',
-                    content: '地铁安全乘车须知宣传海报',
+                    content: '地铁安全乘车须知宣传海报，包含乘车安全注意事项、紧急情况处理方法、站台安全提示等重要信息，旨在提高乘客的安全意识和自我保护能力。',
+                    fullContent: `# 地铁安全乘车指南
+
+## 乘车前准备
+- 检查随身物品，避免携带危险品
+- 提前了解路线和换乘信息
+- 准备好车票或交通卡
+
+## 进站安全事项  
+- 有序排队，先下后上
+- 注意站台缝隙，小心脚下
+- 紧急情况请按紧急按钮
+
+## 车厢内安全
+- 抓好扶手，注意防滑
+- 为老弱病残孕让座
+- 保持车厢内清洁
+
+## 紧急处理
+如遇紧急情况请：
+1. 保持冷静，听从工作人员指挥
+2. 有序疏散，不要拥挤
+3. 拨打应急电话求助`,
                     author: '用户_张设计师',
                     authorType: 'user',
+                    authorInfo: {
+                        name: '张设计师',
+                        role: '认证设计师',
+                        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+                        verified: false,
+                        memberSince: '2023-08-20'
+                    },
                     submitTime: '2024-01-15 16:45:12',
                     status: 'ai_reviewing',
                     priority: 'normal',
+                    mediaFiles: [
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1580522154071-c6ca47aff15c?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1580522154071-c6ca47aff15c?w=300&h=200&fit=crop',
+                            name: '安全海报1.jpg',
+                            size: '4.5MB',
+                            resolution: '2048x1536'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=200&fit=crop',
+                            name: '安全海报2.jpg',
+                            size: '3.8MB',
+                            resolution: '2048x1536'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=300&h=200&fit=crop',
+                            name: '应急指南.jpg',
+                            size: '4.0MB',
+                            resolution: '2048x1536'
+                        }
+                    ],
                     aiResult: {
                         score: 0.76,
                         riskLevel: 'medium',
@@ -325,12 +441,80 @@ const ReviewManagement = () => {
                     key: 'IMG003',
                     type: 'image',
                     title: '展会现场照片',
-                    content: '2024城轨展会现场活动照片',
+                    content: '2024城轨展会现场活动照片，记录了展会期间的精彩瞬间，包括新产品发布、技术交流、商务洽谈等活动场景，展现了行业的蓬勃发展和创新活力。',
+                    fullContent: `# 2024城轨展会现场纪实
+
+## 展会概况
+时间：2024年1月10-12日
+地点：北京国际展览中心
+规模：500家参展商，10万平方米展示面积
+
+## 主要活动
+### 开幕式
+- 行业领导致辞
+- 新技术发布
+- 战略合作签约
+
+### 技术展示
+- 智能列车模拟驾驶
+- 5G通信解决方案
+- 自动化控制系统
+
+### 商务活动
+- 一对一商务洽谈
+- 技术交流研讨会
+- 项目合作对接
+
+## 展会成果
+- 签约项目总额超过200亿元
+- 达成合作意向300余项
+- 技术交流活动50余场`,
                     author: '会展公司_小李',
                     authorType: 'exhibition',
+                    authorInfo: {
+                        name: '小李',
+                        role: '展会摄影师',
+                        avatar: 'https://images.unsplash.com/photo-1494790108755-2616b332c2b2?w=100&h=100&fit=crop&crop=face',
+                        verified: true,
+                        memberSince: '2022-05-10'
+                    },
                     submitTime: '2024-01-14 09:15:30',
                     status: 'approved',
                     priority: 'normal',
+                    mediaFiles: [
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=200&fit=crop',
+                            name: '展会现场1.jpg',
+                            size: '2.8MB',
+                            resolution: '1920x1080'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=300&h=200&fit=crop',
+                            name: '产品展示.jpg',
+                            size: '3.2MB',
+                            resolution: '1920x1080'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1559223607-b4d0555ae3c9?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1559223607-b4d0555ae3c9?w=300&h=200&fit=crop',
+                            name: '技术交流.jpg', 
+                            size: '2.5MB',
+                            resolution: '1920x1080'
+                        },
+                        {
+                            type: 'image',
+                            url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=800&h=600&fit=crop',
+                            thumbnail: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=300&h=200&fit=crop',
+                            name: '签约仪式.jpg',
+                            size: '2.7MB',
+                            resolution: '1920x1080'
+                        }
+                    ],
                     aiResult: {
                         score: 0.95,
                         riskLevel: 'low',
@@ -355,15 +539,59 @@ const ReviewManagement = () => {
                     key: 'VID001',
                     type: 'video',
                     title: '城轨技术创新展示',
-                    content: '展示最新的城市轨道交通技术和创新成果',
+                    content: '展示最新的城市轨道交通技术和创新成果，包含智能驾驶演示、5G通信应用、节能环保技术等前沿内容，为行业发展提供技术参考和创新思路。',
+                    fullContent: `# 城轨技术创新成果展示
+
+## 视频简介
+本视频全面展示了2024年城市轨道交通领域的最新技术创新成果，通过实地拍摄和动画演示，生动呈现了智能化、绿色化、数字化的发展趋势。
+
+## 主要内容
+### 1. 智能驾驶技术 (00:30-02:15)
+- 自动驾驶系统演示
+- AI决策过程展示  
+- 安全保障机制介绍
+
+### 2. 5G通信应用 (02:16-03:45)
+- 车地通信系统
+- 乘客信息服务
+- 运营调度优化
+
+### 3. 节能环保技术 (03:46-05:42)
+- 再生制动技术
+- 智能能耗管理
+- 绿色材料应用
+
+## 技术特点
+- **高可靠性**: 99.9%的系统可用性
+- **节能环保**: 能耗降低30%以上
+- **智能化**: 全流程自动化运营`,
                     author: '中国城轨协会',
                     authorType: 'association',
+                    authorInfo: {
+                        name: '中国城市轨道交通协会',
+                        role: '权威行业组织',
+                        avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&h=100&fit=crop&crop=face',
+                        verified: true,
+                        memberSince: '2019-01-01'
+                    },
                     submitTime: '2024-01-15 14:30:25',
                     status: 'pending',
                     priority: 'high',
-                            duration: '05:42',
+                    duration: '05:42',
                     fileSize: '126.5MB',
                     resolution: '1920x1080',
+                    mediaFiles: [
+                        {
+                            type: 'video',
+                            url: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+                            thumbnail: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=300&h=200&fit=crop',
+                            name: '城轨创新技术展示.mp4',
+                            size: '126.5MB',
+                            duration: '05:42',
+                            resolution: '1920x1080',
+                            format: 'MP4'
+                        }
+                    ],
                     aiResult: {
                         score: 0.89,
                         riskLevel: 'low',
@@ -378,15 +606,63 @@ const ReviewManagement = () => {
                     key: 'VID002',
                     type: 'video',
                     title: '智能控制系统演示',
-                    content: '展示新一代智能列车自动控制系统',
+                    content: '展示新一代智能列车自动控制系统的核心功能和操作流程，包含系统架构介绍、关键技术分析、实际应用案例等专业内容。',
+                    fullContent: `# 智能列车控制系统深度解析
+
+## 系统概述
+新一代智能列车自动控制系统(IACS)采用人工智能和大数据技术，实现了列车运行的全自动化控制和智能化管理。
+
+## 核心技术
+### 1. 多传感器融合
+- 激光雷达定位
+- 视觉识别系统
+- 惯性导航技术
+
+### 2. AI决策引擎
+- 深度学习算法
+- 实时路径规划
+- 智能故障诊断
+
+### 3. 安全保障系统
+- 多重安全冗余
+- 故障自动检测
+- 应急处理机制
+
+## 应用案例
+在北京地铁19号线的试点应用中，该系统表现出色：
+- 准点率提升至99.8%
+- 能耗降低25%
+- 故障率下降60%
+
+## 技术优势
+相比传统控制系统，IACS具有更高的智能化水平和安全性能。`,
                     author: '用户_张工程师',
                     authorType: 'user',
+                    authorInfo: {
+                        name: '张工程师',
+                        role: '高级工程师',
+                        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+                        verified: false,
+                        memberSince: '2023-03-15'
+                    },
                     submitTime: '2024-01-15 16:45:12',
                     status: 'manual_review',
                     priority: 'normal',
                     duration: '03:28',
                     fileSize: '89.2MB',
                     resolution: '1920x1080',
+                    mediaFiles: [
+                        {
+                            type: 'video',
+                            url: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
+                            thumbnail: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=300&h=200&fit=crop',
+                            name: '智能控制系统演示.mp4',
+                            size: '89.2MB',
+                            duration: '03:28',
+                            resolution: '1920x1080',
+                            format: 'MP4'
+                        }
+                    ],
                     aiResult: {
                         score: 0.65,
                         riskLevel: 'medium',
@@ -1004,7 +1280,7 @@ const ReviewManagement = () => {
             title: '内容审核详情',
             open: modalVisible,
             onCancel: () => setModalVisible(false),
-            width: 800,
+            width: 1200,
             footer: currentItem && (currentItem.status === 'pending' || currentItem.status === 'manual_review') ? [
                 React.createElement(Button, {
                     key: 'reject',
@@ -1029,6 +1305,236 @@ const ReviewManagement = () => {
                 }, '关闭')
             ]
         }, currentItem ? React.createElement('div', {}, [
+            // 发布人信息
+            React.createElement(Card, {
+                key: 'author-info',
+                size: 'small',
+                style: { marginBottom: '16px' },
+                title: '发布人信息'
+            }, [
+                React.createElement(Row, {
+                    gutter: 16,
+                    align: 'middle'
+                }, [
+                    React.createElement(Col, { span: 4 }, [
+                        React.createElement('img', {
+                            src: currentItem.authorInfo?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
+                            alt: currentItem.author,
+                            style: {
+                                width: '60px',
+                                height: '60px',
+                                borderRadius: '50%',
+                                objectFit: 'cover'
+                            }
+                        })
+                    ]),
+                    React.createElement(Col, { span: 20 }, [
+                        React.createElement('div', {
+                            style: { marginBottom: '4px' }
+                        }, [
+                            React.createElement('span', {
+                                style: { fontSize: '16px', fontWeight: 'bold', marginRight: '8px' }
+                            }, currentItem.authorInfo?.name || currentItem.author),
+                            currentItem.authorInfo?.verified && React.createElement(Tag, {
+                                color: 'blue',
+                                size: 'small'
+                            }, '✓ 已认证'),
+                            React.createElement(Tag, {
+                                color: 'green',
+                                size: 'small'
+                            }, currentItem.authorInfo?.role || '用户')
+                        ]),
+                        React.createElement('div', {
+                            style: { color: '#666', fontSize: '12px' }
+                        }, [
+                            React.createElement('span', {}, `加入时间：${currentItem.authorInfo?.memberSince || '未知'}`),
+                            React.createElement('span', {
+                                style: { marginLeft: '16px' }
+                            }, `发布时间：${currentItem.submitTime}`)
+                        ])
+                    ])
+                ])
+            ]),
+            
+            // 内容信息
+            React.createElement(Card, {
+                key: 'content-info',
+                size: 'small',
+                style: { marginBottom: '16px' },
+                title: '内容详情'
+            }, [
+                React.createElement('div', {
+                    style: { marginBottom: '16px' }
+                }, [
+                    React.createElement('h3', {
+                        style: { margin: '0 0 8px 0', fontSize: '18px', fontWeight: 'bold' }
+                    }, currentItem.title || '内容标题'),
+                    React.createElement('div', {
+                        style: { marginBottom: '12px' }
+                    }, [
+                        renderTypeTag(currentItem.type),
+                        React.createElement(Tag, {
+                            color: 'orange',
+                            style: { marginLeft: '8px' }
+                        }, `${currentItem.priority === 'high' ? '高' : currentItem.priority === 'normal' ? '普通' : '低'}优先级`),
+                        renderStatusTag(currentItem.status)
+                    ])
+                ]),
+                React.createElement('div', {
+                    style: { marginBottom: '16px' }
+                }, [
+                    React.createElement('h4', {
+                        style: { margin: '0 0 8px 0' }
+                    }, '内容简介'),
+                    React.createElement('div', {
+                        style: { 
+                            padding: '12px',
+                            background: '#f5f5f5',
+                            borderRadius: '6px',
+                            lineHeight: '1.6'
+                        }
+                    }, currentItem.content)
+                ]),
+                currentItem.fullContent && React.createElement('div', {
+                    style: { marginBottom: '16px' }
+                }, [
+                    React.createElement('h4', {
+                        style: { margin: '0 0 8px 0' }
+                    }, '详细内容'),
+                    React.createElement('div', {
+                        style: { 
+                            padding: '16px',
+                            background: '#fafafa',
+                            borderRadius: '6px',
+                            lineHeight: '1.8',
+                            maxHeight: '300px',
+                            overflow: 'auto',
+                            whiteSpace: 'pre-line'
+                        }
+                    }, currentItem.fullContent)
+                ])
+            ]),
+            
+            // 媒体文件预览
+            currentItem.mediaFiles && currentItem.mediaFiles.length > 0 && React.createElement(Card, {
+                key: 'media-preview',
+                size: 'small',
+                style: { marginBottom: '16px' },
+                title: currentItem.type === 'video' ? '视频预览' : '图片预览'
+            }, [
+                currentItem.type === 'video' ? 
+                // 视频预览
+                React.createElement('div', {}, [
+                    React.createElement('div', {
+                        style: { marginBottom: '16px' }
+                    }, [
+                        React.createElement('video', {
+                            controls: true,
+                            style: {
+                                width: '100%',
+                                maxHeight: '400px',
+                                borderRadius: '6px'
+                            },
+                            poster: currentItem.mediaFiles[0].thumbnail
+                        }, [
+                            React.createElement('source', {
+                                src: currentItem.mediaFiles[0].url,
+                                type: 'video/mp4'
+                            }),
+                            '您的浏览器不支持视频播放'
+                        ])
+                    ]),
+                    React.createElement(Descriptions, {
+                        column: 4,
+                        size: 'small',
+                        items: [
+                            { label: '文件名', children: currentItem.mediaFiles[0].name },
+                            { label: '时长', children: currentItem.duration },
+                            { label: '大小', children: currentItem.fileSize },
+                            { label: '分辨率', children: currentItem.resolution }
+                        ]
+                    })
+                ]) :
+                // 图片预览
+                React.createElement('div', {}, [
+                    React.createElement(Row, {
+                        gutter: [8, 8]
+                    }, currentItem.mediaFiles.map((file, index) =>
+                        React.createElement(Col, {
+                            key: index,
+                            span: 6
+                        }, [
+                            React.createElement('div', {
+                                style: {
+                                    position: 'relative',
+                                    cursor: 'pointer',
+                                    borderRadius: '6px',
+                                    overflow: 'hidden',
+                                    border: '1px solid #d9d9d9'
+                                },
+                                onClick: () => {
+                                    // 图片预览功能
+                                    const imageViewer = React.createElement(Modal, {
+                                        title: file.name,
+                                        open: true,
+                                        onCancel: () => document.body.removeChild(document.body.lastChild),
+                                        footer: null,
+                                        width: '80%',
+                                        centered: true
+                                    }, React.createElement('img', {
+                                        src: file.url,
+                                        alt: file.name,
+                                        style: {
+                                            width: '100%',
+                                            height: 'auto'
+                                        }
+                                    }));
+                                    
+                                    const container = document.createElement('div');
+                                    document.body.appendChild(container);
+                                    ReactDOM.render(imageViewer, container);
+                                }
+                            }, [
+                                React.createElement('img', {
+                                    src: file.thumbnail,
+                                    alt: file.name,
+                                    style: {
+                                        width: '100%',
+                                        height: '120px',
+                                        objectFit: 'cover'
+                                    }
+                                }),
+                                React.createElement('div', {
+                                    style: {
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                                        color: 'white',
+                                        padding: '8px',
+                                        fontSize: '12px'
+                                    }
+                                }, [
+                                    React.createElement('div', {
+                                        style: { fontWeight: 'bold' }
+                                    }, file.name),
+                                    React.createElement('div', {}, `${file.size} | ${file.resolution}`)
+                                ])
+                            ])
+                        ])
+                    )),
+                    React.createElement('div', {
+                        style: { 
+                            marginTop: '12px',
+                            fontSize: '12px',
+                            color: '#666',
+                            textAlign: 'center'
+                        }
+                    }, `共 ${currentItem.mediaFiles.length} 张图片，总大小 ${currentItem.totalSize}`)
+                ])
+            ]),
+            
             React.createElement(Descriptions, {
                 key: 'basic-info',
                 title: '基本信息',
@@ -1037,10 +1543,8 @@ const ReviewManagement = () => {
                 items: [
                     { label: 'ID', children: currentItem.id },
                     { label: '类型', children: renderTypeTag(currentItem.type) },
-                    { label: '标题', children: currentItem.title || currentItem.content },
-                    { label: '作者', children: `${currentItem.author} (${renderAuthorTypeTag(currentItem.authorType)})` },
-                    { label: '提交时间', children: currentItem.submitTime },
-                    { label: '状态', children: renderStatusTag(currentItem.status) }
+                    { label: '状态', children: renderStatusTag(currentItem.status) },
+                    { label: '优先级', children: `${currentItem.priority === 'high' ? '高' : currentItem.priority === 'normal' ? '普通' : '低'}优先级` }
                 ]
             }),
             
