@@ -74,6 +74,13 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             page: 'TrafficAllocation'
         },
         {
+            key: 'logs',
+            icon: '📋',
+            label: '日志管理',
+            title: '等保三级合规日志管理',
+            page: 'LogManagement'
+        },
+        {
             key: 'settings',
             icon: '⚙️',
             label: '系统设置',
