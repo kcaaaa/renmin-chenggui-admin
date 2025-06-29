@@ -1,4 +1,4 @@
-﻿// 直播管理页面 - 基于微赞API重构，直接调用微赞接口
+// 直播管理页面 - 基于微赞API重构，直接调用微赞接口
 const LiveManagement = () => {
     const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, DatePicker, Upload, Radio, Switch, TimePicker } = antd;
     const { Search } = Input;
@@ -223,16 +223,13 @@ const LiveManagement = () => {
                 ]),
                 getExtraFilterColumns(),
                 React.createElement(Col, { span: 5 }, [
-                    React.createElement('div', {
-                        style: { 
-                            height: '32px', 
-                            lineHeight: '32px', 
-                            color: '#999',
-                            textAlign: 'center',
-                            background: '#f5f5f5',
-                            borderRadius: '6px'
-                        }
-                    }, '时间筛选（暂未开放）')
+                    React.createElement(DateRangePicker, {
+                        placeholder: ['开始时间', '结束时间'],
+                        value: timeRange,
+                        onChange: setTimeRange,
+                        style: { width: '100%' },
+                        format: 'YYYY-MM-DD'
+                    })
                 ]),
                 React.createElement(Col, { span: 4 }, [
                     React.createElement(Space, {}, [
@@ -1464,17 +1461,10 @@ const LiveManagement = () => {
             ])
         ]),
 
-        // 搜索和筛选工具栏
-        renderSearchToolbar(),
-        
-        // 批量操作工具栏
-        renderBatchToolbar(),
-
         React.createElement(Tabs, {
             key: 'main-tabs',
             items: tabItems,
-            defaultActiveKey: 'channels',
-            onChange: setActiveTab
+            defaultActiveKey: 'channels'
         }),
 
         // 新增频道模态框

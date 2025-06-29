@@ -6,23 +6,37 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
         {
             key: 'dashboard',
             icon: '📊',
-            label: '首页',
-            title: '实时查看核心运营指标',
+            label: '系统首页',
+            title: '实时查看核心运营指标和待办事项',
             page: 'Dashboard'
+        },
+        {
+            key: 'content',
+            icon: '📄',
+            label: '内容管理',
+            title: '平台内容查看与管理',
+            page: 'ContentManagement'
         },
         {
             key: 'review',
             icon: '🔍',
-            label: '审核管理',
-            title: '内容审核与管理',
+            label: 'AI审核',
+            title: 'AI内容审核与管理',
             page: 'ReviewManagement'
         },
         {
-            key: 'live',
-            icon: '📺',
-            label: '直播管理',
-            title: '直播内容管理',
-            page: 'LiveManagement'
+            key: 'audit-flow',
+            icon: '⚙️',
+            label: '审核流程管理',
+            title: '配置和管理审核流程模板',
+            page: 'AuditFlowManagement'
+        },
+        {
+            key: 'admin',
+            icon: '👨‍💼',
+            label: '管理员与权限',
+            title: '管理员账号和权限管理',
+            page: 'AdminManagement'
         },
         {
             key: 'user',
@@ -32,11 +46,32 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
             page: 'UserManagement'
         },
         {
+            key: 'feedback',
+            icon: '💭',
+            label: '用户反馈管理',
+            title: '处理用户反馈和建议',
+            page: 'FeedbackManagement'
+        },
+        {
             key: 'message',
             icon: '💬',
             label: '消息管理',
             title: 'APP系统消息推送管理',
             page: 'MessageManagement'
+        },
+        {
+            key: 'version',
+            icon: '📱',
+            label: 'APP版本管理',
+            title: 'APP版本发布和更新管理',
+            page: 'VersionManagement'
+        },
+        {
+            key: 'live',
+            icon: '📺',
+            label: '直播管理',
+            title: '直播内容管理',
+            page: 'LiveManagement'
         },
         {
             key: 'booth',
@@ -62,8 +97,8 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
         {
             key: 'data',
             icon: '💾',
-            label: '系统与资源管理',
-            title: '系统资源监控与管理',
+            label: '运营数据管理',
+            title: '系统资源监控与数据管理',
             page: 'DataManagement'
         },
         {

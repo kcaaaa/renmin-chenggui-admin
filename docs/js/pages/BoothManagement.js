@@ -1,9 +1,8 @@
-﻿// 展位管理页面 - 展会展位信息管理
+// 展位管理页面 - 展会展位信息管理
 const BoothManagement = () => {
     console.log('BoothManagement component is rendering...');
     
-    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, Upload, Tree, Image, Divider, Statistic, Progress, InputNumber, Radio, Switch, DatePicker } = antd;
-    const { Search } = Input;
+    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, Upload, Tree, Image, Divider, Statistic, Progress, InputNumber, Radio, Switch, Search } = antd;
     const { TextArea } = Input;
     const { Option } = Select;
     const { RangePicker: DateRangePicker } = DatePicker;
@@ -22,7 +21,6 @@ const BoothManagement = () => {
     const [selectedFloor, setSelectedFloor] = React.useState(null);
     const [selectedArea, setSelectedArea] = React.useState(null);
     const [loading, setLoading] = React.useState(false);
-    const [selectedRows, setSelectedRows] = React.useState([]);
     
     const [venueForm] = Form.useForm();
     const [floorForm] = Form.useForm();
@@ -286,239 +284,6 @@ const BoothManagement = () => {
         }
         
         return true;
-    };
-
-    // 渲染搜索和筛选工具栏
-    const renderSearchToolbar = () => {
-        return React.createElement(Card, {
-            style: { marginBottom: '16px' },
-            bodyStyle: { padding: '16px' }
-        }, [
-            React.createElement(Row, {
-                key: 'search-row',
-                gutter: [16, 16],
-                align: 'middle'
-            }, [
-                React.createElement(Col, { span: 6 }, [
-                    React.createElement(Search, {
-                        placeholder: getSearchPlaceholder(),
-                        value: searchText,
-                        onChange: (e) => setSearchText(e.target.value),
-                        onSearch: (value) => setSearchText(value),
-                        allowClear: true,
-                        enterButton: true
-                    })
-                ]),
-                React.createElement(Col, { span: 3 }, [
-                    React.createElement(Select, {
-                        placeholder: "状态筛选",
-                        value: statusFilter,
-                        onChange: setStatusFilter,
-                        style: { width: '100%' }
-                    }, getStatusFilterOptions())
-                ]),
-                React.createElement(Col, { span: 3 }, [
-                    React.createElement(Select, {
-                        placeholder: getTypeFilterPlaceholder(),
-                        value: typeFilter,
-                        onChange: setTypeFilter,
-                        style: { width: '100%' }
-                    }, getTypeFilterOptions())
-                ]),
-                React.createElement(Col, { span: 3 }, [
-                    React.createElement(Select, {
-                        placeholder: "楼层筛选",
-                        value: floorFilter,
-                        onChange: setFloorFilter,
-                        style: { width: '100%' }
-                    }, getFloorFilterOptions())
-                ]),
-                React.createElement(Col, { span: 5 }, [
-                    React.createElement('div', {
-                        style: { 
-                            height: '32px', 
-                            lineHeight: '32px', 
-                            color: '#999',
-                            textAlign: 'center',
-                            background: '#f5f5f5',
-                            borderRadius: '6px'
-                        }
-                    }, '时间筛选（暂未开放）')
-                ]),
-                React.createElement(Col, { span: 2 }, []),
-                React.createElement(Col, { span: 4 }, [
-                    React.createElement(Space, {}, [
-                        React.createElement(Button, {
-                            onClick: resetFilters
-                        }, '重置'),
-                        React.createElement(Button, {
-                            type: 'primary',
-                            onClick: () => loadBoothData()
-                        }, '搜索')
-                    ])
-                ])
-            ])
-        ]);
-    };
-
-    // 渲染批量操作工具栏
-    const renderBatchToolbar = () => {
-        const currentData = getCurrentData();
-        const filteredData = filterData(currentData);
-        
-        return React.createElement(Card, {
-            style: { marginBottom: '16px' },
-            bodyStyle: { padding: '12px 16px' }
-        }, [
-            React.createElement(Row, {
-                key: 'batch-row',
-                justify: 'space-between',
-                align: 'middle'
-            }, [
-                React.createElement(Col, {}, [
-                    React.createElement(Space, {}, [
-                        React.createElement('span', {
-                            style: { color: '#666' }
-                        }, `共 ${filteredData.length} 条记录`),
-                        selectedRows.length > 0 && React.createElement('span', {
-                            style: { color: '#1890ff' }
-                        }, `已选择 ${selectedRows.length} 条`)
-                    ])
-                ]),
-                React.createElement(Col, {}, [
-                    React.createElement(Space, {}, getBatchOperationButtons())
-                ])
-            ])
-        ]);
-    };
-
-    // 获取搜索框占位符
-    const getSearchPlaceholder = () => {
-        const placeholders = {
-            venue: '搜索场馆名称、地址或描述',
-            floor: '搜索楼层名称或描述',
-            company: '搜索公司名称、联系人或展位位置'
-        };
-        return placeholders[activeTab] || '搜索...';
-    };
-
-    // 获取类型筛选占位符
-    const getTypeFilterPlaceholder = () => {
-        const placeholders = {
-            venue: '场馆类型',
-            floor: '楼层类型',
-            company: '公司类型'
-        };
-        return placeholders[activeTab] || '类型筛选';
-    };
-
-    // 获取状态筛选选项
-    const getStatusFilterOptions = () => {
-        const optionsMap = {
-            venue: [
-                React.createElement(Option, { value: 'all' }, '全部状态'),
-                React.createElement(Option, { value: 'active' }, '使用中'),
-                React.createElement(Option, { value: 'inactive' }, '待开放')
-            ],
-            floor: [
-                React.createElement(Option, { value: 'all' }, '全部状态'),
-                React.createElement(Option, { value: 'active' }, '启用'),
-                React.createElement(Option, { value: 'inactive' }, '停用')
-            ],
-            company: [
-                React.createElement(Option, { value: 'all' }, '全部状态'),
-                React.createElement(Option, { value: 'confirmed' }, '已确认'),
-                React.createElement(Option, { value: 'pending' }, '待确认'),
-                React.createElement(Option, { value: 'cancelled' }, '已取消')
-            ]
-        };
-        return optionsMap[activeTab] || [React.createElement(Option, { value: 'all' }, '全部状态')];
-    };
-
-    // 获取类型筛选选项
-    const getTypeFilterOptions = () => {
-        const optionsMap = {
-            venue: [
-                React.createElement(Option, { value: 'all' }, '全部类型'),
-                React.createElement(Option, { value: 'exhibition' }, '展览中心'),
-                React.createElement(Option, { value: 'conference' }, '会议中心'),
-                React.createElement(Option, { value: 'mixed' }, '综合场馆')
-            ],
-            floor: [
-                React.createElement(Option, { value: 'all' }, '全部类型'),
-                React.createElement(Option, { value: 'exhibition' }, '展览楼层'),
-                React.createElement(Option, { value: 'meeting' }, '会议楼层'),
-                React.createElement(Option, { value: 'service' }, '服务楼层')
-            ],
-            company: [
-                React.createElement(Option, { value: 'all' }, '全部类型'),
-                React.createElement(Option, { value: '制造商' }, '制造商'),
-                React.createElement(Option, { value: '服务商' }, '服务商'),
-                React.createElement(Option, { value: '技术商' }, '技术商'),
-                React.createElement(Option, { value: '咨询商' }, '咨询商')
-            ]
-        };
-        return optionsMap[activeTab] || [React.createElement(Option, { value: 'all' }, '全部类型')];
-    };
-
-    // 获取楼层筛选选项
-    const getFloorFilterOptions = () => {
-        const options = [React.createElement(Option, { value: 'all' }, '全部楼层')];
-        boothData.floors.forEach(floor => {
-            options.push(React.createElement(Option, { value: floor.id }, floor.name));
-        });
-        return options;
-    };
-
-    // 获取批量操作按钮
-    const getBatchOperationButtons = () => {
-        const buttons = [
-            React.createElement(Button, {
-                onClick: handleExport
-            }, '导出数据'),
-            React.createElement(Button, {
-                onClick: () => loadBoothData()
-            }, '刷新')
-        ];
-
-        if (activeTab === 'company' && selectedRows.length > 0) {
-            buttons.unshift(
-                React.createElement(Button, {
-                    type: 'primary',
-                    disabled: selectedRows.length === 0,
-                    onClick: () => handleBatchCompanyOperation('confirm')
-                }, `批量确认 (${selectedRows.length})`),
-                React.createElement(Button, {
-                    danger: true,
-                    disabled: selectedRows.length === 0,
-                    onClick: () => handleBatchCompanyOperation('cancel')
-                }, `批量取消 (${selectedRows.length})`)
-            );
-        }
-
-        return buttons;
-    };
-
-    // 批量公司操作
-    const handleBatchCompanyOperation = (action) => {
-        if (selectedRows.length === 0) {
-            message.warning('请选择要操作的参展公司');
-            return;
-        }
-
-        const actionText = action === 'confirm' ? '确认' : '取消';
-        Modal.confirm({
-            title: `确认${actionText}选中的参展公司？`,
-            content: `将对 ${selectedRows.length} 个参展公司执行${actionText}操作`,
-            onOk: () => {
-                setLoading(true);
-                setTimeout(() => {
-                    setSelectedRows([]);
-                    loadBoothData();
-                    message.success(`已${actionText} ${selectedRows.length} 个参展公司`);
-                }, 1000);
-            }
-        });
     };
 
     // 渲染场馆管理
@@ -953,22 +718,6 @@ const BoothManagement = () => {
         setVenueModalVisible(true);
     };
 
-    const deleteVenue = (venue) => {
-        Modal.confirm({
-            title: '确认删除场馆',
-            content: `确定要删除场馆 "${venue.name}" 吗？`,
-            onOk() {
-                message.success('场馆删除成功');
-                loadBoothData();
-            }
-        });
-    };
-
-    const manageFloors = (venue) => {
-        message.info(`进入 ${venue.name} 的楼层管理`);
-        // 这里可以跳转到楼层管理页面或打开模态框
-    };
-
     const createNewFloor = () => {
         setEditingFloor(null);
         floorForm.resetFields();
@@ -1003,37 +752,6 @@ const BoothManagement = () => {
         setEditingCompany(company);
         companyForm.setFieldsValue(company);
         setCompanyModalVisible(true);
-    };
-
-    const viewCompanyDetails = (company) => {
-        Modal.info({
-            title: '参展公司详情',
-            width: 600,
-            content: React.createElement('div', {}, [
-                React.createElement('p', { key: 'name' }, `公司名称: ${company.name}`),
-                React.createElement('p', { key: 'desc' }, `公司简介: ${company.description}`),
-                React.createElement('p', { key: 'booth' }, `展位号: ${company.boothNumber}`),
-                React.createElement('p', { key: 'contact' }, `联系人: ${company.contactPerson}`),
-                React.createElement('p', { key: 'phone' }, `联系电话: ${company.contactPhone}`),
-                React.createElement('p', { key: 'email' }, `邮箱: ${company.contactEmail}`)
-            ])
-        });
-    };
-
-    const deleteCompany = (company) => {
-        Modal.confirm({
-            title: '确认删除参展公司',
-            content: `确定要删除参展公司 "${company.name}" 吗？`,
-            onOk() {
-                message.success('参展公司删除成功');
-                loadBoothData();
-            }
-        });
-    };
-
-    const batchImportCompanies = () => {
-        message.info('批量导入参展公司功能');
-        // 这里可以打开批量导入模态框
     };
 
     const uploadBoothMap = (floor) => {
@@ -1090,12 +808,6 @@ const BoothManagement = () => {
                 }, '使用帮助')
             ])
         ]),
-
-        // 搜索和筛选工具栏
-        renderSearchToolbar(),
-        
-        // 批量操作工具栏
-        renderBatchToolbar(),
 
         React.createElement(Tabs, {
             key: 'main-tabs',

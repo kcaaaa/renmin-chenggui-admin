@@ -9,37 +9,9 @@ const AuthUtils = {
 
     // 获取当前用户信息
     getCurrentUser() {
-        const token = localStorage.getItem('authToken');
-        if (!token) {
-            return null;
-        }
-        
         try {
-            // 从localStorage获取用户信息，如果没有则返回默认管理员信息
-            const userInfo = localStorage.getItem('currentUser');
-            if (userInfo) {
-                return JSON.parse(userInfo);
-            }
-            
-            // 默认管理员信息
-            const defaultUser = {
-                id: 'admin_001',
-                username: 'admin_system',
-                name: '系统管理员',
-                email: 'admin@example.com',
-                phone: '138****8888',
-                department: '系统管理部',
-                role: '系统管理员',
-                avatar: null,
-                createTime: '2023-05-10 14:20:00',
-                lastLogin: new Date().toLocaleString(),
-                loginCount: 245,
-                status: 'active'
-            };
-            
-            // 保存默认用户信息
-            localStorage.setItem('currentUser', JSON.stringify(defaultUser));
-            return defaultUser;
+            const userData = localStorage.getItem('userData');
+            return userData ? JSON.parse(userData) : null;
         } catch (error) {
             console.error('获取用户信息失败:', error);
             return null;
@@ -226,17 +198,6 @@ const AuthUtils = {
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2, 15);
         return `admin_${timestamp}_${random}`;
-    },
-
-    // 更新当前用户信息
-    updateCurrentUser: (userInfo) => {
-        try {
-            localStorage.setItem('currentUser', JSON.stringify(userInfo));
-            return true;
-        } catch (error) {
-            console.error('更新用户信息失败:', error);
-            return false;
-        }
     }
 };
 
