@@ -4,7 +4,49 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.0.1-orange.svg)](CHANGELOG.md)
 
-> 专业的城市轨道交通行业B端管理系统，支持视频审核、用户管理、数据分析等核心功能
+> 企业级轨道交通运营管理系统原型
+
+## 🌐 在线访问
+- **GitHub Pages**: https://kcaaaa.github.io/renmin-chenggui-admin/
+- **GitHub仓库**: https://github.com/kcaaaa/renmin-chenggui-admin
+
+## 🚀 系统特性
+- 17个核心功能模块
+- 完善的交互体验
+- 专业的管理界面设计
+- 强大的数据处理能力
+
+## 📊 功能模块
+- **首页仪表盘** - 实时数据监控、报表导出、告警处理
+- **内容管理** - 文章、视频、图文审核管理
+- **用户管理** - 用户、组织、角色权限管理
+- **审核管理** - 多类型审核、批量操作
+- **消息推送** - 推送管理、模板管理
+- **直播管理** - 微赞API集成、回放管理
+- **系统设置** - AI审核配置、流程管理、告警规则
+
+## 🔧 技术栈
+- React 17.0.2
+- Ant Design 4.24.15
+- ECharts 5.4.3
+- 原生JavaScript（无需构建工具）
+
+## 💻 本地运行
+```bash
+# Python服务器
+python -m http.server 8080
+
+# 或者直接打开
+index.html
+```
+
+## 🔐 登录信息
+- 用户名：admin
+- 密码：admin123
+
+## 📅 更新日志
+- **2024-12-30**: 修复导航问题，增强Dashboard和SystemSettings功能
+- **2024-06-29**: 回退到稳定版本
 
 ## 📋 项目简介
 
