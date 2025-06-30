@@ -2,7 +2,7 @@
 const BoothManagement = () => {
     console.log('BoothManagement component is rendering...');
     
-    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, Upload, Tree, Image, Divider, Statistic, Progress, InputNumber, Radio, Switch, Search } = antd;
+    const { Row, Col, Card, Button, Space, Alert, Tag, Table, Modal, Form, Input, Select, message, Tabs, Upload, Tree, Image, Divider, Statistic, Progress, InputNumber, Radio, Switch, DatePicker } = antd;
     const { TextArea } = Input;
     const { Option } = Select;
     const { RangePicker: DateRangePicker } = DatePicker;
