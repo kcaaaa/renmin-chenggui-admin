@@ -1,157 +1,142 @@
 // 导航组件
 const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) => {
     const { Menu } = antd;
+    const { SubMenu } = Menu;
     
+    // 二级菜单结构
     const menuItems = [
         {
             key: 'dashboard',
             icon: '📊',
             label: '系统首页',
-            title: '实时查看核心运营指标和待办事项',
-            page: 'Dashboard'
+            type: 'item'
         },
         {
             key: 'content',
             icon: '📄',
             label: '内容管理',
-            title: '平台内容查看与管理',
-            page: 'ContentManagement'
+            type: 'item'
         },
         {
-            key: 'review',
+            key: 'exhibition-group',
+            icon: '🏢',
+            label: '展会管理',
+            type: 'submenu',
+            children: [
+                { key: 'booth', icon: '🏪', label: '展位管理' },
+                { key: 'live', icon: '📺', label: '直播管理' }
+            ]
+        },
+        {
+            key: 'audit-group',
             icon: '🔍',
             label: 'AI审核',
-            title: 'AI内容审核与管理',
-            page: 'ReviewManagement'
+            type: 'submenu',
+            children: [
+                { key: 'review', icon: '🤖', label: 'AI审核' },
+                { key: 'audit-flow', icon: '⚙️', label: '审核流程管理' }
+            ]
         },
         {
-            key: 'audit-flow',
-            icon: '⚙️',
-            label: '审核流程管理',
-            title: '配置和管理审核流程模板',
-            page: 'AuditFlowManagement'
-        },
-        {
-            key: 'admin',
-            icon: '👨‍💼',
-            label: '管理员与权限',
-            title: '管理员账号和权限管理',
-            page: 'AdminManagement'
-        },
-        {
-            key: 'user',
-            icon: '👥',
-            label: '用户管理',
-            title: '用户信息查询与管理',
-            page: 'UserManagement'
-        },
-        {
-            key: 'feedback',
-            icon: '💭',
-            label: '用户反馈管理',
-            title: '处理用户反馈和建议',
-            page: 'FeedbackManagement'
-        },
-        {
-            key: 'message',
-            icon: '💬',
-            label: '消息管理',
-            title: 'APP系统消息推送管理',
-            page: 'MessageManagement'
-        },
-        {
-            key: 'version',
-            icon: '📱',
-            label: 'APP版本管理',
-            title: 'APP版本发布和更新管理',
-            page: 'VersionManagement'
-        },
-        {
-            key: 'live',
-            icon: '📺',
-            label: '直播管理',
-            title: '直播内容管理',
-            page: 'LiveManagement'
-        },
-        {
-            key: 'booth',
-            icon: '🏢',
-            label: '展位管理',
-            title: '展会展位信息管理',
-            page: 'BoothManagement'
-        },
-        {
-            key: 'stats',
-            icon: '📋',
-            label: '行为统计',
-            title: '用户行为数据统计',
-            page: 'BehaviorStats'
-        },
-        {
-            key: 'operational',
+            key: 'data-group',
             icon: '📈',
-            label: '运营数据统计',
-            title: '核心运营指标与分模块统计',
-            page: 'OperationalStats'
-        },
-        {
-            key: 'data',
-            icon: '💾',
             label: '运营数据管理',
-            title: '系统资源监控与数据管理',
-            page: 'DataManagement'
+            type: 'submenu',
+            children: [
+                { key: 'operational', icon: '📊', label: '日活、月活等统计' },
+                { key: 'stats', icon: '📋', label: '用户行为统计' },
+                { key: 'content-stats', icon: '📈', label: '作品数据统计' },
+                { key: 'user-profile', icon: '👤', label: '用户画像分析' },
+                { key: 'traffic', icon: '🎯', label: '流量分配配置' }
+            ]
         },
         {
-            key: 'traffic',
-            icon: '🎯',
-            label: '流量分配配置',
-            title: '推荐算法与流量分配',
-            page: 'TrafficAllocation'
-        },
-        {
-            key: 'logs',
-            icon: '📋',
-            label: '日志管理',
-            title: '等保三级合规日志管理',
-            page: 'LogManagement'
-        },
-        {
-            key: 'settings',
+            key: 'system-group',
             icon: '⚙️',
-            label: '系统设置',
-            title: '系统配置与管理',
-            page: 'SystemSettings'
+            label: '系统管理',
+            type: 'submenu',
+            children: [
+                { key: 'user', icon: '👥', label: '用户管理' },
+                { key: 'admin', icon: '👨‍💼', label: '权限管理' },
+                { key: 'message', icon: '💬', label: '消息管理' },
+                { key: 'feedback', icon: '💭', label: '用户反馈管理' },
+                { key: 'version', icon: '📱', label: 'APP版本管理' },
+                { key: 'logs', icon: '📋', label: '日志管理' },
+                { key: 'settings', icon: '🔧', label: '系统设置' }
+            ]
         }
     ];
 
+    // 渲染菜单项
     const renderMenuItem = (item) => {
-        return React.createElement(Menu.Item, {
-            key: item.key,
-            title: item.title
-        }, [
-            React.createElement('span', {
-                key: 'icon',
-                className: 'nav-icon'
-            }, item.icon),
-            !collapsed && React.createElement('span', {
-                key: 'label'
-            }, item.label)
-        ]);
+        if (item.type === 'submenu') {
+            return React.createElement(SubMenu, {
+                key: item.key,
+                title: React.createElement('span', {}, [
+                    React.createElement('span', { key: 'icon', style: { marginRight: 8 } }, item.icon),
+                    React.createElement('span', { key: 'label' }, item.label)
+                ])
+            }, item.children.map(child => 
+                React.createElement(Menu.Item, {
+                    key: child.key
+                }, [
+                    React.createElement('span', { key: 'icon', style: { marginRight: 8 } }, child.icon),
+                    React.createElement('span', { key: 'label' }, child.label)
+                ])
+            ));
+        } else {
+            return React.createElement(Menu.Item, {
+                key: item.key
+            }, [
+                React.createElement('span', { key: 'icon', style: { marginRight: 8 } }, item.icon),
+                !collapsed && React.createElement('span', { key: 'label' }, item.label)
+            ]);
+        }
+    };
+
+    // 获取当前展开的菜单键
+    const getOpenKeys = () => {
+        // 根据当前页面确定应该展开的子菜单
+        const pageToGroupMap = {
+            'booth': 'exhibition-group',
+            'live': 'exhibition-group',
+            'review': 'audit-group',
+            'audit-flow': 'audit-group',
+            'operational': 'data-group',
+            'stats': 'data-group',
+            'content-stats': 'data-group',
+            'user-profile': 'data-group',
+            'traffic': 'data-group',
+            'user': 'system-group',
+            'admin': 'system-group',
+            'message': 'system-group',
+            'feedback': 'system-group',
+            'version': 'system-group',
+            'logs': 'system-group',
+            'settings': 'system-group'
+        };
+        
+        const group = pageToGroupMap[currentPage];
+        return group ? [group] : [];
     };
 
     return React.createElement('div', {
-        className: `main-nav ${collapsed ? 'collapsed' : ''}`,
-        style: {
-            width: collapsed ? '80px' : '240px',
-            transition: 'width 0.3s'
+        className: 'main-nav',
+        style: { 
+            width: collapsed ? '80px' : '240px', 
+            transition: 'width 0.3s',
+            background: '#fff',
+            borderRight: '1px solid #f0f0f0',
+            height: '100vh',
+            overflow: 'auto'
         }
     }, [
         // 导航头部
         React.createElement('div', {
-            key: 'header',
+            key: 'nav-header',
             style: {
                 padding: '16px',
-                borderBottom: '1px solid #e5e7eb',
+                borderBottom: '1px solid #f0f0f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: collapsed ? 'center' : 'space-between'
@@ -159,65 +144,55 @@ const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) 
         }, [
             React.createElement('div', {
                 key: 'logo',
-                style: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: collapsed ? '20px' : '16px',
-                    fontWeight: 'bold',
-                    color: '#2563eb'
+                style: { 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    fontSize: '16px', 
+                    fontWeight: 'bold', 
+                    color: '#1890ff' 
                 }
             }, [
-                React.createElement('span', {
-                    key: 'icon',
-                    style: { marginRight: collapsed ? 0 : '8px' }
+                React.createElement('span', { 
+                    key: 'icon', 
+                    style: { marginRight: collapsed ? 0 : '8px' } 
                 }, '🚇'),
-                !collapsed && React.createElement('span', {
-                    key: 'text'
-                }, '人民城轨2.0')
+                !collapsed && React.createElement('span', { key: 'text' }, '人民城轨2.0')
             ]),
             !collapsed && React.createElement('button', {
-                key: 'toggle',
+                key: 'collapse-btn',
                 onClick: onToggleCollapse,
-                style: {
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
+                style: { 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer', 
                     padding: '4px',
-                    borderRadius: '4px'
-                },
-                title: '收起菜单'
+                    fontSize: '14px'
+                }
             }, '◀')
         ]),
         
-        // 收起按钮（折叠状态）
+        // 展开按钮（折叠状态下显示）
         collapsed && React.createElement('div', {
             key: 'expand-btn',
-            style: {
-                padding: '8px',
-                textAlign: 'center',
-                borderBottom: '1px solid #e5e7eb'
-            }
+            style: { padding: '8px', textAlign: 'center' }
         }, React.createElement('button', {
             onClick: onToggleCollapse,
-            style: {
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
+            style: { 
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
                 padding: '4px',
-                borderRadius: '4px'
-            },
-            title: '展开菜单'
+                fontSize: '14px'
+            }
         }, '▶')),
         
-        // 菜单项
+        // 菜单内容
         React.createElement(Menu, {
             key: 'menu',
             mode: 'inline',
             selectedKeys: [currentPage],
-            style: { 
-                border: 'none',
-                flex: 1
-            },
+            openKeys: collapsed ? [] : getOpenKeys(),
+            style: { border: 'none' },
             inlineCollapsed: collapsed,
             onClick: ({ key }) => {
                 console.log('Navigation clicked:', key);

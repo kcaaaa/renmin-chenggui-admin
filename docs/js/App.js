@@ -47,9 +47,6 @@ const App = () => {
             case 'dashboard':
             case 'Dashboard':
                 return React.createElement(window.Dashboard);
-            case 'content':
-            case 'ContentManagement':
-                return React.createElement(window.ContentManagement);
             case 'review':
             case 'review-image':
             case 'review-video':
@@ -57,51 +54,24 @@ const App = () => {
             case 'review-mechanism':
             case 'ReviewManagement':
                 return React.createElement(window.ReviewManagement);
-            case 'audit-flow':
-            case 'AuditFlowManagement':
-                return React.createElement(window.AuditFlowManagement);
-            case 'admin':
-            case 'AdminManagement':
-                return React.createElement(window.AdminManagement);
-            case 'user':
-            case 'UserManagement':
-                return React.createElement(window.UserManagement);
-            case 'feedback':
-            case 'FeedbackManagement':
-                return React.createElement(window.FeedbackManagement);
-            case 'message':
-            case 'MessageManagement':
-                return React.createElement(window.MessageManagement);
-            case 'version':
-            case 'VersionManagement':
-                return React.createElement(window.VersionManagement);
             case 'live':
             case 'LiveManagement':
                 return React.createElement(window.LiveManagement);
-            case 'booth':
-            case 'BoothManagement':
-                return React.createElement(window.BoothManagement);
-            case 'stats':
-            case 'BehaviorStats':
-                return React.createElement(window.BehaviorStats);
-            case 'operational':
-            case 'OperationalStats':
-                return React.createElement(window.OperationalStats);
-            case 'data':
-            case 'DataManagement':
-                return React.createElement(window.DataManagement);
-            case 'traffic':
-            case 'TrafficAllocation':
-                return React.createElement(window.TrafficAllocation);
-            case 'logs':
-            case 'LogManagement':
-                return React.createElement(window.LogManagement);
-            case 'settings':
-            case 'SystemSettings':
-                return React.createElement(window.SystemSettings);
+            case 'user':
+            case 'UserManagement':
+                return React.createElement(window.UserManagement);
             case 'profile':
             case 'UserProfile':
                 return React.createElement(window.UserProfile);
+            case 'stats':
+            case 'BehaviorStats':
+                return React.createElement(window.BehaviorStats);
+            case 'data':
+            case 'DataManagement':
+                return React.createElement(window.DataManagement);
+            case 'settings':
+            case 'SystemSettings':
+                return React.createElement(window.SystemSettings);
             default:
                 return React.createElement(window.Dashboard);
         }
