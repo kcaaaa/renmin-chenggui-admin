@@ -1,9 +1,9 @@
-// 修复版主应用组件
+﻿// 修复版主应用组件
 const App = () => {
     const { Layout, message } = antd;
     const { Sider, Header, Content } = Layout;
     
-    const [currentPage, setCurrentPage] = React.useState('dashboard');
+    const [currentPage, setCurrentPage] = React.useState('Dashboard');
     const [collapsed, setCollapsed] = React.useState(false);
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [user, setUser] = React.useState(null);
@@ -36,7 +36,7 @@ const App = () => {
             if (!AuthUtils.refreshAuth()) {
                 handleLogout();
             }
-        }, 5 * 60 * 1000); // 每5分钟检查一次
+        }, 5 * 60 * 1000); // 5分钟检查一次
 
         return () => clearInterval(authCheckInterval);
     }, []);
@@ -48,317 +48,346 @@ const App = () => {
             
             if (AuthUtils.isAuthenticated() && !AuthUtils.isTokenExpired()) {
                 const userData = AuthUtils.getCurrentUser();
-                if (userData) {
+                if (userData && userData.token) {
                     setUser(userData);
                     setIsAuthenticated(true);
-                    console.log('用户已登录:', userData.name);
+                    console.log('用户认证成功:', userData.username);
                 } else {
+                    console.log('用户数据无效，清除认证状态');
+                    AuthUtils.clearAuth();
                     setIsAuthenticated(false);
+                    setUser(null);
                 }
             } else {
+                console.log('认证状态无效或已过期');
+                AuthUtils.clearAuth();
                 setIsAuthenticated(false);
-                AuthUtils.logout(); // 清除过期的认证信息
+                setUser(null);
             }
         } catch (error) {
-            console.error('认证状态检查失败:', error);
+            console.error('认证检查失败:', error);
             setIsAuthenticated(false);
+            setUser(null);
         } finally {
             setLoading(false);
         }
     };
 
-    // 处理登录
+    // 登录处理
     const handleLogin = (userData) => {
-        try {
+        if (userData && userData.token) {
+            AuthUtils.saveAuth(userData);
             setUser(userData);
             setIsAuthenticated(true);
-            message.success(`欢迎回来，${userData.name}！`);
-            
-            // 记录登录成功
-            AuthUtils.logActivity('login_success', {
-                username: userData.username,
-                loginTime: new Date().toISOString()
-            });
-        } catch (error) {
-            console.error('登录处理失败:', error);
-            message.error('登录处理失败，请重试');
-        }
-    };
-
-    // 处理退出登录
-    const handleLogout = () => {
-        try {
-            const currentUser = AuthUtils.getCurrentUser();
-            AuthUtils.logout();
-            setUser(null);
+            message.success('登录成功，欢迎使用人民城轨2.0管理后台！');
+            setCurrentPage('Dashboard');
+            setRenderKey(prev => prev + 1); // 强制重新渲染
+        } else {
+            message.error('登录失败，请检查用户名和密码');
             setIsAuthenticated(false);
-            setCurrentPage('dashboard'); // 重置到首页
-            
-            message.info(currentUser ? `${currentUser.name}，您已安全退出` : '已退出登录');
-        } catch (error) {
-            console.error('退出登录失败:', error);
-            message.error('退出登录失败');
+            setUser(null);
         }
     };
 
+    // 登出处理
+    const handleLogout = () => {
+        AuthUtils.clearAuth();
+        setIsAuthenticated(false);
+        setUser(null);
+        setCurrentPage('Dashboard');
+        message.info('已安全退出系统');
+        setRenderKey(prev => prev + 1); // 强制重新渲染
+    };
+
+    // 页面切换处理
     const handlePageChange = (page) => {
-        console.log('🚀 [FIXED] 页面切换开始');
-        console.log('🎯 [FIXED] 目标页面:', page);
-        console.log('📍 [FIXED] 当前页面:', currentPage);
+        console.log('切换到页面:', page);
         
-        // 设置新页面
-        setCurrentPage(page);
-        
-        // 强制重新渲染
+        // 重置强制重新渲染key
         setRenderKey(prev => prev + 1);
         
-        console.log('✅ [FIXED] 页面状态已更新');
-        console.log('🔄 [FIXED] 强制重新渲染 key:', renderKey + 1);
+        // 延迟设置页面，确保先触发重新渲染
+        setTimeout(() => {
+            setCurrentPage(page);
+        }, 10);
         
         // 记录页面访问
-        if (isAuthenticated) {
-            AuthUtils.logActivity('page_visit', {
+        try {
+            const visitHistory = JSON.parse(localStorage.getItem('pageVisitHistory') || '[]');
+            visitHistory.unshift({
                 page: page,
-                timestamp: new Date().toISOString()
+                timestamp: new Date().toISOString(),
+                user: user?.username || 'unknown'
             });
+            // 只保留最近50次访问记录
+            localStorage.setItem('pageVisitHistory', JSON.stringify(visitHistory.slice(0, 50)));
+        } catch (error) {
+            console.warn('保存页面访问历史失败:', error);
         }
     };
 
+    // 侧边栏折叠切换
     const handleToggleCollapse = () => {
-        setCollapsed(!collapsed);
+        const newCollapsed = !collapsed;
+        setCollapsed(newCollapsed);
         
-        // 保存用户偏好
-        if (isAuthenticated) {
-            AuthUtils.setUserPreference('sidebarCollapsed', !collapsed);
-        }
+        // 保存折叠状态到本地存储
+        localStorage.setItem('sidebarCollapsed', JSON.stringify(newCollapsed));
     };
 
+    // 通知点击处理
     const handleNotificationClick = () => {
-        console.log('查看全部通知');
-        handlePageChange('notifications');
+        // 标记所有通知为已读
+        setNotifications(prev => prev.map(notif => ({
+            ...notif,
+            read: true
+        })));
+        
+        // 可以在这里添加更多通知相关的逻辑
+        message.info('通知已全部标记为已读');
     };
 
-    // 加载用户偏好设置
+    // 页面加载时恢复侧边栏状态
     React.useEffect(() => {
-        if (isAuthenticated) {
-            const savedCollapsed = AuthUtils.getUserPreference('sidebarCollapsed', false);
-            setCollapsed(savedCollapsed);
+        try {
+            const savedCollapsed = localStorage.getItem('sidebarCollapsed');
+            if (savedCollapsed !== null) {
+                setCollapsed(JSON.parse(savedCollapsed));
+            }
+        } catch (error) {
+            console.warn('恢复侧边栏状态失败:', error);
         }
-    }, [isAuthenticated]);
+    }, []);
 
-    // 监听页面变化
-    React.useEffect(() => {
-        console.log('📱 [FIXED] useEffect 触发 - 页面:', currentPage);
-        console.log('🔧 [FIXED] renderKey:', renderKey);
-    }, [currentPage, renderKey]);
-
+    // 渲染页面内容
     const renderContent = () => {
-        console.log('🎨 [FIXED] renderContent 开始渲染');
-        console.log('📄 [FIXED] 当前页面:', currentPage);
-        console.log('🔑 [FIXED] renderKey:', renderKey);
-        
-        // 专门处理内容管理页面
-        if (currentPage === 'content') {
-            console.log('📝 [FIXED] 准备渲染内容管理页面');
-            console.log('🔍 [FIXED] ContentManagement 组件可用:', !!window.ContentManagement);
-            
-            if (window.ContentManagement) {
-                console.log('✅ [FIXED] 找到 ContentManagement 组件，开始创建');
-                try {
-                    const contentComponent = React.createElement(window.ContentManagement, { key: `content-${renderKey}` });
-                    console.log('🎉 [FIXED] ContentManagement 组件创建成功');
-                    return contentComponent;
-                } catch (error) {
-                    console.error('❌ [FIXED] ContentManagement 创建失败:', error);
-                    return React.createElement('div', {
-                        style: { 
-                            padding: '24px', 
-                            background: '#fff',
-                            margin: '24px',
-                            borderRadius: '8px',
-                            border: '1px solid #ff4d4f',
-                            textAlign: 'center'
-                        }
-                    }, [
-                        React.createElement('h2', { key: 'title', style: { color: '#ff4d4f' } }, '内容管理组件加载失败'),
-                        React.createElement('p', { key: 'error' }, error.message),
-                        React.createElement('button', {
-                            key: 'reload',
-                            onClick: () => location.reload(),
-                            style: { padding: '8px 16px', marginTop: '16px' }
-                        }, '重新加载')
-                    ]);
-                }
-            } else {
-                console.error('❌ [FIXED] ContentManagement 组件未找到');
-                return React.createElement('div', {
-                    style: { 
-                        padding: '24px', 
-                        background: '#fff',
-                        margin: '24px',
-                        borderRadius: '8px',
-                        border: '1px solid #ff7875',
-                        textAlign: 'center'
-                    }
-                }, [
-                    React.createElement('h2', { key: 'title', style: { color: '#ff4d4f' } }, 'ContentManagement 组件未加载'),
-                    React.createElement('p', { key: 'msg' }, '请检查 js/pages/ContentManagement.js 文件是否正确加载'),
-                    React.createElement('button', {
-                        key: 'reload',
-                        onClick: () => location.reload(),
-                        style: { padding: '8px 16px', marginTop: '16px' }
-                    }, '重新加载')
-                ]);
-            }
-        }
-        
-        // 组件映射表 - 简化版本
         const pageComponents = {
-            'dashboard': window.Dashboard,
-            'review': window.ReviewManagement,
-            'audit-flow': window.AuditFlowManagement,
-            'admin': window.AdminManagement,
-            'user': window.UserManagement,
-            'feedback': window.FeedbackManagement,
-            'message': window.MessageManagement,
-            'version': window.VersionManagement,
-            'live': window.LiveManagement,
-            'booth': window.BoothManagement,
-            'stats': window.BehaviorStats,
-            'operational': window.OperationalStats,
-            'data': window.DataManagement,
-            'traffic': window.TrafficAllocation,
-            'logs': window.LogManagement,
-            'settings': window.SystemSettings,
-            'profile': window.UserProfile
+            // 首页
+            Dashboard: window.Dashboard,
+            
+            // 内容管理
+            ContentList: window.ContentList,
+            ContentPublish: window.ContentPublish,
+            ComplaintManagement: window.ComplaintManagement,
+            TagManagement: window.TagManagement,
+            
+            // 审核管理
+            AIReview: window.AIReview,
+            WorkApprovalProcess: window.WorkApprovalProcess, // 作品审批流程
+            ExhibitorApprovalProcess: window.ExhibitorApprovalProcess, // 展商审批流程
+            ApprovalProcessManagement: window.ApprovalProcessManagement,
+            
+            // 展会管理
+            ExhibitionList: window.ExhibitionList,
+            RegistrationManagement: window.RegistrationManagement,
+            RegistrationEntrance: window.RegistrationEntrance,
+            BoothManagement: window.BoothManagement,
+            ExhibitorQuery: window.ExhibitorQuery,
+            MeetingActivityManagement: window.MeetingActivityManagement,
+            ExhibitorBasicInfo: window.ExhibitorBasicInfo,
+            ProductInfo: window.ProductInfo,
+            ExhibitorActivityInfo: window.ExhibitorActivityInfo,
+            BusinessMatching: window.BusinessMatching,
+            
+            // 运营管理
+            UserAnalysis: window.UserAnalysis,
+            AppBehaviorStats: window.BehaviorStats,
+            FunctionUsageAnalysis: window.DataAnalysis,
+            AbnormalSituationStats: window.BehaviorAnalysis,
+            DataOverview: window.OperationalStats,
+            BasicBehaviorStats: window.UserBehaviorStats,
+            DeepBehaviorStats: window.BehaviorStats,
+            SystemResourceMonitoring: window.DataManagement,
+            SystemFeedbackList: window.SystemFeedbackList,
+            
+            // 系统管理
+            UserList: window.UserList,
+            OrganizationStructure: window.OrganizationStructure,
+            AdminRole: window.AdminRole,
+            NonAdminRole: window.NonAdminRole,
+            UserOperationLogs: window.UserOperationLogs,
+            LoginLogoutLogs: window.LoginLogoutLogs,
+            ContentPublishLogs: window.ContentPublishLogs,
+            ApprovalLogs: window.ApprovalLogs,
+            AgentManagement: window.AgentManagement,
+            KnowledgeBaseManagement: window.KnowledgeBaseManagement,
+            MenuManagement: window.MenuManagement,
+            PersonalCenter: window.PersonalCenter
         };
-        
+
         const PageComponent = pageComponents[currentPage];
-        console.log('🔍 [FIXED] 查找组件:', currentPage, '结果:', !!PageComponent);
         
-        if (PageComponent) {
-            console.log('✅ [FIXED] 渲染页面组件:', currentPage);
-            try {
-                return React.createElement(PageComponent, { key: `${currentPage}-${renderKey}` });
-            } catch (error) {
-                console.error('❌ [FIXED] 页面组件渲染失败:', error);
-                return React.createElement('div', {
-                    style: { padding: '24px', textAlign: 'center' }
-                }, `页面组件 ${currentPage} 渲染失败: ${error.message}`);
-            }
+        if (!PageComponent) {
+            console.warn('页面组件未找到:', currentPage);
+            return React.createElement('div', {
+                style: { 
+                    padding: '50px', 
+                    textAlign: 'center',
+                    background: '#f5f5f5',
+                    minHeight: '400px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }
+            }, [
+                React.createElement('h2', { 
+                    key: 'title',
+                    style: { 
+                        color: '#ff4d4f',
+                        marginBottom: '16px'
+                    }
+                }, '页面未找到'),
+                React.createElement('p', { 
+                    key: 'description',
+                    style: { 
+                        color: '#666',
+                        fontSize: '16px',
+                        marginBottom: '24px'
+                    }
+                }, '请检查页面名称或联系管理员'),
+                React.createElement('p', { 
+                    key: 'debug',
+                    style: { 
+                        color: '#999',
+                        fontSize: '14px'
+                    }
+                }, `当前页面: ${currentPage}`)
+            ]);
         }
-        
-        // 默认返回Dashboard
-        console.log('🏠 [FIXED] 使用默认 Dashboard');
-        return window.Dashboard ? 
-            React.createElement(window.Dashboard, { key: `dashboard-${renderKey}` }) : 
-            React.createElement('div', {
-                style: { padding: '24px', textAlign: 'center' }
-            }, '页面加载失败');
+
+        try {
+            return React.createElement(PageComponent, { key: renderKey });
+        } catch (error) {
+            console.error('渲染页面组件时出错:', error);
+            return React.createElement('div', {
+                style: { 
+                    padding: '50px', 
+                    textAlign: 'center',
+                    background: '#fff2f0',
+                    minHeight: '400px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }
+            }, [
+                React.createElement('h2', { 
+                    key: 'error-title',
+                    style: { 
+                        color: '#ff4d4f',
+                        marginBottom: '16px'
+                    }
+                }, '页面加载失败'),
+                React.createElement('p', { 
+                    key: 'error-description',
+                    style: { 
+                        color: '#666',
+                        fontSize: '16px',
+                        marginBottom: '24px'
+                    }
+                }, '页面组件渲染时发生错误'),
+                React.createElement('p', { 
+                    key: 'error-detail',
+                    style: { 
+                        color: '#999',
+                        fontSize: '14px'
+                    }
+                }, error.message || '未知错误')
+            ]);
+        }
     };
 
-    // 加载中状态
+    // 如果正在加载，显示加载界面
     if (loading) {
         return React.createElement('div', {
-            className: 'loading-spinner'
-        }, [
-            React.createElement('div', {
-                key: 'loading-content',
-                style: { textAlign: 'center' }
-            }, [
-                React.createElement('div', {
-                    key: 'icon',
-                    style: { fontSize: '48px', marginBottom: '16px' }
-                }, '🚇'),
-                React.createElement('div', {
-                    key: 'title',
-                    style: { fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }
-                }, '人民城轨2.0运营管理后台'),
-                React.createElement('div', {
-                    key: 'message',
-                    style: { marginTop: '16px', color: '#64748b' }
-                }, '正在验证登录状态...')
-            ])
-        ]);
+            style: {
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                background: '#f0f2f5'
+            }
+        }, React.createElement(antd.Spin, {
+            size: 'large',
+            tip: '系统初始化中...'
+        }));
     }
 
-    // 未登录状态，显示登录页面
+    // 如果未认证，显示登录界面
     if (!isAuthenticated) {
-        return React.createElement(window.LoginPage, {
+        return React.createElement(window.LoginForm, {
             onLogin: handleLogin
         });
     }
 
-    // 已登录状态，显示主应用界面
-    return React.createElement(ErrorBoundary, {}, 
+    // 主应用界面
+    return React.createElement(Layout, {
+        style: { minHeight: '100vh' }
+    }, [
+        // 侧边栏
+        React.createElement(Sider, {
+            key: 'sider',
+            collapsible: true,
+            collapsed: collapsed,
+            onCollapse: handleToggleCollapse,
+            style: {
+                overflow: 'auto',
+                height: '100vh',
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                bottom: 0,
+            }
+        }, React.createElement(window.Sidebar, {
+            currentPage: currentPage,
+            onPageChange: handlePageChange,
+            collapsed: collapsed
+        })),
+        
+        // 主内容区域
         React.createElement(Layout, {
-            className: 'app-container',
-            style: { minHeight: '100vh' }
+            key: 'main-layout',
+            style: { 
+                marginLeft: collapsed ? 80 : 200,
+                transition: 'margin-left 0.2s'
+            }
         }, [
-            // 左侧导航
-            React.createElement(Sider, {
-                key: 'sider',
-                width: collapsed ? 80 : 240,
-                collapsed: collapsed,
-                collapsible: false,
+            // 头部
+            React.createElement(Header, {
+                key: 'header',
                 style: {
-                    overflow: 'auto',
-                    height: '100vh',
-                    position: 'fixed',
-                    left: 0,
+                    background: '#fff',
+                    padding: '0 24px',
+                    boxShadow: '0 1px 4px rgba(0,21,41,.08)',
+                    position: 'sticky',
                     top: 0,
-                    bottom: 0
+                    zIndex: 100
                 }
-            }, React.createElement(Navigation, {
-                currentPage: currentPage,
-                onPageChange: handlePageChange,
+            }, React.createElement(window.TopNavigation, {
+                user: user,
+                notifications: notifications,
+                onLogout: handleLogout,
+                onNotificationClick: handleNotificationClick,
                 collapsed: collapsed,
                 onToggleCollapse: handleToggleCollapse
             })),
-
-            // 右侧主体
-            React.createElement(Layout, {
-                key: 'main',
-                style: { 
-                    marginLeft: collapsed ? 80 : 240,
-                    transition: 'margin-left 0.3s'
+            
+            // 内容区域
+            React.createElement(Content, {
+                key: 'content',
+                style: {
+                    margin: '16px',
+                    padding: '24px',
+                    background: '#fff',
+                    minHeight: 'calc(100vh - 120px)',
+                    borderRadius: '8px',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                 }
-            }, [
-                // 顶部操作栏
-                React.createElement(Header, {
-                    key: 'header',
-                    style: { 
-                        position: 'fixed',
-                        top: 0,
-                        right: 0,
-                        left: collapsed ? 80 : 240,
-                        zIndex: 1000,
-                        padding: 0,
-                        height: 64,
-                        transition: 'left 0.3s'
-                    }
-                }, React.createElement(TopBar, {
-                    user: user,
-                    notifications: notifications,
-                    onNotificationClick: handleNotificationClick,
-                    onLogout: handleLogout
-                })),
-
-                // 主内容区 - 使用renderKey确保重新渲染
-                React.createElement(Content, {
-                    key: `main-content-${currentPage}-${renderKey}`,
-                    style: {
-                        marginTop: 64,
-                        padding: '24px',
-                        background: '#f5f7fa',
-                        minHeight: 'calc(100vh - 64px)'
-                    }
-                }, renderContent())
-            ])
+            }, renderContent())
         ])
-    );
+    ]);
 };
 
-console.log('🚀 [FIXED] App 组件定义完成，准备挂载到 window');
+// 确保App组件在全局可用
 window.App = App;
-console.log('✅ [FIXED] App 组件已挂载到 window.App'); 

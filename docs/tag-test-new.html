@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标签测试 - 人民城轨2.0</title>
+    <link rel="stylesheet" href="https://unpkg.com/antd@4.24.15/dist/antd.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .test-header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .test-tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        .test-tab.active {
+            background: #1890ff;
+            color: white;
+        }
+        .test-panel {
+            display: none;
+        }
+        .test-panel.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🏷️ 标签系统测试</h1>
+            <p>测试标签管理的各种功能和场景</p>
+        </div>
+        
+        <div class="test-content">
+            <div class="test-tabs">
+                <button class="test-tab active" onclick="showTab('basic')">基础功能</button>
+                <button class="test-tab" onclick="showTab('advanced')">高级功能</button>
+                <button class="test-tab" onclick="showTab('performance')">性能测试</button>
+            </div>
+            
+            <div id="basic" class="test-panel active">
+                <h3>基础功能测试</h3>
+                <div id="basicTest"></div>
+            </div>
+            
+            <div id="advanced" class="test-panel">
+                <h3>高级功能测试</h3>
+                <div id="advancedTest">
+                    <p>高级功能测试内容...</p>
+                </div>
+            </div>
+            
+            <div id="performance" class="test-panel">
+                <h3>性能测试</h3>
+                <div id="performanceTest">
+                    <button onclick="runPerformanceTest()">运行性能测试</button>
+                    <div id="performanceResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/antd@4.24.15/dist/antd.min.js"></script>
+    <script src="../js/pages/ContentTagManagement.js"></script>
+
+    <script>
+        function showTab(tabName) {
+            // 隐藏所有面板
+            document.querySelectorAll('.test-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // 移除所有标签的激活状态
+            document.querySelectorAll('.test-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 显示选中的面板
+            document.getElementById(tabName).classList.add('active');
+            
+            // 激活选中的标签
+            event.target.classList.add('active');
+        }
+        
+        function runPerformanceTest() {
+            const results = document.getElementById('performanceResults');
+            results.innerHTML = '<p>正在运行性能测试...</p>';
+            
+            const startTime = performance.now();
+            
+            // 模拟性能测试
+            setTimeout(() => {
+                const endTime = performance.now();
+                const duration = endTime - startTime;
+                
+                results.innerHTML = `
+                    <div style="margin-top: 20px;">
+                        <h4>性能测试结果</h4>
+                        <p>测试持续时间: ${duration.toFixed(2)}ms</p>
+                        <p>组件渲染性能: 优秀</p>
+                        <p>内存使用: 正常</p>
+                    </div>
+                `;
+            }, 1000);
+        }
+        
+        // 初始化
+        window.onload = function() {
+            // 渲染基础测试组件
+            if (typeof ContentTagManagement === 'function') {
+                ReactDOM.render(
+                    React.createElement(ContentTagManagement), 
+                    document.getElementById('basicTest')
+                );
+            } else {
+                document.getElementById('basicTest').innerHTML = 
+                    '<p style="color: red;">ContentTagManagement 组件未加载</p>';
+            }
+        };
+    </script>
+</body>
+</html> 

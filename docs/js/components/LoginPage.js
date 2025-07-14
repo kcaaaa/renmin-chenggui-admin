@@ -10,26 +10,111 @@ const LoginPage = ({ onLogin }) => {
             // 模拟登录验证
             const { username, password } = values;
             
-            // 固定的登录凭据
-            if (username === 'admin' && password === 'admin123') {
+            // 多种权限类型的演示账号
+            const demoAccounts = {
+                // 超级管理员
+                'admin': {
+                    password: 'admin123',
+                    userData: {
+                        id: 1,
+                        name: '超级管理员',
+                        username: 'admin',
+                        role: 'super_admin',
+                        roleLabel: '超级管理员',
+                        avatar: null,
+                        permissions: ['*'], // 全部权限
+                        department: '系统管理部',
+                        loginTime: new Date().toISOString()
+                    }
+                },
+                // 协会用户
+                'association': {
+                    password: 'assoc123',
+                    userData: {
+                        id: 2,
+                        name: '协会管理员',
+                        username: 'association',
+                        role: 'association_admin',
+                        roleLabel: '协会管理员',
+                        avatar: null,
+                        permissions: ['content', 'review', 'exhibition'],
+                        department: '中国城市轨道交通协会',
+                        loginTime: new Date().toISOString()
+                    }
+                },
+                // 展商用户
+                'exhibitor': {
+                    password: 'exhib123',
+                    userData: {
+                        id: 3,
+                        name: '展商代表',
+                        username: 'exhibitor',
+                        role: 'exhibitor',
+                        roleLabel: '展商用户',
+                        avatar: null,
+                        permissions: ['exhibitor_center', 'product_info', 'business_matching'],
+                        department: '中车集团',
+                        loginTime: new Date().toISOString()
+                    }
+                },
+                // 运营管理员
+                'operator': {
+                    password: 'oper123',
+                    userData: {
+                        id: 4,
+                        name: '运营管理员',
+                        username: 'operator',
+                        role: 'operation_admin',
+                        roleLabel: '运营管理员',
+                        avatar: null,
+                        permissions: ['operation', 'user_analysis', 'data_management'],
+                        department: '运营管理部',
+                        loginTime: new Date().toISOString()
+                    }
+                },
+                // 普通用户
+                'user': {
+                    password: 'user123',
+                    userData: {
+                        id: 5,
+                        name: '普通用户',
+                        username: 'user',
+                        role: 'normal_user',
+                        roleLabel: '普通用户',
+                        avatar: null,
+                        permissions: ['content_publish', 'profile'],
+                        department: '注册用户',
+                        loginTime: new Date().toISOString()
+                    }
+                },
+                // 审核员
+                'reviewer': {
+                    password: 'review123',
+                    userData: {
+                        id: 6,
+                        name: '内容审核员',
+                        username: 'reviewer',
+                        role: 'reviewer',
+                        roleLabel: '审核员',
+                        avatar: null,
+                        permissions: ['review', 'audit_flow', 'complaint'],
+                        department: '内容审核部',
+                        loginTime: new Date().toISOString()
+                    }
+                }
+            };
+            
+            const account = demoAccounts[username];
+            if (account && account.password === password) {
                 // 模拟API调用延迟
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 
-                const userData = {
-                    id: 1,
-                    name: '系统管理员',
-                    username: 'admin',
-                    role: 'admin',
-                    avatar: null,
-                    loginTime: new Date().toISOString()
-                };
-                
                 // 保存登录状态到localStorage
-                localStorage.setItem('userToken', 'admin_token_' + Date.now());
-                localStorage.setItem('userData', JSON.stringify(userData));
+                localStorage.setItem('userToken', `${username}_token_` + Date.now());
+                localStorage.setItem('userData', JSON.stringify(account.userData));
                 
-                message.success('登录成功！');
-                onLogin && onLogin(userData);
+                message.success(`欢迎回来，${account.userData.roleLabel}！`);
+                onLogin && onLogin(account.userData);
             } else {
                 message.error('用户名或密码错误！');
             }
@@ -214,23 +299,59 @@ const LoginPage = ({ onLogin }) => {
                             style: {
                                 fontSize: '12px',
                                 color: '#64748b',
-                                marginBottom: '8px',
+                                marginBottom: '12px',
                                 fontWeight: 'bold'
                             }
                         }, '演示账号信息：'),
                         React.createElement('div', {
                             key: 'demo-content',
                             style: {
-                                fontSize: '12px',
-                                color: '#475569'
+                                fontSize: '11px',
+                                color: '#475569',
+                                lineHeight: '1.4'
                             }
                         }, [
                             React.createElement('div', {
-                                key: 'username-info'
-                            }, '用户名：admin'),
+                                key: 'admin-info',
+                                style: { marginBottom: '6px' }
+                            }, [
+                                React.createElement('strong', { key: 'admin-label' }, '超级管理员：'),
+                                React.createElement('span', { key: 'admin-cred' }, 'admin / admin123')
+                            ]),
                             React.createElement('div', {
-                                key: 'password-info'
-                            }, '密码：admin123')
+                                key: 'association-info',
+                                style: { marginBottom: '6px' }
+                            }, [
+                                React.createElement('strong', { key: 'association-label' }, '协会管理员：'),
+                                React.createElement('span', { key: 'association-cred' }, 'association / assoc123')
+                            ]),
+                            React.createElement('div', {
+                                key: 'exhibitor-info',
+                                style: { marginBottom: '6px' }
+                            }, [
+                                React.createElement('strong', { key: 'exhibitor-label' }, '展商用户：'),
+                                React.createElement('span', { key: 'exhibitor-cred' }, 'exhibitor / exhib123')
+                            ]),
+                            React.createElement('div', {
+                                key: 'operator-info',
+                                style: { marginBottom: '6px' }
+                            }, [
+                                React.createElement('strong', { key: 'operator-label' }, '运营管理员：'),
+                                React.createElement('span', { key: 'operator-cred' }, 'operator / oper123')
+                            ]),
+                            React.createElement('div', {
+                                key: 'reviewer-info',
+                                style: { marginBottom: '6px' }
+                            }, [
+                                React.createElement('strong', { key: 'reviewer-label' }, '审核员：'),
+                                React.createElement('span', { key: 'reviewer-cred' }, 'reviewer / review123')
+                            ]),
+                            React.createElement('div', {
+                                key: 'user-info'
+                            }, [
+                                React.createElement('strong', { key: 'user-label' }, '普通用户：'),
+                                React.createElement('span', { key: 'user-cred' }, 'user / user123')
+                            ])
                         ])
                     ])
                 ])

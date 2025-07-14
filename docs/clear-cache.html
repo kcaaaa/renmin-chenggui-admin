@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清除缓存 - 人民城轨2.0</title>
+    <link rel="stylesheet" href="https://unpkg.com/antd@4.24.15/dist/antd.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .cache-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .cache-button {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .cache-button:hover {
+            background: #40a9ff;
+        }
+        .cache-info {
+            margin: 20px 0;
+            padding: 16px;
+            background: #f6f8fa;
+            border-radius: 4px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="cache-container">
+        <h1>🧹 清除缓存</h1>
+        <p>清除浏览器缓存和本地存储数据</p>
+        
+        <div class="cache-info">
+            <p>当前缓存状态：</p>
+            <p id="cacheStatus">正在检查...</p>
+        </div>
+        
+        <button class="cache-button" onclick="clearLocalStorage()">清除本地存储</button>
+        <button class="cache-button" onclick="clearSessionStorage()">清除会话存储</button>
+        <button class="cache-button" onclick="clearAllCache()">清除全部缓存</button>
+        <button class="cache-button" onclick="reloadPage()">重新加载页面</button>
+        
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        function updateCacheStatus() {
+            const localStorageSize = JSON.stringify(localStorage).length;
+            const sessionStorageSize = JSON.stringify(sessionStorage).length;
+            document.getElementById('cacheStatus').innerHTML = `
+                本地存储: ${localStorageSize} 字节<br>
+                会话存储: ${sessionStorageSize} 字节
+            `;
+        }
+
+        function clearLocalStorage() {
+            localStorage.clear();
+            showResult('本地存储已清除', 'success');
+            updateCacheStatus();
+        }
+
+        function clearSessionStorage() {
+            sessionStorage.clear();
+            showResult('会话存储已清除', 'success');
+            updateCacheStatus();
+        }
+
+        function clearAllCache() {
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // 清除 Service Worker 缓存
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            }
+            
+            // 清除应用缓存
+            if ('caches' in window) {
+                caches.keys().then(function(cacheNames) {
+                    cacheNames.forEach(function(cacheName) {
+                        caches.delete(cacheName);
+                    });
+                });
+            }
+            
+            showResult('全部缓存已清除', 'success');
+            updateCacheStatus();
+        }
+
+        function reloadPage() {
+            window.location.reload(true);
+        }
+
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div style="
+                    padding: 12px;
+                    border-radius: 4px;
+                    background: ${type === 'success' ? '#f6ffed' : '#fff2f0'};
+                    border: 1px solid ${type === 'success' ? '#b7eb8f' : '#ffccc7'};
+                    color: ${type === 'success' ? '#52c41a' : '#f5222d'};
+                ">
+                    ${message}
+                </div>
+            `;
+        }
+
+        // 初始化
+        updateCacheStatus();
+    </script>
+</body>
+</html> 

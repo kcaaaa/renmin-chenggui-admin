@@ -44,6 +44,8 @@ const TopBar = ({ user, notifications, onNotificationClick, onLogout }) => {
     const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
     const displayName = user?.name || user?.username || '管理员';
+    const roleLabel = user?.roleLabel || '管理员';
+    const department = user?.department || '系统管理部';
 
     return React.createElement('div', { className: 'top-bar' },
         // Left Side
@@ -59,8 +61,8 @@ const TopBar = ({ user, notifications, onNotificationClick, onLogout }) => {
                         onClick: () => window.open('https://github.com/kcaaaa/renmin-chenggui-admin/wiki', '_blank')
                     }, '❓')
                 ),
-                React.createElement(Dropdown, { menu: notificationMenu, trigger: ['click'] },
-                    React.createElement(Tooltip, { title: "通知" },
+                React.createElement(Tooltip, { title: "通知" },
+                    React.createElement(Dropdown, { menu: notificationMenu, trigger: ['click'] },
                         React.createElement(Badge, { count: unreadCount, size: 'small' },
                             React.createElement(Button, { shape: 'circle' }, '🔔')
                         )
@@ -72,7 +74,20 @@ const TopBar = ({ user, notifications, onNotificationClick, onLogout }) => {
                             style: { backgroundColor: '#1890ff' },
                             size: 'default'
                         }, displayName.charAt(0)),
-                        React.createElement('span', {}, displayName)
+                        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start' } }, [
+                            React.createElement('span', { 
+                                key: 'name',
+                                style: { fontWeight: '500', fontSize: '14px' } 
+                            }, displayName),
+                            React.createElement('span', { 
+                                key: 'role',
+                                style: { 
+                                    fontSize: '12px', 
+                                    color: '#8c8c8c',
+                                    lineHeight: '1.2'
+                                } 
+                            }, roleLabel)
+                        ])
                     )
                 )
             )

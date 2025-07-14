@@ -1,230 +1,210 @@
-// 导航组件
-const Navigation = ({ currentPage, onPageChange, collapsed, onToggleCollapse }) => {
+﻿// 侧边栏导航组件 - 若依风格
+const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
     const { Menu } = antd;
-    
+    const [openKeys, setOpenKeys] = React.useState(['content']);
+
     const menuItems = [
         {
-            key: 'dashboard',
-            icon: '📊',
+            key: 'Dashboard',
+            icon: '🏠',
             label: '系统首页',
-            title: '实时查看核心运营指标和待办事项',
-            page: 'Dashboard'
         },
         {
             key: 'content',
-            icon: '📄',
+            icon: '📝',
             label: '内容管理',
-            title: '平台内容查看与管理',
-            page: 'ContentManagement'
+            children: [
+                { key: 'ContentPublish', label: '内容发布', page: 'ContentPublish' },
+                { key: 'ContentList', label: '内容列表', page: 'ContentList' }
+            ]
+        },
+        {
+            key: 'ComplaintManagement',
+            icon: '⚠️',
+            label: '投诉管理',
+            page: 'ComplaintManagement'
+        },
+        {
+            key: 'TagManagement', 
+            icon: '🏷️',
+            label: '标签管理',
+            page: 'TagManagement'
         },
         {
             key: 'review',
             icon: '🔍',
-            label: 'AI审核',
-            title: 'AI内容审核与管理',
-            page: 'ReviewManagement'
+            label: '审核管理',
+            children: [
+                { key: 'AIReview', label: 'AI审核', page: 'AIReview' },
+                { key: 'ReviewManagement', label: '审批流程', page: 'ReviewManagement' },
+                { key: 'ApprovalProcessManagement', label: '作品审批流程', page: 'ApprovalProcessManagement' },
+                { key: 'AuditFlowManagement', label: '展商审批流程', page: 'AuditFlowManagement' }
+            ]
         },
         {
-            key: 'audit-flow',
-            icon: '⚙️',
-            label: '审核流程管理',
-            title: '配置和管理审核流程模板',
-            page: 'AuditFlowManagement'
-        },
-        {
-            key: 'admin',
-            icon: '👨‍💼',
-            label: '管理员与权限',
-            title: '管理员账号和权限管理',
-            page: 'AdminManagement'
-        },
-        {
-            key: 'user',
-            icon: '👥',
-            label: '用户管理',
-            title: '用户信息查询与管理',
-            page: 'UserManagement'
-        },
-        {
-            key: 'feedback',
-            icon: '💭',
-            label: '用户反馈管理',
-            title: '处理用户反馈和建议',
-            page: 'FeedbackManagement'
-        },
-        {
-            key: 'message',
-            icon: '💬',
-            label: '消息管理',
-            title: 'APP系统消息推送管理',
-            page: 'MessageManagement'
-        },
-        {
-            key: 'version',
-            icon: '📱',
-            label: 'APP版本管理',
-            title: 'APP版本发布和更新管理',
-            page: 'VersionManagement'
-        },
-        {
-            key: 'live',
-            icon: '📺',
-            label: '直播管理',
-            title: '直播内容管理',
-            page: 'LiveManagement'
-        },
-        {
-            key: 'booth',
+            key: 'exhibition',
             icon: '🏢',
-            label: '展位管理',
-            title: '展会展位信息管理',
-            page: 'BoothManagement'
+            label: '展会管理',
+            children: [
+                { key: 'ExhibitionManagement', label: '展会管理', page: 'ExhibitionManagement' },
+                { key: 'RegistrationManagement', label: '报名管理', page: 'RegistrationManagement' },
+                { key: 'BoothManagement', label: '场馆信息', page: 'BoothManagement' },
+                { key: 'ExhibitorQuery', label: '展商详情', page: 'ExhibitorQuery' },
+                { key: 'MeetingActivityManagement', label: '会议活动', page: 'MeetingActivityManagement' },
+                {
+                    key: 'exhibitor-info',
+                    label: '展商信息',
+                    children: [
+                        { key: 'ExhibitorBasicInfo', label: '展商基础信息', page: 'ExhibitorBasicInfo' },
+                        { key: 'ProductInfo', label: '产品信息', page: 'ProductInfo' },
+                        { key: 'ExhibitorActivityInfo', label: '展商活动信息', page: 'ExhibitorActivityInfo' },
+                        { key: 'BusinessMatching', label: '商务配对', page: 'BusinessMatching' }
+                    ]
+                }
+            ]
         },
         {
-            key: 'stats',
-            icon: '📋',
-            label: '行为统计',
-            title: '用户行为数据统计',
-            page: 'BehaviorStats'
+            key: 'operation',
+            icon: '📊',
+            label: '运营管理',
+            children: [
+                {
+                    key: 'operational-stats',
+                    label: '运营数据统计',
+                    children: [
+                        { key: 'UserAnalysis', label: '用户分析', page: 'UserAnalysis' },
+                        { key: 'OperationalStats', label: 'APP行为统计', page: 'OperationalStats' },
+                        { key: 'DataAnalysis', label: '功能使用分析', page: 'DataAnalysis' },
+                        { key: 'BehaviorAnalysis', label: '异常情况统计', page: 'BehaviorAnalysis' }
+                    ]
+                },
+                {
+                    key: 'user-behavior-stats',
+                    label: '用户行为统计',
+                    children: [
+                        { key: 'UserBehaviorStats', label: '数据概览', page: 'UserBehaviorStats' },
+                        { key: 'BehaviorStats', label: '基础行为统计', page: 'BehaviorStats' },
+                        { key: 'DataManagement', label: '深度行为统计', page: 'DataManagement' }
+                    ]
+                },
+                { key: 'FeedbackManagement', label: '系统反馈列表', page: 'FeedbackManagement' }
+            ]
         },
         {
-            key: 'operational',
-            icon: '📈',
-            label: '运营数据统计',
-            title: '核心运营指标与分模块统计',
-            page: 'OperationalStats'
-        },
-        {
-            key: 'data',
-            icon: '💾',
-            label: '运营数据管理',
-            title: '系统资源监控与数据管理',
-            page: 'DataManagement'
-        },
-        {
-            key: 'traffic',
-            icon: '🎯',
-            label: '流量分配配置',
-            title: '推荐算法与流量分配',
-            page: 'TrafficAllocation'
-        },
-        {
-            key: 'logs',
-            icon: '📋',
-            label: '日志管理',
-            title: '等保三级合规日志管理',
-            page: 'LogManagement'
-        },
-        {
-            key: 'settings',
+            key: 'system',
             icon: '⚙️',
-            label: '系统设置',
-            title: '系统配置与管理',
-            page: 'SystemSettings'
+            label: '系统管理',
+            children: [
+                { key: 'UserManagement', label: '用户管理', page: 'UserManagement' },
+                { key: 'OrganizationManagement', label: '组织结构', page: 'OrganizationManagement' },
+                { key: 'RoleManagement', label: '角色管理', page: 'RoleManagement' },
+                {
+                    key: 'log-management',
+                    label: '日志管理',
+                    children: [
+                        { key: 'LogManagement', label: '用户操作日志', page: 'LogManagement' },
+                        { key: 'LoginLogoutLogs', label: '登录登出日志', page: 'LoginLogoutLogs' },
+                        { key: 'ContentPublishLogs', label: '作品发布日志', page: 'ContentPublishLogs' },
+                        { key: 'ApprovalLogs', label: '审批日志', page: 'ApprovalLogs' }
+                    ]
+                },
+                { key: 'AIManagement', label: 'AI管理', page: 'AIManagement' },
+                { key: 'MenuManagement', label: '菜单管理', page: 'MenuManagement' },
+                { key: 'UserProfile', label: '个人中心', page: 'UserProfile' }
+            ]
         }
     ];
 
+    const handleMenuClick = ({ key }) => {
+        // 查找菜单项
+        const menuItem = findMenuItemByKey(menuItems, key);
+        
+        // 只有叶子节点(没有children的菜单项)才触发页面跳转
+        if (menuItem && !menuItem.children) {
+            const pageKey = menuItem.page || key;
+            onPageChange(pageKey);
+        }
+        // 如果是有children的菜单项，不做任何操作，只让Ant Design处理展开/折叠
+    };
+
+    // 递归查找菜单项
+    const findMenuItemByKey = (items, targetKey) => {
+        for (const item of items) {
+            if (item.key === targetKey) {
+                return item;
+            }
+            if (item.children) {
+                const found = findMenuItemByKey(item.children, targetKey);
+                if (found) return found;
+            }
+        }
+        return null;
+    };
+
+    const handleOpenChange = (keys) => {
+        setOpenKeys(keys);
+    };
+
     const renderMenuItem = (item) => {
-        return React.createElement(Menu.Item, {
+        if (item.children) {
+            return {
+                key: item.key,
+                icon: item.icon || null,
+                label: item.label,
+                children: item.children.map(renderMenuItem)
+            };
+        }
+        return {
             key: item.key,
-            title: item.title
-        }, [
-            React.createElement('span', {
-                key: 'icon',
-                className: 'nav-icon'
-            }, item.icon),
-            !collapsed && React.createElement('span', {
-                key: 'label'
-            }, item.label)
-        ]);
+            icon: item.icon || null,
+            label: item.label
+        };
     };
 
     return React.createElement('div', {
-        className: `main-nav ${collapsed ? 'collapsed' : ''}`,
+        className: 'sidebar',
         style: {
-            width: collapsed ? '80px' : '240px',
+            width: collapsed ? 80 : 250,
+            minHeight: '100vh',
+            background: '#001529',
             transition: 'width 0.3s'
         }
     }, [
-        // 导航头部
         React.createElement('div', {
-            key: 'header',
+            key: 'logo',
+            className: 'logo',
             style: {
-                padding: '16px',
-                borderBottom: '1px solid #e5e7eb',
+                height: 64,
+                background: 'rgba(255, 255, 255, 0.2)',
+                margin: 16,
+                borderRadius: 4,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: collapsed ? 'center' : 'space-between'
+                justifyContent: 'center',
+                color: '#fff',
+                fontSize: collapsed ? 14 : 16,
+                fontWeight: 'bold'
             }
-        }, [
-            React.createElement('div', {
-                key: 'logo',
-                style: {
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: collapsed ? '20px' : '16px',
-                    fontWeight: 'bold',
-                    color: '#2563eb'
-                }
-            }, [
-                React.createElement('span', {
-                    key: 'icon',
-                    style: { marginRight: collapsed ? 0 : '8px' }
-                }, '🚇'),
-                !collapsed && React.createElement('span', {
-                    key: 'text'
-                }, '人民城轨2.0')
-            ]),
-            !collapsed && React.createElement('button', {
-                key: 'toggle',
-                onClick: onToggleCollapse,
-                style: {
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    borderRadius: '4px'
-                },
-                title: '收起菜单'
-            }, '◀')
-        ]),
-        
-        // 收起按钮（折叠状态）
-        collapsed && React.createElement('div', {
-            key: 'expand-btn',
-            style: {
-                padding: '8px',
-                textAlign: 'center',
-                borderBottom: '1px solid #e5e7eb'
-            }
-        }, React.createElement('button', {
-            onClick: onToggleCollapse,
-            style: {
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '4px',
-                borderRadius: '4px'
-            },
-            title: '展开菜单'
-        }, '▶')),
-        
-        // 菜单项
+        }, collapsed ? '人民城轨' : '人民城轨2.0管理后台'),
         React.createElement(Menu, {
             key: 'menu',
+            theme: 'dark',
             mode: 'inline',
             selectedKeys: [currentPage],
-            style: { 
-                border: 'none',
-                flex: 1
-            },
-            inlineCollapsed: collapsed,
-            onClick: ({ key }) => {
-                console.log('Navigation clicked:', key);
-                onPageChange(key);
+            openKeys: openKeys,
+            onOpenChange: handleOpenChange,
+            onClick: handleMenuClick,
+            items: menuItems.map(renderMenuItem),
+            style: {
+                border: 'none'
             }
-        }, menuItems.map(renderMenuItem))
+        })
     ]);
 };
 
-window.Navigation = Navigation; 
+// 导出组件
+window.Sidebar = Sidebar;
+window.Navigation = Sidebar; // 兼容性：同时挂载为Navigation
+
+console.log('✅ Sidebar/Navigation组件已加载');
+

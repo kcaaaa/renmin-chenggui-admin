@@ -15,6 +15,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/navigation.css">
+    
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="js/pages/LiveManagement.css">
     
@@ -573,12 +576,215 @@
         </div>
     </div>
 
-    <!-- React and dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd-with-locales.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- React and dependencies - 实现CDN故障转移机制 -->
+    <script>
+        // CDN故障转移配置
+        const CDN_CONFIGS = [
+            {
+                name: 'jsDelivr官方',
+                domain: 'cdn.jsdelivr.net'
+            },
+            {
+                name: 'jsDelivr备用1',
+                domain: 'fastly.jsdelivr.net'
+            },
+            {
+                name: 'jsDelivr备用2', 
+                domain: 'gcore.jsdelivr.net'
+            },
+            {
+                name: 'jsDelivr国内镜像',
+                domain: 'cdn.jsdmirror.com'
+            }
+        ];
+
+        // 检测CDN可用性
+        async function testCDN(domain) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const timeout = setTimeout(() => {
+                    img.onload = img.onerror = null;
+                    resolve(false);
+                }, 3000);
+                
+                img.onload = () => {
+                    clearTimeout(timeout);
+                    resolve(true);
+                };
+                
+                img.onerror = () => {
+                    clearTimeout(timeout);
+                    resolve(false);
+                };
+                
+                img.src = `https://${domain}/npm/react@17.0.2/umd/react.production.min.js?test=${Date.now()}`;
+            });
+        }
+
+        // 选择可用的CDN
+        async function selectWorkingCDN() {
+            // 优先检查localStorage中保存的可用CDN
+            const savedCDN = localStorage.getItem('workingCDN');
+            if (savedCDN) {
+                const saved = JSON.parse(savedCDN);
+                if (Date.now() - saved.timestamp < 1800000) { // 30分钟内有效
+                    console.log(`🚀 使用缓存的CDN: ${saved.domain}`);
+                    return saved.domain;
+                }
+            }
+
+            console.log('🔍 检测可用的CDN服务器...');
+            
+            for (const config of CDN_CONFIGS) {
+                console.log(`⏳ 测试 ${config.name} (${config.domain})...`);
+                const isWorking = await testCDN(config.domain);
+                
+                if (isWorking) {
+                    console.log(`✅ ${config.name} 可用`);
+                    
+                    // 保存到localStorage
+                    localStorage.setItem('workingCDN', JSON.stringify({
+                        domain: config.domain,
+                        timestamp: Date.now()
+                    }));
+                    
+                    return config.domain;
+                } else {
+                    console.log(`❌ ${config.name} 不可用`);
+                }
+            }
+            
+            console.warn('⚠️ 所有CDN都不可用，使用默认CDN');
+            return CDN_CONFIGS[0].domain;
+        }
+
+        // 动态加载脚本
+        function loadScript(src, onload, onerror) {
+            const script = document.createElement('script');
+            script.src = src;
+            script.onload = onload;
+            script.onerror = onerror;
+            document.head.appendChild(script);
+        }
+
+        // 初始化CDN并加载依赖
+        async function initializeWithWorkingCDN() {
+            try {
+                const workingDomain = await selectWorkingCDN();
+                console.log(`🎯 使用CDN: ${workingDomain}`);
+                
+                // 更新加载状态
+                const loadingText = document.querySelector('.loading-text');
+                if (loadingText) {
+                    loadingText.textContent = `正在从 ${workingDomain} 加载依赖...`;
+                }
+
+                const dependencies = [
+                    `https://${workingDomain}/npm/react@17.0.2/umd/react.production.min.js`,
+                    `https://${workingDomain}/npm/react-dom@17.0.2/umd/react-dom.production.min.js`,
+                    `https://${workingDomain}/npm/moment@2.29.4/moment.min.js`,
+                    `https://${workingDomain}/npm/antd@4.24.15/dist/antd-with-locales.min.js`,
+                    `https://${workingDomain}/npm/echarts@5.4.3/dist/echarts.min.js`
+                ];
+
+                let loadedCount = 0;
+                const totalCount = dependencies.length;
+
+                return new Promise((resolve, reject) => {
+                    dependencies.forEach((src, index) => {
+                        loadScript(src, 
+                            () => {
+                                loadedCount++;
+                                console.log(`✅ 加载完成 ${index + 1}/${totalCount}: ${src.split('/').pop()}`);
+                                
+                                if (loadingText) {
+                                    loadingText.textContent = `正在加载依赖... (${loadedCount}/${totalCount})`;
+                                }
+                                
+                                if (loadedCount === totalCount) {
+                                    console.log('🎉 所有CDN依赖加载完成!');
+                                    resolve();
+                                }
+                            },
+                            () => {
+                                console.error(`❌ 加载失败: ${src}`);
+                                reject(new Error(`Failed to load: ${src}`));
+                            }
+                        );
+                    });
+                });
+                
+            } catch (error) {
+                console.error('💥 CDN初始化失败:', error);
+                throw error;
+            }
+        }
+
+        // 启动应用
+        initializeWithWorkingCDN()
+            .then(() => {
+                // CDN加载完成后，继续加载应用脚本
+                return loadApplicationScripts();
+            })
+            .then(() => {
+                console.log('🚀 应用初始化完成');
+                startApplication();
+            })
+            .catch((error) => {
+                console.error('💥 应用启动失败:', error);
+                showErrorPage(error);
+            });
+
+        // 加载应用脚本
+        function loadApplicationScripts() {
+            return new Promise((resolve) => {
+                // 这里会被后续的应用脚本覆盖，所以直接resolve
+                setTimeout(resolve, 100);
+            });
+        }
+
+        // 显示错误页面
+        function showErrorPage(error) {
+            document.getElementById('app').innerHTML = `
+                <div style="
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    background: #f0f2f5;
+                    font-family: 'Inter', sans-serif;
+                ">
+                    <div style="
+                        text-align: center;
+                        padding: 40px;
+                        background: white;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        max-width: 500px;
+                    ">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🌐</div>
+                        <h2 style="color: #ff4d4f; margin-bottom: 16px;">网络连接问题</h2>
+                        <p style="margin: 16px 0; color: #6b7280; font-size: 16px;">
+                            无法连接到CDN服务器，请检查网络连接或稍后重试
+                        </p>
+                        <div style="margin: 20px 0; padding: 10px; background: #f5f5f5; border-radius: 6px;">
+                            <small style="color: #666;">错误详情: ${error.message}</small>
+                        </div>
+                        <button onclick="location.reload()" style="
+                            padding: 12px 24px; 
+                            background: #1890ff; 
+                            color: white; 
+                            border: none; 
+                            border-radius: 6px; 
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 500;
+                        ">重新加载</button>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
 
     <!-- Application Scripts - 修复加载顺序 -->
     <!-- 工具类 -->
@@ -594,22 +800,58 @@
     <!-- 页面组件 -->
     <script src="js/pages/Dashboard.js"></script>
     <script src="js/pages/ContentManagement.js"></script>
+    <script src="js/pages/ContentPublish.js?v=20250114-fix"></script>
     <script src="js/pages/ReviewManagement.js"></script>
+    <script src="js/pages/ComplaintManagement.js"></script>
+    <script src="js/pages/ContentTagManagement.js?v=20250113-final-fix"></script>
     <script src="js/pages/AuditFlowManagement.js"></script>
     <script src="js/pages/AdminManagement.js"></script>
     <script src="js/pages/LiveManagement.js"></script>
+    <script src="js/pages/MessageManagement.js"></script>
     <script src="js/pages/UserManagement.js"></script>
     <script src="js/pages/FeedbackManagement.js"></script>
-    <script src="js/pages/MessageManagement.js"></script>
     <script src="js/pages/VersionManagement.js"></script>
     <script src="js/pages/BoothManagement.js"></script>
     <script src="js/pages/UserProfile.js"></script>
-    <script src="js/pages/BehaviorStats.js"></script>
     <script src="js/pages/OperationalStats.js"></script>
+    <script src="js/pages/BehaviorStats.js"></script>
     <script src="js/pages/DataManagement.js"></script>
     <script src="js/pages/TrafficAllocation.js"></script>
+    <script src="js/pages/LoginLogoutLogs.js"></script>
     <script src="js/pages/LogManagement.js"></script>
     <script src="js/pages/SystemSettings.js"></script>
+    <script src="js/pages/ApprovalLogs.js"></script>
+    <script src="js/pages/ContentPublishLogs.js"></script>
+    <script src="js/pages/ExhibitionManagement.js"></script>
+    <script src="js/pages/ExhibitorBasicInfo.js"></script>
+    <script src="js/pages/ProductInfo.js"></script>
+    <script src="js/pages/ExhibitorActivityInfo.js"></script>
+    <script src="js/pages/UserBehaviorStats.js"></script>
+    <script src="js/pages/BusinessMatching.js"></script>
+    <script src="js/pages/AIManagement.js"></script>
+    
+    <!-- 新恢复的组件 -->
+    <script src="js/pages/AppVersionManagement.js"></script>
+    <script src="js/pages/RegistrationManagement.js"></script>
+    <script src="js/pages/OrganizationManagement.js"></script>
+    <script src="js/pages/ExhibitorQuery.js"></script>
+    <script src="js/pages/ExhibitionReview.js"></script>
+    <script src="js/pages/ExhibitorCenter.js"></script>
+    <script src="js/pages/LiveServiceDescription.js"></script>
+    <script src="js/pages/AdManagement.js"></script>
+    <script src="js/pages/MeetingActivityManagement.js"></script>
+    <script src="js/pages/ExhibitorManagement.js"></script>
+    <script src="js/pages/MenuManagement.js"></script>
+    <script src="js/pages/SupplyDemandManagement.js"></script>
+    <script src="js/pages/PermissionManagement.js"></script>
+    <script src="js/pages/RoleManagement.js"></script>
+    <script src="js/pages/UserAnalysis.js"></script>
+    <script src="js/pages/DataAnalysis.js"></script>
+    <script src="js/pages/BehaviorAnalysis.js"></script>
+    
+    <!-- 新增的核心组件 -->
+    <script src="js/pages/ExhibitorInfo.js"></script>
+    <script src="js/pages/AIReview.js"></script>
     
     <!-- 主应用 - 必须最后加载 -->
     <script src="js/App-fixed.js?v=20241230-fix2"></script>
@@ -625,29 +867,100 @@
         });
 
         // 启动应用
-        try {
-            console.log('🚀 启动人民城轨2.0运营管理后台...');
-            ReactDOM.render(React.createElement(App), document.getElementById('app'));
-            console.log('✅ 应用启动成功!');
-        } catch (error) {
-            console.error('❌ 应用启动失败:', error);
-            document.getElementById('app').innerHTML = `
-                <div class="error-boundary">
-                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
-                    <h2>应用启动失败</h2>
-                    <p style="margin: 16px 0; color: #6b7280;">${error.message}</p>
-                    <button onclick="location.reload()" style="
-                        padding: 8px 16px; 
-                        background: #2563eb; 
-                        color: white; 
-                        border: none; 
-                        border-radius: 4px; 
-                        cursor: pointer;
-                        font-size: 14px;
-                    ">重新加载</button>
-                </div>
-            `;
+        function startApplication() {
+            try {
+                console.log('🚀 启动人民城轨2.0运营管理后台...');
+                
+                // 检查关键依赖
+                if (typeof React === 'undefined') {
+                    throw new Error('React 未加载');
+                }
+                console.log('✅ React 已加载');
+                
+                if (typeof ReactDOM === 'undefined') {
+                    throw new Error('ReactDOM 未加载');
+                }
+                console.log('✅ ReactDOM 已加载');
+                
+                if (typeof antd === 'undefined') {
+                    throw new Error('Ant Design 未加载');
+                }
+                console.log('✅ Ant Design 已加载');
+                
+                // 检查关键组件
+                const requiredComponents = ['App', 'ErrorBoundary', 'Navigation', 'TopBar', 'Dashboard'];
+                const missingComponents = [];
+                
+                requiredComponents.forEach(componentName => {
+                    if (!window[componentName]) {
+                        missingComponents.push(componentName);
+                    } else {
+                        console.log(`✅ ${componentName} 组件已加载`);
+                    }
+                });
+                
+                if (missingComponents.length > 0) {
+                    throw new Error(`以下组件未加载: ${missingComponents.join(', ')}`);
+                }
+                
+                // 启动应用
+                console.log('🎯 开始渲染App组件...');
+                ReactDOM.render(React.createElement(window.App), document.getElementById('app'));
+                console.log('✅ 应用启动成功!');
+                
+            } catch (error) {
+                console.error('❌ 应用启动失败:', error);
+                
+                // 显示错误页面
+                document.getElementById('app').innerHTML = `
+                    <div style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        background: #f0f2f5;
+                        font-family: 'Inter', sans-serif;
+                    ">
+                        <div style="
+                            text-align: center;
+                            padding: 40px;
+                            background: white;
+                            border-radius: 12px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                            max-width: 500px;
+                        ">
+                            <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                            <h2 style="color: #ff4d4f; margin-bottom: 16px;">应用启动失败</h2>
+                            <p style="margin: 16px 0; color: #6b7280; font-size: 16px;">${error.message}</p>
+                            <div style="margin: 20px 0; padding: 10px; background: #f5f5f5; border-radius: 6px; text-align: left;">
+                                <small style="color: #666;">
+                                    <strong>调试信息:</strong><br>
+                                    - React: ${typeof React !== 'undefined' ? '✅' : '❌'}<br>
+                                    - ReactDOM: ${typeof ReactDOM !== 'undefined' ? '✅' : '❌'}<br>
+                                    - Ant Design: ${typeof antd !== 'undefined' ? '✅' : '❌'}<br>
+                                    - App组件: ${typeof window.App !== 'undefined' ? '✅' : '❌'}<br>
+                                    - ErrorBoundary: ${typeof window.ErrorBoundary !== 'undefined' ? '✅' : '❌'}<br>
+                                    - Navigation: ${typeof window.Navigation !== 'undefined' ? '✅' : '❌'}
+                                </small>
+                            </div>
+                            <button onclick="location.reload()" style="
+                                padding: 12px 24px; 
+                                background: #1890ff; 
+                                color: white; 
+                                border: none; 
+                                border-radius: 6px; 
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 500;
+                            ">重新加载</button>
+                        </div>
+                    </div>
+                `;
+            }
         }
+
+        // 等待所有脚本加载完成后启动应用
+        setTimeout(startApplication, 2000);
     </script>
 </body>
 </html> 

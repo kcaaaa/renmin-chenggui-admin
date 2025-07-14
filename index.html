@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -14,6 +14,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/navigation.css">
     
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="js/pages/LiveManagement.css">
@@ -580,74 +583,214 @@
     <script src="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd-with-locales.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 
-    <!-- Application Scripts - 修复加载顺序 -->
-    <!-- 工具类 -->
+    <!-- Application Scripts - 根据实际存在的文件优化加载顺序 -->
+    
+    <!-- 工具类 - 必须最先加载 -->
     <script src="js/utils/mockData.js"></script>
     <script src="js/utils/auth.js"></script>
     
-    <!-- 基础组件 -->
+    <!-- 基础组件 - 依赖工具类 -->
     <script src="js/components/ErrorBoundary.js"></script>
     <script src="js/components/LoginPage.js"></script>
     <script src="js/components/Navigation.js"></script>
     <script src="js/components/TopBar.js"></script>
     
-    <!-- 页面组件 -->
+    <!-- 页面组件 - 按文档功能模块分组，只引用实际存在的文件 -->
+    
+    <!-- 系统首页 -->
     <script src="js/pages/Dashboard.js"></script>
-    <script src="js/pages/ContentManagement.js"></script>
+    
+    <!-- 1. 内容管理 -->
+    <script src="js/pages/ContentPublish.js"></script>
+    <script src="js/pages/ContentList.js"></script>
+    
+    <!-- 2. 投诉管理 -->
+    <script src="js/pages/ComplaintManagement.js"></script>
+    
+    <!-- 3. 标签管理 -->
+    <script src="js/pages/TagManagement.js"></script>
+    
+    <!-- 4. 审核管理 -->
+    <script src="js/pages/AIReview.js"></script>
     <script src="js/pages/ReviewManagement.js"></script>
+    <script src="js/pages/ApprovalProcessManagement.js"></script>
     <script src="js/pages/AuditFlowManagement.js"></script>
-    <script src="js/pages/AdminManagement.js"></script>
-    <script src="js/pages/LiveManagement.js"></script>
-    <script src="js/pages/UserManagement.js"></script>
-    <script src="js/pages/FeedbackManagement.js"></script>
-    <script src="js/pages/MessageManagement.js"></script>
-    <script src="js/pages/VersionManagement.js"></script>
+    
+    <!-- 5. 展会管理（核心模块） -->
+    <script src="js/pages/ExhibitionManagement.js"></script>
+    <script src="js/pages/RegistrationManagement.js"></script>
     <script src="js/pages/BoothManagement.js"></script>
-    <script src="js/pages/UserProfile.js"></script>
-    <script src="js/pages/BehaviorStats.js"></script>
+    <script src="js/pages/ExhibitorQuery.js"></script>
+    <script src="js/pages/MeetingActivityManagement.js"></script>
+    <script src="js/pages/ExhibitorBasicInfo.js"></script>
+    <script src="js/pages/ProductInfo.js"></script>
+    <script src="js/pages/ExhibitorActivityInfo.js"></script>
+    <script src="js/pages/BusinessMatching.js"></script>
+    
+    <!-- 6. 运营管理 -->
+    <script src="js/pages/UserAnalysis.js"></script>
     <script src="js/pages/OperationalStats.js"></script>
+    <script src="js/pages/DataAnalysis.js"></script>
+    <script src="js/pages/BehaviorAnalysis.js"></script>
+    <script src="js/pages/UserBehaviorStats.js"></script>
+    <script src="js/pages/BehaviorStats.js"></script>
     <script src="js/pages/DataManagement.js"></script>
-    <script src="js/pages/TrafficAllocation.js"></script>
+    <script src="js/pages/FeedbackManagement.js"></script>
+    
+    <!-- 7. 系统管理 -->
+    <script src="js/pages/UserManagement.js"></script>
+    <script src="js/pages/OrganizationManagement.js"></script>
+    <script src="js/pages/RoleManagement.js"></script>
     <script src="js/pages/LogManagement.js"></script>
-    <script src="js/pages/SystemSettings.js"></script>
+    <script src="js/pages/LoginLogoutLogs.js"></script>
+    <script src="js/pages/ContentPublishLogs.js"></script>
+    <script src="js/pages/ApprovalLogs.js"></script>
+    <script src="js/pages/AIManagement.js"></script>
+    <script src="js/pages/MenuManagement.js"></script>
+    <script src="js/pages/UserProfile.js"></script>
     
     <!-- 主应用 - 必须最后加载 -->
-    <script src="js/App-fixed.js?v=20241230-fix2"></script>
+    <script src="js/App.js?v=20250114-complete"></script>
 
     <script>
         // 全局错误处理
         window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
+            console.error('❌ Global JavaScript error:', e.error);
+            console.error('📁 File:', e.filename);
+            console.error('📍 Line:', e.lineno, 'Column:', e.colno);
         });
         
         window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled promise rejection:', e.reason);
+            console.error('❌ Unhandled promise rejection:', e.reason);
         });
 
         // 启动应用
-        try {
-            console.log('🚀 启动人民城轨2.0运营管理后台...');
-            ReactDOM.render(React.createElement(App), document.getElementById('app'));
-            console.log('✅ 应用启动成功!');
-        } catch (error) {
-            console.error('❌ 应用启动失败:', error);
-            document.getElementById('app').innerHTML = `
-                <div class="error-boundary">
-                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
-                    <h2>应用启动失败</h2>
-                    <p style="margin: 16px 0; color: #6b7280;">${error.message}</p>
-                    <button onclick="location.reload()" style="
-                        padding: 8px 16px; 
-                        background: #2563eb; 
-                        color: white; 
-                        border: none; 
-                        border-radius: 4px; 
-                        cursor: pointer;
-                        font-size: 14px;
-                    ">重新加载</button>
-                </div>
-            `;
+        function startApplication() {
+            try {
+                console.log('🚀 启动人民城轨2.0运营管理后台...');
+                
+                // 检查关键依赖
+                if (typeof React === 'undefined') {
+                    throw new Error('React 未加载');
+                }
+                console.log('✅ React 已加载');
+                
+                if (typeof ReactDOM === 'undefined') {
+                    throw new Error('ReactDOM 未加载');
+                }
+                console.log('✅ ReactDOM 已加载');
+                
+                if (typeof antd === 'undefined') {
+                    throw new Error('Ant Design 未加载');
+                }
+                console.log('✅ Ant Design 已加载');
+                
+                // 检查核心组件
+                const coreComponents = [
+                    'App', 'ErrorBoundary', 'Sidebar', 'Navigation', 
+                    'TopNavigation', 'TopBar', 'LoginForm', 'LoginPage', 'Dashboard'
+                ];
+                const missingCoreComponents = [];
+                
+                coreComponents.forEach(componentName => {
+                    if (window[componentName]) {
+                        console.log(`✅ ${componentName} 组件已加载`);
+                    } else {
+                        missingCoreComponents.push(componentName);
+                        console.warn(`⚠️ ${componentName} 组件未找到`);
+                    }
+                });
+                
+                // 检查必需的组件
+                const requiredComponents = ['App'];
+                const missingRequired = requiredComponents.filter(comp => !window[comp]);
+                
+                if (missingRequired.length > 0) {
+                    throw new Error(`必需组件未加载: ${missingRequired.join(', ')}`);
+                }
+                
+                // 检查认证工具
+                if (window.AuthUtils) {
+                    console.log('✅ AuthUtils 已加载');
+                } else {
+                    console.warn('⚠️ AuthUtils 未加载');
+                }
+                
+                // 启动应用
+                console.log('🎯 开始渲染App组件...');
+                
+                // 先创建App元素
+                const appElement = React.createElement(window.App);
+                console.log('✅ App元素创建成功');
+                
+                // 渲染到DOM
+                ReactDOM.render(appElement, document.getElementById('app'));
+                console.log('✅ 应用启动成功!');
+                
+            } catch (error) {
+                console.error('❌ 应用启动失败:', error);
+                console.error('错误堆栈:', error.stack);
+                
+                // 显示错误页面
+                document.getElementById('app').innerHTML = `
+                    <div style="
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        height: 100vh;
+                        background: #f0f2f5;
+                        font-family: 'Inter', sans-serif;
+                    ">
+                        <div style="
+                            text-align: center;
+                            padding: 40px;
+                            background: white;
+                            border-radius: 12px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                            max-width: 600px;
+                        ">
+                            <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                            <h2 style="color: #ff4d4f; margin-bottom: 16px;">应用启动失败</h2>
+                            <p style="margin: 16px 0; color: #6b7280; font-size: 16px;">${error.message}</p>
+                            <pre style="text-align: left; background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px; overflow: auto; max-height: 200px; margin: 20px 0;">${error.stack || '无堆栈信息'}</pre>
+                            <div style="margin: 20px 0; padding: 10px; background: #f5f5f5; border-radius: 6px; text-align: left;">
+                                <small style="color: #666;">
+                                    <strong>组件加载状态:</strong><br>
+                                    - React: ${typeof React !== 'undefined' ? '✅' : '❌'}<br>
+                                    - ReactDOM: ${typeof ReactDOM !== 'undefined' ? '✅' : '❌'}<br>
+                                    - Ant Design: ${typeof antd !== 'undefined' ? '✅' : '❌'}<br>
+                                    - App组件: ${typeof window.App !== 'undefined' ? '✅' : '❌'}<br>
+                                    - ErrorBoundary: ${typeof window.ErrorBoundary !== 'undefined' ? '✅' : '❌'}<br>
+                                    - Sidebar/Navigation: ${typeof window.Sidebar !== 'undefined' || typeof window.Navigation !== 'undefined' ? '✅' : '❌'}<br>
+                                    - TopBar/TopNavigation: ${typeof window.TopBar !== 'undefined' || typeof window.TopNavigation !== 'undefined' ? '✅' : '❌'}<br>
+                                    - LoginForm/LoginPage: ${typeof window.LoginForm !== 'undefined' || typeof window.LoginPage !== 'undefined' ? '✅' : '❌'}<br>
+                                    - Dashboard: ${typeof window.Dashboard !== 'undefined' ? '✅' : '❌'}<br>
+                                    - AuthUtils: ${typeof window.AuthUtils !== 'undefined' ? '✅' : '❌'}
+                                </small>
+                            </div>
+                            <button onclick="location.reload()" style="
+                                padding: 12px 24px; 
+                                background: #1890ff; 
+                                color: white; 
+                                border: none; 
+                                border-radius: 6px; 
+                                cursor: pointer;
+                                font-size: 14px;
+                                font-weight: 500;
+                            ">重新加载</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 等待DOM加载完成后启动应用
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApplication);
+        } else {
+            startApplication();
         }
     </script>
 </body>
 </html> 
+

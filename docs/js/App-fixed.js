@@ -3,7 +3,7 @@ const App = () => {
     const { Layout, message } = antd;
     const { Sider, Header, Content } = Layout;
     
-    const [currentPage, setCurrentPage] = React.useState('dashboard');
+    const [currentPage, setCurrentPage] = React.useState('Dashboard');
     const [collapsed, setCollapsed] = React.useState(false);
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
     const [user, setUser] = React.useState(null);
@@ -92,7 +92,7 @@ const App = () => {
             AuthUtils.logout();
             setUser(null);
             setIsAuthenticated(false);
-            setCurrentPage('dashboard'); // 重置到首页
+            setCurrentPage('Dashboard'); // 重置到首页
             
             message.info(currentUser ? `${currentUser.name}，您已安全退出` : '已退出登录');
         } catch (error) {
@@ -157,80 +157,105 @@ const App = () => {
         console.log('📄 [FIXED] 当前页面:', currentPage);
         console.log('🔑 [FIXED] renderKey:', renderKey);
         
-        // 专门处理内容管理页面
-        if (currentPage === 'content') {
-            console.log('📝 [FIXED] 准备渲染内容管理页面');
-            console.log('🔍 [FIXED] ContentManagement 组件可用:', !!window.ContentManagement);
-            
-            if (window.ContentManagement) {
-                console.log('✅ [FIXED] 找到 ContentManagement 组件，开始创建');
-                try {
-                    const contentComponent = React.createElement(window.ContentManagement, { key: `content-${renderKey}` });
-                    console.log('🎉 [FIXED] ContentManagement 组件创建成功');
-                    return contentComponent;
-                } catch (error) {
-                    console.error('❌ [FIXED] ContentManagement 创建失败:', error);
-                    return React.createElement('div', {
-                        style: { 
-                            padding: '24px', 
-                            background: '#fff',
-                            margin: '24px',
-                            borderRadius: '8px',
-                            border: '1px solid #ff4d4f',
-                            textAlign: 'center'
-                        }
-                    }, [
-                        React.createElement('h2', { key: 'title', style: { color: '#ff4d4f' } }, '内容管理组件加载失败'),
-                        React.createElement('p', { key: 'error' }, error.message),
-                        React.createElement('button', {
-                            key: 'reload',
-                            onClick: () => location.reload(),
-                            style: { padding: '8px 16px', marginTop: '16px' }
-                        }, '重新加载')
-                    ]);
-                }
-            } else {
-                console.error('❌ [FIXED] ContentManagement 组件未找到');
-                return React.createElement('div', {
-                    style: { 
-                        padding: '24px', 
-                        background: '#fff',
-                        margin: '24px',
-                        borderRadius: '8px',
-                        border: '1px solid #ff7875',
-                        textAlign: 'center'
-                    }
-                }, [
-                    React.createElement('h2', { key: 'title', style: { color: '#ff4d4f' } }, 'ContentManagement 组件未加载'),
-                    React.createElement('p', { key: 'msg' }, '请检查 js/pages/ContentManagement.js 文件是否正确加载'),
-                    React.createElement('button', {
-                        key: 'reload',
-                        onClick: () => location.reload(),
-                        style: { padding: '8px 16px', marginTop: '16px' }
-                    }, '重新加载')
-                ]);
-            }
-        }
-        
-        // 组件映射表 - 简化版本
+        // 完整的组件映射表
         const pageComponents = {
+            // 系统首页
+            'Dashboard': window.Dashboard,
             'dashboard': window.Dashboard,
-            'review': window.ReviewManagement,
-            'audit-flow': window.AuditFlowManagement,
-            'admin': window.AdminManagement,
-            'user': window.UserManagement,
-            'feedback': window.FeedbackManagement,
-            'message': window.MessageManagement,
-            'version': window.VersionManagement,
-            'live': window.LiveManagement,
-            'booth': window.BoothManagement,
-            'stats': window.BehaviorStats,
-            'operational': window.OperationalStats,
-            'data': window.DataManagement,
-            'traffic': window.TrafficAllocation,
-            'logs': window.LogManagement,
-            'settings': window.SystemSettings,
-            'profile': window.UserProfile
+            
+            // 内容管理
+            'ContentPublish': window.ContentPublish,
+            'content-publish': window.ContentPublish,
+            'ContentManagement': window.ContentManagement,
+            'content-list': window.ContentManagement,
+            
+            // 审核管理
+            'ComplaintManagement': window.ComplaintManagement,
+            'complaint': window.ComplaintManagement,
+            'ContentTagManagement': window.ContentTagManagement,
+            'tags': window.ContentTagManagement,
+            'ReviewManagement': window.ReviewManagement,
+            'ai-review': window.AIReview,
+            'AIReview': window.AIReview,
+            'AuditFlowManagement': window.AuditFlowManagement,
+            'approval-flow': window.AuditFlowManagement,
+            'work-approval': window.AuditFlowManagement,
+            'ExhibitionReview': window.ExhibitionReview,
+            'exhibitor-approval': window.ExhibitionReview,
+            'approval-management': window.AuditFlowManagement,
+            
+            // 展会管理
+            'ExhibitionManagement': window.ExhibitionManagement,
+            'exhibition-list': window.ExhibitionManagement,
+            'RegistrationManagement': window.RegistrationManagement,
+            'registration-management': window.RegistrationManagement,
+            'registration-entrance': window.RegistrationManagement,
+            'BoothManagement': window.BoothManagement,
+            'venue-info': window.BoothManagement,
+            'ExhibitorQuery': window.ExhibitorQuery,
+            'exhibitor-details': window.ExhibitorQuery,
+            'MeetingActivityManagement': window.MeetingActivityManagement,
+            'meeting-activity': window.MeetingActivityManagement,
+            'ExhibitorBasicInfo': window.ExhibitorBasicInfo,
+            'exhibitor-basic': window.ExhibitorBasicInfo,
+            'ProductInfo': window.ProductInfo,
+            'product-info': window.ProductInfo,
+            'ExhibitorActivityInfo': window.ExhibitorActivityInfo,
+            'exhibitor-activity': window.ExhibitorActivityInfo,
+            'BusinessMatching': window.BusinessMatching,
+            'business-matching': window.BusinessMatching,
+            'ExhibitorInfo': window.ExhibitorInfo,
+            'exhibitor-info': window.ExhibitorInfo,
+            
+            // 运营管理
+            'UserAnalysis': window.UserAnalysis,
+            'user-analysis': window.UserAnalysis,
+            'BehaviorStats': window.BehaviorStats,
+            'app-behavior': window.BehaviorStats,
+            'basic-behavior': window.BehaviorStats,
+            'DataAnalysis': window.DataAnalysis,
+            'function-analysis': window.DataAnalysis,
+            'OperationalStats': window.OperationalStats,
+            'exception-stats': window.OperationalStats,
+            'UserBehaviorStats': window.UserBehaviorStats,
+            'data-overview': window.UserBehaviorStats,
+            'BehaviorAnalysis': window.BehaviorAnalysis,
+            'deep-behavior': window.BehaviorAnalysis,
+            'DataManagement': window.DataManagement,
+            'system-monitor': window.DataManagement,
+            'FeedbackManagement': window.FeedbackManagement,
+            'feedback-list': window.FeedbackManagement,
+            
+            // 系统管理
+            'UserManagement': window.UserManagement,
+            'user-list': window.UserManagement,
+            'OrganizationManagement': window.OrganizationManagement,
+            'organization': window.OrganizationManagement,
+            'AdminManagement': window.AdminManagement,
+            'admin-role': window.AdminManagement,
+            'RoleManagement': window.RoleManagement,
+            'non-admin-role': window.RoleManagement,
+            'LogManagement': window.LogManagement,
+            'user-operation-logs': window.LogManagement,
+            'LoginLogoutLogs': window.LoginLogoutLogs,
+            'login-logout-logs': window.LoginLogoutLogs,
+            'ContentPublishLogs': window.ContentPublishLogs,
+            'content-publish-logs': window.ContentPublishLogs,
+            'ApprovalLogs': window.ApprovalLogs,
+            'approval-logs': window.ApprovalLogs,
+            'AIManagement': window.AIManagement,
+            'agent-management': window.AIManagement,
+            'knowledge-base': window.AIManagement,
+            'MenuManagement': window.MenuManagement,
+            'menu-management': window.MenuManagement,
+            'UserProfile': window.UserProfile,
+            'profile': window.UserProfile,
+            
+            // 其他页面
+            'LiveManagement': window.LiveManagement,
+            'MessageManagement': window.MessageManagement,
+            'VersionManagement': window.VersionManagement,
+            'SystemSettings': window.SystemSettings
         };
         
         const PageComponent = pageComponents[currentPage];
@@ -243,18 +268,46 @@ const App = () => {
             } catch (error) {
                 console.error('❌ [FIXED] 页面组件渲染失败:', error);
                 return React.createElement('div', {
-                    style: { padding: '24px', textAlign: 'center' }
-                }, `页面组件 ${currentPage} 渲染失败: ${error.message}`);
+                    style: { 
+                        padding: '24px', 
+                        textAlign: 'center',
+                        background: '#fff',
+                        margin: '24px',
+                        borderRadius: '8px',
+                        border: '1px solid #ff4d4f'
+                    }
+                }, [
+                    React.createElement('h2', { key: 'title', style: { color: '#ff4d4f' } }, `页面组件 ${currentPage} 渲染失败`),
+                    React.createElement('p', { key: 'error' }, error.message),
+                    React.createElement('button', {
+                        key: 'reload',
+                        onClick: () => location.reload(),
+                        style: { padding: '8px 16px', marginTop: '16px' }
+                    }, '重新加载')
+                ]);
             }
         }
         
-        // 默认返回Dashboard
-        console.log('🏠 [FIXED] 使用默认 Dashboard');
-        return window.Dashboard ? 
-            React.createElement(window.Dashboard, { key: `dashboard-${renderKey}` }) : 
-            React.createElement('div', {
-                style: { padding: '24px', textAlign: 'center' }
-            }, '页面加载失败');
+        // 如果没有找到对应组件，显示错误页面
+        console.log('❌ [FIXED] 未找到页面组件:', currentPage);
+        return React.createElement('div', {
+            style: { 
+                padding: '24px', 
+                textAlign: 'center',
+                background: '#fff',
+                margin: '24px',
+                borderRadius: '8px',
+                border: '1px solid #faad14'
+            }
+        }, [
+            React.createElement('h2', { key: 'title', style: { color: '#faad14' } }, `页面 "${currentPage}" 未找到`),
+            React.createElement('p', { key: 'msg' }, '请检查页面组件是否正确加载'),
+            React.createElement('button', {
+                key: 'back',
+                onClick: () => handlePageChange('Dashboard'),
+                style: { padding: '8px 16px', marginTop: '16px' }
+            }, '返回首页')
+        ]);
     };
 
     // 加载中状态
@@ -313,7 +366,8 @@ const App = () => {
                 currentPage: currentPage,
                 onPageChange: handlePageChange,
                 collapsed: collapsed,
-                onToggleCollapse: handleToggleCollapse
+                onToggleCollapse: handleToggleCollapse,
+                user: user
             })),
 
             // 右侧主体
