@@ -651,16 +651,18 @@
     <script src="js/pages/AIReview.js"></script>
     
     <!-- 主应用 - 必须最后加载 -->
-    <script src="js/App-fixed.js?v=20241230-fix2"></script>
+    <script src="js/App.js?v=20250114-complete"></script>
 
     <script>
         // 全局错误处理
         window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
+            console.error('❌ Global JavaScript error:', e.error);
+            console.error('📁 File:', e.filename);
+            console.error('📍 Line:', e.lineno, 'Column:', e.colno);
         });
         
         window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled promise rejection:', e.reason);
+            console.error('❌ Unhandled promise rejection:', e.reason);
         });
 
         // 启动应用
@@ -684,29 +686,51 @@
                 }
                 console.log('✅ Ant Design 已加载');
                 
-                // 检查关键组件
-                const requiredComponents = ['App', 'ErrorBoundary', 'Navigation', 'TopBar', 'Dashboard'];
-                const missingComponents = [];
+                // 检查核心组件
+                const coreComponents = [
+                    'App', 'ErrorBoundary', 'Sidebar', 'Navigation', 
+                    'TopNavigation', 'TopBar', 'LoginForm', 'LoginPage', 'Dashboard'
+                ];
+                const missingCoreComponents = [];
                 
-                requiredComponents.forEach(componentName => {
-                    if (!window[componentName]) {
-                        missingComponents.push(componentName);
-                    } else {
+                coreComponents.forEach(componentName => {
+                    if (window[componentName]) {
                         console.log(`✅ ${componentName} 组件已加载`);
+                    } else {
+                        missingCoreComponents.push(componentName);
+                        console.warn(`⚠️ ${componentName} 组件未找到`);
                     }
                 });
                 
-                if (missingComponents.length > 0) {
-                    throw new Error(`以下组件未加载: ${missingComponents.join(', ')}`);
+                // 检查必需的组件
+                const requiredComponents = ['App'];
+                const missingRequired = requiredComponents.filter(comp => !window[comp]);
+                
+                if (missingRequired.length > 0) {
+                    throw new Error(`必需组件未加载: ${missingRequired.join(', ')}`);
+                }
+                
+                // 检查认证工具
+                if (window.AuthUtils) {
+                    console.log('✅ AuthUtils 已加载');
+                } else {
+                    console.warn('⚠️ AuthUtils 未加载');
                 }
                 
                 // 启动应用
                 console.log('🎯 开始渲染App组件...');
-                ReactDOM.render(React.createElement(window.App), document.getElementById('app'));
+                
+                // 先创建App元素
+                const appElement = React.createElement(window.App);
+                console.log('✅ App元素创建成功');
+                
+                // 渲染到DOM
+                ReactDOM.render(appElement, document.getElementById('app'));
                 console.log('✅ 应用启动成功!');
                 
             } catch (error) {
                 console.error('❌ 应用启动失败:', error);
+                console.error('错误堆栈:', error.stack);
                 
                 // 显示错误页面
                 document.getElementById('app').innerHTML = `
@@ -724,20 +748,25 @@
                             background: white;
                             border-radius: 12px;
                             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                            max-width: 500px;
+                            max-width: 600px;
                         ">
                             <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
                             <h2 style="color: #ff4d4f; margin-bottom: 16px;">应用启动失败</h2>
                             <p style="margin: 16px 0; color: #6b7280; font-size: 16px;">${error.message}</p>
+                            <pre style="text-align: left; background: #f5f5f5; padding: 10px; border-radius: 4px; font-size: 12px; overflow: auto; max-height: 200px; margin: 20px 0;">${error.stack || '无堆栈信息'}</pre>
                             <div style="margin: 20px 0; padding: 10px; background: #f5f5f5; border-radius: 6px; text-align: left;">
                                 <small style="color: #666;">
-                                    <strong>调试信息:</strong><br>
+                                    <strong>组件加载状态:</strong><br>
                                     - React: ${typeof React !== 'undefined' ? '✅' : '❌'}<br>
                                     - ReactDOM: ${typeof ReactDOM !== 'undefined' ? '✅' : '❌'}<br>
                                     - Ant Design: ${typeof antd !== 'undefined' ? '✅' : '❌'}<br>
                                     - App组件: ${typeof window.App !== 'undefined' ? '✅' : '❌'}<br>
                                     - ErrorBoundary: ${typeof window.ErrorBoundary !== 'undefined' ? '✅' : '❌'}<br>
-                                    - Navigation: ${typeof window.Navigation !== 'undefined' ? '✅' : '❌'}
+                                    - Sidebar/Navigation: ${typeof window.Sidebar !== 'undefined' || typeof window.Navigation !== 'undefined' ? '✅' : '❌'}<br>
+                                    - TopBar/TopNavigation: ${typeof window.TopBar !== 'undefined' || typeof window.TopNavigation !== 'undefined' ? '✅' : '❌'}<br>
+                                    - LoginForm/LoginPage: ${typeof window.LoginForm !== 'undefined' || typeof window.LoginPage !== 'undefined' ? '✅' : '❌'}<br>
+                                    - Dashboard: ${typeof window.Dashboard !== 'undefined' ? '✅' : '❌'}<br>
+                                    - AuthUtils: ${typeof window.AuthUtils !== 'undefined' ? '✅' : '❌'}
                                 </small>
                             </div>
                             <button onclick="location.reload()" style="
@@ -756,8 +785,12 @@
             }
         }
 
-        // 等待所有脚本加载完成后启动应用
-        setTimeout(startApplication, 2000);
+        // 等待DOM加载完成后启动应用
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApplication);
+        } else {
+            startApplication();
+        }
     </script>
 </body>
 </html> 

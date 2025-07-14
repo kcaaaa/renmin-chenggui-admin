@@ -1,98 +1,185 @@
-// 顶部操作栏组件
-const TopBar = ({ user, notifications, onNotificationClick, onLogout }) => {
-    const { Badge, Dropdown, Avatar, Space, Button, Tooltip, Modal } = antd;
-    
-    // 用户菜单
-    const userMenuItems = [
-        { key: 'profile', label: '个人中心' },
-        { key: 'settings', label: '账户设置' },
-        { type: 'divider' },
-        { key: 'logout', label: '退出登录', danger: true }
-    ];
+﻿// 顶部导航栏组件 - 若依风格
+const TopNavigation = ({ user, notifications, onLogout, onNotificationClick, collapsed, onToggleCollapse }) => {
+    const { Menu, Dropdown, Badge, Avatar, Space, Button, message } = antd;
+    const [notificationVisible, setNotificationVisible] = React.useState(false);
 
-    const handleUserMenuClick = ({ key }) => {
-        if (key === 'logout') {
-            Modal.confirm({
-                title: '确认退出',
-                content: '您确定要退出登录吗？',
-                okText: '确定',
-                cancelText: '取消',
-                onOk: () => onLogout && onLogout(),
-            });
-        }
+    const handleLogout = () => {
+        message.info('退出登录成功');
+        onLogout();
     };
 
-    const userMenu = { items: userMenuItems, onClick: handleUserMenuClick };
+    const handleNotificationClick = () => {
+        setNotificationVisible(!notificationVisible);
+        onNotificationClick();
+    };
 
-    // 通知菜单
-    const notificationItems = notifications?.length > 0
-        ? [
-            ...notifications.slice(0, 5).map((notif, i) => ({
-                key: `notif-${i}`,
-                label: React.createElement('div', {},
-                    React.createElement('div', { style: { fontWeight: 'bold' } }, notif.title),
-                    React.createElement('div', { style: { fontSize: '12px' } }, notif.content)
-                ),
-            })),
-            { type: 'divider' },
-            { key: 'view-all', label: React.createElement('div', { style: { textAlign: 'center' } }, '查看全部') },
-        ]
-        : [{ key: 'empty', label: React.createElement('div', { style: { textAlign: 'center', padding: '12px' } }, '暂无通知') }];
+    const userMenuItems = [
+        {
+            key: 'profile',
+            label: '个人中心'
+        },
+        {
+            key: 'settings',
+            label: '个人设置'
+        },
+        {
+            type: 'divider'
+        },
+        {
+            key: 'logout',
+            label: '退出登录',
+            onClick: handleLogout
+        }
+    ];
 
-    const notificationMenu = { items: notificationItems, onClick: onNotificationClick };
-    
+    const notificationItems = notifications?.map((notif, index) => ({
+        key: index,
+        label: React.createElement('div', {
+            style: {
+                padding: '8px 0',
+                borderBottom: index < notifications.length - 1 ? '1px solid #f0f0f0' : 'none',
+                maxWidth: '250px'
+            }
+        }, [
+            React.createElement('div', {
+                key: 'title',
+                style: {
+                    fontWeight: '500',
+                    marginBottom: '4px',
+                    color: notif.read ? '#666' : '#1890ff',
+                    fontSize: '13px'
+                }
+            }, notif.title),
+            React.createElement('div', {
+                key: 'content',
+                style: {
+                    fontSize: '12px',
+                    color: '#999',
+                    marginBottom: '4px',
+                    lineHeight: '1.4'
+                }
+            }, notif.content),
+            React.createElement('div', {
+                key: 'time',
+                style: {
+                    fontSize: '11px',
+                    color: '#ccc'
+                }
+            }, notif.time)
+        ])
+    })) || [];
+
     const unreadCount = notifications?.filter(n => !n.read).length || 0;
 
-    const displayName = user?.name || user?.username || '管理员';
-    const roleLabel = user?.roleLabel || '管理员';
-    const department = user?.department || '系统管理部';
+    return React.createElement('div', {
+        style: {
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            height: '50px',
+            padding: '0 16px',
+            background: '#fff',
+            borderBottom: '1px solid #f0f0f0',
+            boxShadow: '0 1px 4px rgba(0,21,41,.08)'
+        }
+    }, [
+        React.createElement('div', {
+            key: 'left',
+            style: { display: 'flex', alignItems: 'center' }
+        }, [
+            React.createElement(Button, {
+                key: 'collapse-btn',
+                type: 'text',
+                icon: React.createElement('span', { 
+                    style: { fontSize: '16px' } 
+                }, collapsed ? '' : ''),
+                onClick: onToggleCollapse,
+                style: { 
+                    marginRight: '16px',
+                    color: '#666'
+                }
+            }),
+            React.createElement('div', {
+                key: 'breadcrumb',
+                style: {
+                    fontSize: '14px',
+                    color: '#666'
+                }
+            }, '人民城轨管理系统')
+        ]),
 
-    return React.createElement('div', { className: 'top-bar' },
-        // Left Side
-        React.createElement('div', { className: 'top-bar-left' },
-            React.createElement('h1', { className: 'page-title-in-bar' }, '运营管理后台'),
-        ),
-        // Right Side
-        React.createElement('div', { className: 'top-bar-right' },
-            React.createElement(Space, { size: "middle" },
-                React.createElement(Tooltip, { title: "帮助文档" },
-                    React.createElement(Button, { 
-                        shape: 'circle',
-                        onClick: () => window.open('https://github.com/kcaaaa/renmin-chenggui-admin/wiki', '_blank')
-                    }, '❓')
-                ),
-                React.createElement(Tooltip, { title: "通知" },
-                    React.createElement(Dropdown, { menu: notificationMenu, trigger: ['click'] },
-                        React.createElement(Badge, { count: unreadCount, size: 'small' },
-                            React.createElement(Button, { shape: 'circle' }, '🔔')
-                        )
-                    )
-                ),
-                React.createElement(Dropdown, { menu: userMenu, trigger: ['click'] },
-                    React.createElement(Space, { style: { cursor: 'pointer' } },
-                        React.createElement(Avatar, {
-                            style: { backgroundColor: '#1890ff' },
-                            size: 'default'
-                        }, displayName.charAt(0)),
-                        React.createElement('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start' } }, [
-                            React.createElement('span', { 
-                                key: 'name',
-                                style: { fontWeight: '500', fontSize: '14px' } 
-                            }, displayName),
-                            React.createElement('span', { 
-                                key: 'role',
-                                style: { 
-                                    fontSize: '12px', 
-                                    color: '#8c8c8c',
-                                    lineHeight: '1.2'
-                                } 
-                            }, roleLabel)
-                        ])
-                    )
-                )
-            )
-        )
-    );
+        React.createElement(Space, {
+            key: 'right',
+            size: 'middle',
+            style: { alignItems: 'center' }
+        }, [
+            React.createElement(Dropdown, {
+                key: 'notifications',
+                menu: { items: notificationItems },
+                trigger: ['click'],
+                open: notificationVisible,
+                onOpenChange: setNotificationVisible,
+                placement: 'bottomRight'
+            }, React.createElement(Badge, {
+                count: unreadCount,
+                size: 'small',
+                offset: [-2, 2]
+            }, React.createElement(Button, {
+                type: 'text',
+                size: 'small',
+                icon: React.createElement('span', { 
+                    style: { fontSize: '16px' } 
+                }, ''),
+                onClick: handleNotificationClick,
+                style: { color: '#666' }
+            }))),
+
+            React.createElement(Dropdown, {
+                key: 'user',
+                menu: { 
+                    items: userMenuItems,
+                    onClick: ({ key }) => {
+                        if (key === 'logout') {
+                            handleLogout();
+                        }
+                    }
+                },
+                trigger: ['click'],
+                placement: 'bottomRight'
+            }, React.createElement(Space, {
+                style: { 
+                    cursor: 'pointer',
+                    padding: '4px 8px',
+                    borderRadius: '4px'
+                },
+                size: 'small'
+            }, [
+                React.createElement(Avatar, {
+                    key: 'avatar',
+                    size: 'small',
+                    style: { backgroundColor: '#1890ff', fontSize: '12px' }
+                }, user?.name?.charAt(0) || user?.username?.charAt(0) || 'U'),
+                React.createElement('span', {
+                    key: 'username',
+                    style: { 
+                        color: '#666',
+                        fontSize: '14px'
+                    }
+                }, user?.name || user?.username || '用户'),
+                React.createElement('span', {
+                    key: 'arrow',
+                    style: { 
+                        color: '#999',
+                        fontSize: '12px'
+                    }
+                }, '')
+            ]))
+        ])
+    ]);
 };
 
-window.TopBar = TopBar; 
+// 确保TopNavigation在全局可用
+window.TopNavigation = TopNavigation;
+window.TopBar = TopNavigation; // 兼容性：同时挂载为TopBar
+
+console.log('✅ TopNavigation/TopBar组件已加载');

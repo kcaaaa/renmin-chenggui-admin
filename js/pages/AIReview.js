@@ -27,7 +27,7 @@ const AIReview = () => {
         highRiskCount: 45,
         pendingManual: 123
     });
-
+    
     // 模拟AI审核数据
     const mockData = [
         {
@@ -190,7 +190,7 @@ const AIReview = () => {
     };
 
     const columns = [
-        {
+                    {
             title: '内容信息',
                         dataIndex: 'title',
                         key: 'title',
@@ -224,8 +224,8 @@ const AIReview = () => {
                     style: { fontSize: '12px', color: '#666', marginTop: 2 }
                 }, `置信度: ${record.confidence}%`)
             ])
-        },
-        {
+                    },
+                    {
             title: '风险等级',
             dataIndex: 'riskLevel',
             key: 'riskLevel',
@@ -244,8 +244,8 @@ const AIReview = () => {
                     color: tag === '正常内容' ? 'green' : 'orange'
                 }, tag)
             )
-        },
-        {
+                    },
+                    {
             title: 'AI审核时间',
             dataIndex: 'aiReviewTime',
             key: 'aiReviewTime',

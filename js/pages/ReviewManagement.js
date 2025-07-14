@@ -146,9 +146,9 @@ const ReviewManagement = () => {
                         dataSource: data,
                         loading
                     })
-                )
+                        )
             ])
-        ])
+                ])
     ]);
 };
 

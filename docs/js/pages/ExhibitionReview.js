@@ -1,76 +1,125 @@
-// 展览审核组件
+// 展商审批流程页面 - 展商信息、产品、活动的人工审核操作界面
 const ExhibitionReview = () => {
-    const { Card, Table, Button, Tag, Space, Statistic, Row, Col, message, Modal, Form, Input, Select } = antd;
+    const { Card, Table, Button, Select, Input, Tag, Space, message, Modal, Tabs, Row, Col, Statistic, Descriptions } = antd;
     const { Option } = Select;
-    const { TextArea } = Input;
+    const { TabPane } = Tabs;
     
     const [loading, setLoading] = React.useState(false);
-    const [applications, setApplications] = React.useState([]);
-    const [reviewModalVisible, setReviewModalVisible] = React.useState(false);
-    const [currentApplication, setCurrentApplication] = React.useState(null);
-    const [form] = Form.useForm();
-    
-    // 模拟展览申请数据
-    const mockApplications = [
+    const [data, setData] = React.useState([]);
+    const [activeTab, setActiveTab] = React.useState('exhibitor_info');
+    const [reviewingItem, setReviewingItem] = React.useState(null);
+    const [modalVisible, setModalVisible] = React.useState(false);
+
+    // 模拟统计数据
+    const [stats] = React.useState({
+        pendingExhibitor: 12,
+        pendingProduct: 28,
+        pendingActivity: 8,
+        todayProcessed: 15
+    });
+
+    // 模拟展商信息审核数据
+    const exhibitorData = [
         {
-            id: 1,
-            title: '2024智能轨道交通展',
-            applicant: '中国城轨协会',
-            type: 'technology',
+            key: '1',
+            id: 'EX001',
+            companyName: '北京智慧轨道科技有限公司',
+            type: 'exhibitor_info',
+            contactPerson: '张经理',
+            phone: '13800138001',
+            email: 'zhang@company.com',
+            submitTime: '2024-01-15 14:30:00',
             status: 'pending',
-            submitDate: '2024-01-15',
-            startDate: '2024-06-01',
-            endDate: '2024-06-03',
-            venue: '北京国际会议中心',
-            expectedExhibitors: 200,
-            expectedVisitors: 10000,
-            description: '展示最新的智能轨道交通技术和产品'
-        },
+            description: '专业从事城市轨道交通智能化系统研发，拥有多项自主知识产权...',
+            website: 'www.smartrail.com',
+            businessLicense: '营业执照.pdf'
+        }
+    ];
+
+    // 模拟产品审核数据
+    const productData = [
         {
-            id: 2,
-            title: '新能源轨道交通博览会',
-            applicant: '绿色交通联盟',
-            type: 'energy',
-            status: 'approved',
-            submitDate: '2024-01-10',
-            startDate: '2024-05-15',
-            endDate: '2024-05-17',
-            venue: '上海世博中心',
-            expectedExhibitors: 150,
-            expectedVisitors: 8000,
-            description: '聚焦新能源在轨道交通中的应用',
-            reviewDate: '2024-01-20',
-            reviewer: '审核员A'
-        },
+            key: '1',
+            id: 'PD001',
+            productName: '智能信号控制系统',
+            type: 'product',
+            company: '北京智慧轨道科技有限公司',
+            category: '信号设备',
+            submitTime: '2024-01-15 10:20:00',
+            status: 'pending',
+            description: '基于AI技术的新一代智能信号控制系统，可实现自动化运行控制...',
+            images: ['产品图1.jpg', '产品图2.jpg'],
+            specifications: '技术规格书.pdf'
+        }
+    ];
+
+    // 模拟活动审核数据
+    const activityData = [
         {
-            id: 3,
-            title: '城市轨道安全论坛',
-            applicant: '安全技术研究院',
-            type: 'safety',
-            status: 'rejected',
-            submitDate: '2024-01-08',
-            startDate: '2024-04-20',
-            endDate: '2024-04-21',
-            venue: '深圳会展中心',
-            expectedExhibitors: 80,
-            expectedVisitors: 3000,
-            description: '讨论轨道交通安全技术发展',
-            reviewDate: '2024-01-18',
-            reviewer: '审核员B',
-            rejectReason: '申请材料不完整'
+            key: '1',
+            id: 'AC001',
+            activityName: '智慧城轨技术交流会',
+            type: 'activity',
+            company: '北京智慧轨道科技有限公司',
+            venue: 'A展厅会议室',
+            activityTime: '2024-05-16 14:00-16:00',
+            submitTime: '2024-01-15 09:15:00',
+            status: 'pending',
+            description: '邀请行业专家分享智慧城轨最新技术发展趋势...',
+            agenda: '活动议程.pdf',
+            speakers: ['张教授', '李工程师']
         }
     ];
     
     React.useEffect(() => {
-        loadApplications();
-    }, []);
+        loadData();
+    }, [activeTab]);
     
-    const loadApplications = () => {
+    const loadData = () => {
         setLoading(true);
         setTimeout(() => {
-            setApplications(mockApplications);
+            switch (activeTab) {
+                case 'exhibitor_info':
+                    setData(exhibitorData);
+                    break;
+                case 'product':
+                    setData(productData);
+                    break;
+                case 'activity':
+                    setData(activityData);
+                    break;
+                default:
+                    setData([]);
+            }
             setLoading(false);
-        }, 1000);
+        }, 500);
+    };
+
+    const handleReview = (record) => {
+        setReviewingItem(record);
+        setModalVisible(true);
+    };
+
+    const handleApprove = () => {
+        message.success('审核通过');
+        setModalVisible(false);
+        loadData();
+    };
+
+    const handleReject = () => {
+        message.success('已拒绝');
+        setModalVisible(false);
+        loadData();
+    };
+
+    const getTypeTag = (type) => {
+        const typeMap = {
+            'exhibitor_info': { color: 'blue', text: '展商信息' },
+            'product': { color: 'green', text: '产品信息' },
+            'activity': { color: 'orange', text: '活动信息' }
+        };
+        const config = typeMap[type] || { color: 'default', text: type };
+        return React.createElement(Tag, { color: config.color }, config.text);
     };
     
     const getStatusTag = (status) => {
@@ -83,33 +132,58 @@ const ExhibitionReview = () => {
         return React.createElement(Tag, { color: config.color }, config.text);
     };
     
-    const getTypeTag = (type) => {
-        const typeMap = {
-            'technology': { color: 'blue', text: '技术展' },
-            'energy': { color: 'green', text: '新能源展' },
-            'safety': { color: 'orange', text: '安全论坛' },
-            'equipment': { color: 'purple', text: '设备展' }
-        };
-        const config = typeMap[type] || { color: 'default', text: type };
-        return React.createElement(Tag, { color: config.color }, config.text);
-    };
-    
-    const columns = [
-        {
-            title: '展览名称',
-            dataIndex: 'title',
-            key: 'title'
-        },
-        {
-            title: '申请方',
-            dataIndex: 'applicant',
-            key: 'applicant'
+    const getColumns = () => {
+        const baseColumns = [
+            {
+                title: '基本信息',
+                key: 'info',
+                render: (_, record) => {
+                    if (record.type === 'exhibitor_info') {
+                        return React.createElement('div', {}, [
+                            React.createElement('div', { 
+                                key: 'name',
+                                style: { fontWeight: 'bold' }
+                            }, record.companyName),
+                            React.createElement('div', { 
+                                key: 'contact',
+                                style: { fontSize: '12px', color: '#666' }
+                            }, `联系人: ${record.contactPerson} | ${record.phone}`)
+                        ]);
+                    } else if (record.type === 'product') {
+                        return React.createElement('div', {}, [
+                            React.createElement('div', { 
+                                key: 'name',
+                                style: { fontWeight: 'bold' }
+                            }, record.productName),
+                            React.createElement('div', { 
+                                key: 'company',
+                                style: { fontSize: '12px', color: '#666' }
+                            }, `公司: ${record.company}`)
+                        ]);
+                    } else {
+                        return React.createElement('div', {}, [
+                            React.createElement('div', { 
+                                key: 'name',
+                                style: { fontWeight: 'bold' }
+                            }, record.activityName),
+                            React.createElement('div', { 
+                                key: 'venue',
+                                style: { fontSize: '12px', color: '#666' }
+                            }, `地点: ${record.venue} | 时间: ${record.activityTime}`)
+                        ]);
+                    }
+                }
         },
         {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
             render: getTypeTag
+        },
+            {
+                title: '提交时间',
+                dataIndex: 'submitTime',
+                key: 'submitTime'
         },
         {
             title: '状态',
@@ -118,229 +192,222 @@ const ExhibitionReview = () => {
             render: getStatusTag
         },
         {
-            title: '申请日期',
-            dataIndex: 'submitDate',
-            key: 'submitDate'
-        },
-        {
-            title: '展期',
-            key: 'period',
-            render: (_, record) => `${record.startDate} ~ ${record.endDate}`
-        },
-        {
-            title: '预计展商',
-            dataIndex: 'expectedExhibitors',
-            key: 'expectedExhibitors'
-        },
-        {
             title: '操作',
-            key: 'actions',
+                key: 'action',
             render: (_, record) => React.createElement(Space, { size: 'small' }, [
+                    React.createElement(Button, {
+                        key: 'review',
+                        type: 'primary',
+                        size: 'small',
+                        onClick: () => handleReview(record)
+                    }, '审核'),
                 React.createElement(Button, {
                     key: 'view',
                     type: 'link',
-                    size: 'small',
-                    onClick: () => viewDetail(record)
-                }, '查看'),
-                record.status === 'pending' && React.createElement(Button, {
-                    key: 'review',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => reviewApplication(record)
-                }, '审核')
+                        size: 'small'
+                    }, '详情')
             ])
         }
     ];
     
-    const viewDetail = (record) => {
-        Modal.info({
-            title: `${record.title} - 详细信息`,
-            width: 700,
-            content: React.createElement('div', {}, [
-                React.createElement('p', { key: 'applicant' }, React.createElement('strong', {}, '申请方：'), record.applicant),
-                React.createElement('p', { key: 'venue' }, React.createElement('strong', {}, '展览地点：'), record.venue),
-                React.createElement('p', { key: 'period' }, React.createElement('strong', {}, '展览时间：'), `${record.startDate} ~ ${record.endDate}`),
-                React.createElement('p', { key: 'exhibitors' }, React.createElement('strong', {}, '预计展商：'), `${record.expectedExhibitors}家`),
-                React.createElement('p', { key: 'visitors' }, React.createElement('strong', {}, '预计观众：'), `${record.expectedVisitors}人`),
-                React.createElement('p', { key: 'description' }, React.createElement('strong', {}, '展览描述：'), record.description),
-                record.reviewDate && React.createElement('p', { key: 'review' }, React.createElement('strong', {}, '审核时间：'), record.reviewDate),
-                record.reviewer && React.createElement('p', { key: 'reviewer' }, React.createElement('strong', {}, '审核员：'), record.reviewer),
-                record.rejectReason && React.createElement('p', { key: 'reason' }, React.createElement('strong', {}, '拒绝原因：'), record.rejectReason)
-            ])
-        });
+        return baseColumns;
     };
-    
-    const reviewApplication = (record) => {
-        setCurrentApplication(record);
-        form.resetFields();
-        setReviewModalVisible(true);
+
+    const renderReviewContent = () => {
+        if (!reviewingItem) return null;
+
+        if (reviewingItem.type === 'exhibitor_info') {
+            return React.createElement(Descriptions, {
+                title: '展商信息详情',
+                bordered: true,
+                column: 2
+            }, [
+                React.createElement(Descriptions.Item, { label: '公司名称' }, reviewingItem.companyName),
+                React.createElement(Descriptions.Item, { label: '联系人' }, reviewingItem.contactPerson),
+                React.createElement(Descriptions.Item, { label: '联系电话' }, reviewingItem.phone),
+                React.createElement(Descriptions.Item, { label: '邮箱' }, reviewingItem.email),
+                React.createElement(Descriptions.Item, { label: '公司网址' }, reviewingItem.website),
+                React.createElement(Descriptions.Item, { label: '营业执照' }, reviewingItem.businessLicense),
+                React.createElement(Descriptions.Item, { 
+                    label: '公司介绍',
+                    span: 2
+                }, reviewingItem.description)
+            ]);
+        } else if (reviewingItem.type === 'product') {
+            return React.createElement(Descriptions, {
+                title: '产品信息详情',
+                bordered: true,
+                column: 2
+            }, [
+                React.createElement(Descriptions.Item, { label: '产品名称' }, reviewingItem.productName),
+                React.createElement(Descriptions.Item, { label: '所属公司' }, reviewingItem.company),
+                React.createElement(Descriptions.Item, { label: '产品分类' }, reviewingItem.category),
+                React.createElement(Descriptions.Item, { label: '技术规格' }, reviewingItem.specifications),
+                React.createElement(Descriptions.Item, { 
+                    label: '产品介绍',
+                    span: 2
+                }, reviewingItem.description),
+                React.createElement(Descriptions.Item, { 
+                    label: '产品图片',
+                    span: 2
+                }, reviewingItem.images.join(', '))
+            ]);
+        } else {
+            return React.createElement(Descriptions, {
+                title: '活动信息详情',
+                bordered: true,
+                column: 2
+            }, [
+                React.createElement(Descriptions.Item, { label: '活动名称' }, reviewingItem.activityName),
+                React.createElement(Descriptions.Item, { label: '主办公司' }, reviewingItem.company),
+                React.createElement(Descriptions.Item, { label: '活动地点' }, reviewingItem.venue),
+                React.createElement(Descriptions.Item, { label: '活动时间' }, reviewingItem.activityTime),
+                React.createElement(Descriptions.Item, { label: '演讲嘉宾' }, reviewingItem.speakers.join(', ')),
+                React.createElement(Descriptions.Item, { label: '活动议程' }, reviewingItem.agenda),
+                React.createElement(Descriptions.Item, { 
+                    label: '活动介绍',
+                    span: 2
+                }, reviewingItem.description)
+            ]);
+        }
     };
-    
-    const handleReview = (values) => {
-        console.log('审核结果:', { ...values, applicationId: currentApplication.id });
-        message.success('审核完成');
-        setReviewModalVisible(false);
-        form.resetFields();
-        loadApplications();
-    };
-    
-    const totalApplications = applications.length;
-    const pendingApplications = applications.filter(a => a.status === 'pending').length;
-    const approvedApplications = applications.filter(a => a.status === 'approved').length;
-    const rejectedApplications = applications.filter(a => a.status === 'rejected').length;
     
     return React.createElement('div', { style: { padding: '24px' } }, [
-        React.createElement('div', {
-            key: 'header',
-            style: { marginBottom: 24 }
-        }, [
-            React.createElement('h1', {
-                key: 'title',
-                style: { fontSize: '24px', fontWeight: '600', margin: 0 }
-            }, '展览审核'),
-            React.createElement('p', {
-                key: 'desc',
-                style: { color: '#8c8c8c', marginTop: 8 }
-            }, '审核展览申请和管理审核流程')
-        ]),
-        
+        // 统计卡片
         React.createElement(Row, {
             key: 'stats',
             gutter: 16,
             style: { marginBottom: 24 }
         }, [
-            React.createElement(Col, { key: 'total', span: 6 },
+            React.createElement(Col, { span: 6 }, 
                 React.createElement(Card, {},
                     React.createElement(Statistic, {
-                        title: '总申请数',
-                        value: totalApplications
+                        title: '待审展商',
+                        value: stats.pendingExhibitor,
+                        valueStyle: { color: '#1890ff' }
                     })
                 )
             ),
-            React.createElement(Col, { key: 'pending', span: 6 },
+            React.createElement(Col, { span: 6 }, 
                 React.createElement(Card, {},
                     React.createElement(Statistic, {
-                        title: '待审核',
-                        value: pendingApplications,
-                        valueStyle: { color: '#faad14' }
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'approved', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '已通过',
-                        value: approvedApplications,
+                        title: '待审产品',
+                        value: stats.pendingProduct,
                         valueStyle: { color: '#52c41a' }
                     })
                 )
             ),
-            React.createElement(Col, { key: 'rejected', span: 6 },
+            React.createElement(Col, { span: 6 }, 
                 React.createElement(Card, {},
                     React.createElement(Statistic, {
-                        title: '已拒绝',
-                        value: rejectedApplications,
-                        valueStyle: { color: '#f5222d' }
+                        title: '待审活动',
+                        value: stats.pendingActivity,
+                        valueStyle: { color: '#faad14' }
+                    })
+                )
+            ),
+            React.createElement(Col, { span: 6 }, 
+                React.createElement(Card, {},
+                    React.createElement(Statistic, {
+                        title: '今日处理',
+                        value: stats.todayProcessed,
+                        valueStyle: { color: '#722ed1' }
                     })
                 )
             )
         ]),
         
-        React.createElement(Card, {
-            key: 'actions',
-            style: { marginBottom: 16 }
-        }, React.createElement(Space, {}, [
-            React.createElement(Button, {
-                key: 'refresh',
-                onClick: loadApplications
-            }, '刷新'),
-            React.createElement(Select, {
-                key: 'status-filter',
-                placeholder: '状态筛选',
-                style: { width: 120 },
-                allowClear: true
+        React.createElement(Card, { key: 'main' }, [
+            React.createElement('h3', { key: 'title' }, '展商审批流程'),
+            
+            React.createElement('div', {
+                key: 'description',
+                style: { 
+                    padding: '12px', 
+                    background: '#fff7e6', 
+                    border: '1px solid #ffd591',
+                    borderRadius: '4px',
+                    marginBottom: '16px'
+                }
+            }, '展商审批流程用于审核展商信息变更、产品发布及活动报备等，确保展商信息的准确性和合规性。由会展部门人员进行审核。'),
+
+            React.createElement(Tabs, {
+                key: 'tabs',
+                activeKey: activeTab,
+                onChange: setActiveTab
             }, [
-                React.createElement(Option, { key: 'pending', value: 'pending' }, '待审核'),
-                React.createElement(Option, { key: 'approved', value: 'approved' }, '已通过'),
-                React.createElement(Option, { key: 'rejected', value: 'rejected' }, '已拒绝')
-            ]),
-            React.createElement(Select, {
-                key: 'type-filter',
-                placeholder: '类型筛选',
-                style: { width: 120 },
-                allowClear: true
-            }, [
-                React.createElement(Option, { key: 'technology', value: 'technology' }, '技术展'),
-                React.createElement(Option, { key: 'energy', value: 'energy' }, '新能源展'),
-                React.createElement(Option, { key: 'safety', value: 'safety' }, '安全论坛'),
-                React.createElement(Option, { key: 'equipment', value: 'equipment' }, '设备展')
+                React.createElement(TabPane, {
+                    key: 'exhibitor_info',
+                    tab: '展商信息审核'
+                }, 
+                    React.createElement(Table, {
+                        columns: getColumns(),
+                        dataSource: data,
+                        loading,
+                        pagination: {
+                            pageSize: 10,
+                            showSizeChanger: true,
+                            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
+                        }
+                    })
+                ),
+                React.createElement(TabPane, {
+                    key: 'product',
+                    tab: '产品信息审核'
+                }, 
+                    React.createElement(Table, {
+                        columns: getColumns(),
+                        dataSource: data,
+                        loading,
+                        pagination: {
+                            pageSize: 10,
+                            showSizeChanger: true,
+                            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
+                        }
+                    })
+                ),
+                React.createElement(TabPane, {
+                    key: 'activity',
+                    tab: '活动信息审核'
+                }, 
+                    React.createElement(Table, {
+                        columns: getColumns(),
+                        dataSource: data,
+                        loading,
+                        pagination: {
+                            pageSize: 10,
+                            showSizeChanger: true,
+                            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
+                        }
+                    })
+                )
             ])
-        ])),
-        
-        React.createElement(Card, {
-            key: 'table'
-        }, React.createElement(Table, {
-            columns: columns,
-            dataSource: applications,
-            rowKey: 'id',
-            loading: loading,
-            pagination: {
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`
-            }
-        })),
-        
+        ]),
+
+        // 审核弹窗
         React.createElement(Modal, {
-            key: 'review-modal',
-            title: `审核申请 - ${currentApplication?.title}`,
-            visible: reviewModalVisible,
-            onCancel: () => setReviewModalVisible(false),
-            footer: null,
-            width: 600
-        }, React.createElement(Form, {
-            form: form,
-            layout: 'vertical',
-            onFinish: handleReview
-        }, [
-            React.createElement(Form.Item, {
-                key: 'result',
-                name: 'result',
-                label: '审核结果',
-                rules: [{ required: true, message: '请选择审核结果' }]
-            }, React.createElement(Select, {
-                placeholder: '请选择审核结果'
-            }, [
-                React.createElement(Option, { key: 'approved', value: 'approved' }, '通过'),
-                React.createElement(Option, { key: 'rejected', value: 'rejected' }, '拒绝')
-            ])),
-            
-            React.createElement(Form.Item, {
-                key: 'comment',
-                name: 'comment',
-                label: '审核意见',
-                rules: [{ required: true, message: '请输入审核意见' }]
-            }, React.createElement(TextArea, {
-                rows: 4,
-                placeholder: '请输入审核意见'
-            })),
-            
-            React.createElement(Form.Item, {
-                key: 'submit',
-                style: { marginBottom: 0, marginTop: 24 }
-            }, React.createElement(Space, {
-                style: { width: '100%', justifyContent: 'flex-end' }
-            }, [
+            key: 'modal',
+            title: '展商审核',
+            open: modalVisible,
+            onCancel: () => setModalVisible(false),
+            footer: [
                 React.createElement(Button, {
                     key: 'cancel',
-                    onClick: () => setReviewModalVisible(false)
+                    onClick: () => setModalVisible(false)
                 }, '取消'),
                 React.createElement(Button, {
-                    key: 'confirm',
+                    key: 'reject',
+                    danger: true,
+                    onClick: handleReject
+                }, '拒绝'),
+                React.createElement(Button, {
+                    key: 'approve',
                     type: 'primary',
-                    htmlType: 'submit'
-                }, '提交审核')
-            ]))
-        ]))
+                    onClick: handleApprove
+                }, '通过')
+            ],
+            width: 800
+        }, renderReviewContent())
     ]);
 };
 

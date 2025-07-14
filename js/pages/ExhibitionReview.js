@@ -184,7 +184,7 @@ const ExhibitionReview = () => {
                 title: '提交时间',
                 dataIndex: 'submitTime',
                 key: 'submitTime'
-            },
+        },
         {
             title: '状态',
             dataIndex: 'status',

@@ -321,51 +321,51 @@ const App = () => {
 
     // 主应用界面
     const mainApp = React.createElement(Layout, {
-        style: { minHeight: '100vh' }
-    }, [
+            style: { minHeight: '100vh' }
+        }, [
         // 侧边栏
-        React.createElement(Sider, {
-            key: 'sider',
+            React.createElement(Sider, {
+                key: 'sider',
             collapsible: true,
-            collapsed: collapsed,
+                collapsed: collapsed,
             onCollapse: handleToggleCollapse,
-            style: {
-                overflow: 'auto',
-                height: '100vh',
-                position: 'fixed',
-                left: 0,
-                top: 0,
+                style: {
+                    overflow: 'auto',
+                    height: '100vh',
+                    position: 'fixed',
+                    left: 0,
+                    top: 0,
                 bottom: 0,
-            }
+                }
         }, window.Sidebar ? React.createElement(window.Sidebar, {
-            currentPage: currentPage,
-            onPageChange: handlePageChange,
+                currentPage: currentPage,
+                onPageChange: handlePageChange,
             collapsed: collapsed
         }) : React.createElement('div', {
             style: { padding: '20px', color: 'white', textAlign: 'center' }
         }, '导航组件加载失败')),
         
         // 主内容区域
-        React.createElement(Layout, {
+            React.createElement(Layout, {
             key: 'main-layout',
-            style: { 
+                style: { 
                 marginLeft: collapsed ? 80 : 200,
                 transition: 'margin-left 0.2s'
-            }
-        }, [
+                }
+            }, [
             // 头部
-            React.createElement(Header, {
-                key: 'header',
-                style: {
+                React.createElement(Header, {
+                    key: 'header',
+                    style: { 
                     background: '#fff',
                     padding: '0 24px',
                     boxShadow: '0 1px 4px rgba(0,21,41,.08)',
                     position: 'sticky',
-                    top: 0,
+                        top: 0,
                     zIndex: 100
                 }
             }, window.TopNavigation ? React.createElement(window.TopNavigation, {
-                user: user,
+                    user: user,
                 onLogout: handleLogout,
                 collapsed: collapsed,
                 onToggleCollapse: handleToggleCollapse
@@ -374,17 +374,17 @@ const App = () => {
             }, '顶部导航组件加载失败')),
             
             // 内容区域
-            React.createElement(Content, {
-                key: 'content',
-                style: {
+                React.createElement(Content, {
+                    key: 'content',
+                    style: {
                     margin: '16px',
-                    padding: '24px',
+                        padding: '24px',
                     background: '#fff',
                     minHeight: 'calc(100vh - 120px)',
                     borderRadius: '8px',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }
-            }, renderContent())
+                    }
+                }, renderContent())
         ])
     ]);
     
@@ -399,6 +399,6 @@ const App = () => {
 };
 
 // 确保App组件在全局可用
-window.App = App;
+window.App = App; 
 
 console.log('✅ 人民城轨2.0主应用组件已加载');
