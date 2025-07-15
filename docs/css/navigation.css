@@ -148,6 +148,15 @@
     color: #ffffff;
 }
 
+/* 隐藏滚动条 */
+.modern-menu.ant-menu::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+.modern-menu.ant-menu {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
 /* 滚动条 */
 .modern-menu.ant-menu::-webkit-scrollbar {
     width: 5px;

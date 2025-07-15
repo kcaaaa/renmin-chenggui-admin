@@ -88,6 +88,7 @@
             background-color: var(--bg-primary);
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow: hidden; /* 禁止body级别产生滚动条 */
         }
 
         /* --- 3. Layout System --- */
@@ -152,7 +153,8 @@
         .content-wrapper {
             flex: 1;
             padding: var(--spacing-lg);
-            overflow-y: auto;
+            overflow-y: auto; /* 只允许内容区垂直滚动 */
+            overflow-x: hidden; /* 禁止内容区水平滚动 */
             background: var(--bg-primary);
         }
 
