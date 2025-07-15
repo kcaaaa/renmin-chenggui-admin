@@ -1,209 +1,248 @@
-/* 现代化导航栏样式 - 基于UI设计参考 */
+/* 现代化导航栏样式 - 修复布局问题 */
+
+/* 重置默认样式 */
+.modern-sidebar, .modern-sidebar * {
+    box-sizing: border-box;
+}
 
 /* 主要侧边栏容器 */
 .modern-sidebar {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    background: #ffffff;
+    border-right: 1px solid #f0f0f0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
 }
 
-.modern-sidebar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #1890ff 0%, #722ed1 50%, #eb2f96 100%);
-    z-index: 11;
-}
-
-/* Logo样式 */
+/* Logo区域样式 */
 .sidebar-logo {
+    height: 64px;
+    background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+    margin: 16px 12px 20px 12px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.25);
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 }
 
-.sidebar-logo::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
-    transform: rotate(45deg);
-    transition: all 0.6s;
-    opacity: 0;
+.sidebar-logo:hover {
+    box-shadow: 0 6px 16px rgba(24, 144, 255, 0.35);
+    transform: translateY(-1px);
 }
 
-.sidebar-logo:hover::before {
-    opacity: 1;
-    animation: shimmer 1.5s ease-in-out;
-}
-
-@keyframes shimmer {
-    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-}
-
-/* 现代化菜单样式 */
+/* 菜单容器重置 */
 .modern-menu {
-    padding: 0 8px;
+    border: none !important;
+    background: transparent !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    padding: 0 12px !important;
 }
 
-/* 一级菜单项 */
-.modern-menu .ant-menu-item,
-.modern-menu .ant-menu-submenu {
-    margin: 4px 0 !important;
+/* 清除Ant Design默认样式冲突 */
+.modern-menu.ant-menu {
+    background: transparent !important;
+    border: none !important;
+}
+
+.modern-menu .ant-menu-sub {
+    background: transparent !important;
+}
+
+/* 一级菜单项基础样式 */
+.modern-menu > .ant-menu-item,
+.modern-menu > .ant-menu-submenu {
+    margin: 0 0 6px 0 !important;
+    padding: 0 !important;
     border-radius: 8px !important;
-    overflow: hidden;
-    position: relative;
+    overflow: hidden !important;
+    line-height: 1 !important;
 }
 
-.modern-menu .ant-menu-item {
+/* 一级菜单项标题 */
+.modern-menu > .ant-menu-item,
+.modern-menu > .ant-menu-submenu > .ant-menu-submenu-title {
     height: 44px !important;
     line-height: 44px !important;
     padding: 0 16px !important;
-    margin: 4px 0 8px 0 !important;
+    margin: 0 !important;
     background: transparent !important;
     border: 1px solid transparent !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    font-weight: 500 !important;
+    border-radius: 8px !important;
     color: #595959 !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
-.modern-menu .ant-menu-item:hover {
+/* 一级菜单悬停效果 */
+.modern-menu > .ant-menu-item:hover,
+.modern-menu > .ant-menu-submenu:hover > .ant-menu-submenu-title {
     background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%) !important;
     border-color: #91d5ff !important;
     color: #1890ff !important;
-    transform: translateX(4px) !important;
-    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15) !important;
+    transform: translateX(2px) !important;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15) !important;
 }
 
-.modern-menu .ant-menu-item-selected {
+/* 一级菜单选中状态 */
+.modern-menu > .ant-menu-item-selected {
     background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
     color: #ffffff !important;
     border-color: #1890ff !important;
-    box-shadow: 0 4px 16px rgba(24, 144, 255, 0.4) !important;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3) !important;
     font-weight: 600 !important;
 }
 
-.modern-menu .ant-menu-item-selected:hover {
-    background: linear-gradient(135deg, #0f6fbc 0%, #1890ff 100%) !important;
-    transform: translateX(6px) !important;
-}
-
-/* 子菜单标题样式 */
-.modern-menu .ant-menu-submenu > .ant-menu-submenu-title {
-    height: 44px !important;
-    line-height: 44px !important;
-    padding: 0 16px !important;
-    margin: 4px 0 !important;
-    border-radius: 8px !important;
-    background: transparent !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    font-weight: 500 !important;
-    color: #595959 !important;
-    border: 1px solid transparent !important;
-}
-
-.modern-menu .ant-menu-submenu:hover > .ant-menu-submenu-title {
-    background: linear-gradient(135deg, #f0f0f0 0%, #f5f5f5 100%) !important;
-    color: #262626 !important;
-    border-color: #d9d9d9 !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-}
-
-.modern-menu .ant-menu-submenu-open > .ant-menu-submenu-title {
+/* 一级菜单展开状态 */
+.modern-menu > .ant-menu-submenu-open > .ant-menu-submenu-title {
     background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%) !important;
     color: #1890ff !important;
     border-color: #91d5ff !important;
     font-weight: 600 !important;
 }
 
-/* 子菜单容器 */
+/* 二级菜单容器 */
 .modern-menu .ant-menu-sub {
     background: rgba(250, 250, 250, 0.8) !important;
-    border-radius: 8px !important;
-    margin: 4px 0 4px 8px !important;
-    padding: 8px 0 !important;
+    border-radius: 6px !important;
+    margin: 4px 0 8px 8px !important;
+    padding: 4px 0 !important;
     border: 1px solid #f0f0f0 !important;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* 二级菜单项 */
-.modern-menu .ant-menu-sub .ant-menu-item {
-    height: 36px !important;
-    line-height: 36px !important;
-    padding: 0 16px 0 24px !important;
+.modern-menu .ant-menu-sub > .ant-menu-item,
+.modern-menu .ant-menu-sub > .ant-menu-submenu {
     margin: 2px 8px !important;
     border-radius: 6px !important;
-    font-size: 13px !important;
-    font-weight: 400 !important;
-    color: #8c8c8c !important;
-    background: transparent !important;
 }
 
-.modern-menu .ant-menu-sub .ant-menu-item:hover {
+.modern-menu .ant-menu-sub > .ant-menu-item,
+.modern-menu .ant-menu-sub > .ant-menu-submenu > .ant-menu-submenu-title {
+    height: 36px !important;
+    line-height: 36px !important;
+    padding: 0 12px 0 20px !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px !important;
+    color: #8c8c8c !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* 二级菜单悬停效果 */
+.modern-menu .ant-menu-sub > .ant-menu-item:hover,
+.modern-menu .ant-menu-sub > .ant-menu-submenu:hover > .ant-menu-submenu-title {
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
     color: #1890ff !important;
     border-color: #e6f7ff !important;
-    transform: translateX(2px) !important;
-    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.1) !important;
+    transform: translateX(1px) !important;
+    box-shadow: 0 1px 4px rgba(24, 144, 255, 0.1) !important;
 }
 
-.modern-menu .ant-menu-sub .ant-menu-item-selected {
+/* 二级菜单选中状态 */
+.modern-menu .ant-menu-sub > .ant-menu-item-selected {
     background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
     color: #ffffff !important;
+    border-color: #1890ff !important;
     font-weight: 500 !important;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3) !important;
+    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.25) !important;
+}
+
+/* 二级菜单展开状态 */
+.modern-menu .ant-menu-sub > .ant-menu-submenu-open > .ant-menu-submenu-title {
+    background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%) !important;
+    color: #1890ff !important;
+    border-color: #91d5ff !important;
+    font-weight: 500 !important;
+}
+
+/* 三级菜单容器 */
+.modern-menu .ant-menu-sub .ant-menu-sub {
+    background: rgba(248, 248, 248, 0.9) !important;
+    border-radius: 4px !important;
+    margin: 2px 0 4px 12px !important;
+    padding: 2px 0 !important;
+    border: 1px solid #f5f5f5 !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
 }
 
 /* 三级菜单项 */
-.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item {
+.modern-menu .ant-menu-sub .ant-menu-sub > .ant-menu-item {
     height: 32px !important;
     line-height: 32px !important;
-    padding: 0 16px 0 32px !important;
-    margin: 1px 8px !important;
-    font-size: 12px !important;
-    color: #bfbfbf !important;
+    padding: 0 12px 0 24px !important;
+    margin: 1px 6px !important;
     background: transparent !important;
+    border: 1px solid transparent !important;
+    border-radius: 4px !important;
+    color: #bfbfbf !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    transition: all 0.3s ease !important;
+    display: flex !important;
+    align-items: center !important;
 }
 
-.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item:hover {
+/* 三级菜单悬停效果 */
+.modern-menu .ant-menu-sub .ant-menu-sub > .ant-menu-item:hover {
     background: rgba(24, 144, 255, 0.08) !important;
     color: #1890ff !important;
-    transform: translateX(1px) !important;
+    border-color: rgba(24, 144, 255, 0.15) !important;
 }
 
-.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item-selected {
+/* 三级菜单选中状态 */
+.modern-menu .ant-menu-sub .ant-menu-sub > .ant-menu-item-selected {
     background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
     color: #ffffff !important;
+    border-color: #1890ff !important;
     font-weight: 500 !important;
+    box-shadow: 0 1px 4px rgba(24, 144, 255, 0.2) !important;
 }
 
 /* 菜单图标样式 */
 .modern-menu .ant-menu-item .anticon,
 .modern-menu .ant-menu-submenu-title .anticon {
-    margin-right: 12px !important;
+    margin-right: 10px !important;
     font-size: 16px !important;
-    transition: all 0.3s ease !important;
+    min-width: 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.modern-menu .ant-menu-sub .ant-menu-item .anticon {
+.modern-menu .ant-menu-sub .ant-menu-item .anticon,
+.modern-menu .ant-menu-sub .ant-menu-submenu-title .anticon {
     margin-right: 8px !important;
     font-size: 14px !important;
+    min-width: 14px !important;
 }
 
 .modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item .anticon {
     margin-right: 6px !important;
     font-size: 12px !important;
+    min-width: 12px !important;
 }
 
 /* 展开/折叠箭头 */
 .modern-menu .ant-menu-submenu-arrow {
-    color: #8c8c8c !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    color: #bfbfbf !important;
+    transition: all 0.3s ease !important;
+    right: 16px !important;
 }
 
 .modern-menu .ant-menu-submenu:hover .ant-menu-submenu-arrow {
@@ -215,60 +254,36 @@
     transform: rotate(180deg) !important;
 }
 
-/* 折叠状态样式 */
-.modern-sidebar.collapsed .sidebar-logo {
-    margin: 16px 8px 24px 8px !important;
+/* 修复布局问题 */
+.modern-menu .ant-menu-item-group-title {
+    display: none !important;
 }
 
-.modern-sidebar.collapsed .modern-menu .ant-menu-item,
-.modern-sidebar.collapsed .modern-menu .ant-menu-submenu-title {
-    padding: 0 !important;
-    text-align: center !important;
-    height: 48px !important;
-    line-height: 48px !important;
-}
-
-.modern-sidebar.collapsed .modern-menu .ant-menu-item .anticon,
-.modern-sidebar.collapsed .modern-menu .ant-menu-submenu-title .anticon {
-    margin: 0 !important;
-    font-size: 20px !important;
+.modern-menu .ant-menu-item::after,
+.modern-menu .ant-menu-submenu-title::after {
+    display: none !important;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
     .modern-sidebar {
         position: fixed !important;
-        left: -256px !important;
+        left: -100% !important;
         top: 0 !important;
         height: 100vh !important;
         z-index: 1000 !important;
         transition: left 0.3s ease !important;
+        width: 256px !important;
     }
     
     .modern-sidebar.mobile-open {
         left: 0 !important;
     }
-    
-    .modern-sidebar::after {
-        content: '';
-        position: fixed;
-        top: 0;
-        right: -100vw;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.45);
-        transition: right 0.3s ease;
-        z-index: -1;
-    }
-    
-    .modern-sidebar.mobile-open::after {
-        right: 0;
-    }
 }
 
 /* 滚动条样式 */
 .modern-sidebar::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
 }
 
 .modern-sidebar::-webkit-scrollbar-track {
@@ -277,62 +292,16 @@
 
 .modern-sidebar::-webkit-scrollbar-thumb {
     background: rgba(24, 144, 255, 0.2);
-    border-radius: 3px;
-    transition: background 0.3s ease;
+    border-radius: 2px;
 }
 
 .modern-sidebar::-webkit-scrollbar-thumb:hover {
     background: rgba(24, 144, 255, 0.4);
 }
 
-/* 加载动画 */
-.modern-sidebar.loading {
-    opacity: 0.8;
-    pointer-events: none;
-}
-
-.modern-sidebar.loading::before {
-    animation: loading-bar 2s ease-in-out infinite;
-}
-
-@keyframes loading-bar {
-    0%, 100% { transform: translateX(-100%); }
-    50% { transform: translateX(100%); }
-}
-
-/* 主题适配 */
-.dark-theme .modern-sidebar {
-    background: linear-gradient(180deg, #1f1f1f 0%, #141414 100%) !important;
-    border-right-color: #303030 !important;
-}
-
-.dark-theme .sidebar-logo {
-    background: linear-gradient(135deg, #1890ff 0%, #722ed1 100%) !important;
-}
-
-.dark-theme .modern-menu .ant-menu-item {
-    color: #d9d9d9 !important;
-}
-
-.dark-theme .modern-menu .ant-menu-item:hover {
-    background: linear-gradient(135deg, #111b26 0%, #1e3a54 100%) !important;
-    color: #40a9ff !important;
-}
-
-/* 无障碍支持 */
-.modern-menu .ant-menu-item:focus,
-.modern-menu .ant-menu-submenu-title:focus {
-    outline: 2px solid #1890ff !important;
-    outline-offset: 2px !important;
-}
-
 /* 性能优化 */
 .modern-sidebar * {
-    will-change: transform, opacity !important;
-}
-
-.modern-menu .ant-menu-item,
-.modern-menu .ant-menu-submenu-title {
-    transform: translateZ(0) !important;
-    backface-visibility: hidden !important;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 } 
