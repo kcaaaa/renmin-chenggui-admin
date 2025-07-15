@@ -1,307 +1,164 @@
-/* 现代化导航栏样式 - 修复布局问题 */
+/* 导航栏样式 - 深色现代主题 */
 
-/* 重置默认样式 */
-.modern-sidebar, .modern-sidebar * {
-    box-sizing: border-box;
-}
+@charset "UTF-8";
 
-/* 主要侧边栏容器 */
+/* 整体容器 */
 .modern-sidebar {
-    position: relative;
-    overflow: visible;
-    background: #ffffff;
-    border-right: 1px solid #f0f0f0;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
+    background-color: #1f1f1f;
+    border-right: 1px solid #303030;
+    color: #e8e8e8;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Logo区域样式 */
-.sidebar-logo {
-    height: 64px;
-    background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
-    margin: 16px 12px 20px 12px;
+/* Logo 和标题区域 */
+.sidebar-header {
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #303030;
+}
+
+.header-icon-container {
+    width: 40px;
+    height: 40px;
     border-radius: 8px;
+    background: linear-gradient(135deg, #a777e3 0%, #6351ce 100%);
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 22px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.header-title-container .ant-typography {
     color: #ffffff;
     font-weight: 600;
-    letter-spacing: 0.5px;
-    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.25);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    margin-bottom: 2px !important;
 }
 
-.sidebar-logo:hover {
-    box-shadow: 0 6px 16px rgba(24, 144, 255, 0.35);
-    transform: translateY(-1px);
+.header-subtitle {
+    color: #8c8c8c;
+    font-size: 12px;
 }
 
-/* 菜单容器重置 */
-.modern-menu {
-    border: none !important;
-    background: transparent !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-    padding: 0 12px !important;
-}
-
-/* 清除Ant Design默认样式冲突 */
+/* 菜单区域 */
 .modern-menu.ant-menu {
-    background: transparent !important;
-    border: none !important;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: transparent;
+    border: none;
 }
 
-.modern-menu .ant-menu-sub {
-    background: transparent !important;
+/* 所有菜单项的通用过渡 */
+.modern-menu .ant-menu-item,
+.modern-menu .ant-menu-submenu-title {
+    transition: background-color 0.3s, color 0.3s, padding-left 0.2s ease-in-out;
 }
 
-/* 一级菜单项基础样式 */
-.modern-menu > .ant-menu-item,
-.modern-menu > .ant-menu-submenu {
-    margin: 0 0 6px 0 !important;
-    padding: 0 !important;
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    line-height: 1 !important;
-}
-
-/* 一级菜单项标题 */
+/* 一级菜单 */
 .modern-menu > .ant-menu-item,
 .modern-menu > .ant-menu-submenu > .ant-menu-submenu-title {
-    height: 44px !important;
-    line-height: 44px !important;
-    padding: 0 16px !important;
-    margin: 0 !important;
-    background: transparent !important;
-    border: 1px solid transparent !important;
-    border-radius: 8px !important;
-    color: #595959 !important;
-    font-weight: 500 !important;
-    font-size: 14px !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
+    padding: 0 12px !important;
+    margin: 4px 0 !important;
+    height: 42px !important;
+    line-height: 42px !important;
+    border-radius: 6px;
+    color: #d9d9d9;
+    font-weight: 500;
 }
-
-/* 一级菜单悬停效果 */
 .modern-menu > .ant-menu-item:hover,
 .modern-menu > .ant-menu-submenu:hover > .ant-menu-submenu-title {
-    background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%) !important;
-    border-color: #91d5ff !important;
-    color: #1890ff !important;
-    transform: translateX(2px) !important;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15) !important;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ffffff;
 }
-
-/* 一级菜单选中状态 */
 .modern-menu > .ant-menu-item-selected {
-    background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
-    color: #ffffff !important;
-    border-color: #1890ff !important;
-    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3) !important;
-    font-weight: 600 !important;
+    background: linear-gradient(90deg, rgba(105, 192, 255, 0.2), rgba(105, 192, 255, 0.1));
+    color: #69c0ff !important;
+    border-right: 2px solid #69c0ff;
 }
 
-/* 一级菜单展开状态 */
-.modern-menu > .ant-menu-submenu-open > .ant-menu-submenu-title {
-    background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%) !important;
-    color: #1890ff !important;
-    border-color: #91d5ff !important;
-    font-weight: 600 !important;
-}
-
-/* 二级菜单容器 */
+/* 二级及以下菜单 */
 .modern-menu .ant-menu-sub {
-    background: rgba(250, 250, 250, 0.8) !important;
-    border-radius: 6px !important;
-    margin: 4px 0 8px 8px !important;
-    padding: 4px 0 !important;
-    border: 1px solid #f0f0f0 !important;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    background: rgba(0,0,0,0.15) !important;
+    margin: 4px 0;
+    border-radius: 4px;
+}
+.modern-menu .ant-menu-sub .ant-menu-item {
+    padding-left: 24px !important;
+    margin: 2px 4px !important;
+    height: 38px !important;
+    line-height: 38px !important;
+    color: #bfbfbf;
+    border-radius: 4px;
+}
+.modern-menu .ant-menu-sub .ant-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #e8e8e8;
+    padding-left: 26px !important;
+}
+.modern-menu .ant-menu-sub .ant-menu-item-selected {
+    background-color: transparent !important;
+    color: #87e8de !important;
+    font-weight: 500;
+}
+.modern-menu .ant-menu-sub .ant-menu-item-selected::before {
+    content: '●';
+    position: absolute;
+    left: 12px;
+    color: #87e8de;
+    font-size: 10px;
 }
 
-/* 二级菜单项 */
-.modern-menu .ant-menu-sub > .ant-menu-item,
-.modern-menu .ant-menu-sub > .ant-menu-submenu {
-    margin: 2px 8px !important;
-    border-radius: 6px !important;
+/* 三级菜单 */
+.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item {
+     padding-left: 36px !important;
+     color: #8c8c8c;
+}
+.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item:hover {
+    padding-left: 38px !important;
+    color: #bfbfbf;
+}
+.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item-selected {
+    color: #d3adf7 !important;
+}
+.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item-selected::before {
+    color: #d3adf7 !important;
 }
 
-.modern-menu .ant-menu-sub > .ant-menu-item,
-.modern-menu .ant-menu-sub > .ant-menu-submenu > .ant-menu-submenu-title {
-    height: 36px !important;
-    line-height: 36px !important;
-    padding: 0 12px 0 20px !important;
-    margin: 0 !important;
-    background: transparent !important;
-    border: 1px solid transparent !important;
-    border-radius: 6px !important;
-    color: #8c8c8c !important;
-    font-size: 13px !important;
-    font-weight: 400 !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
+
+/* 图标样式 */
+.ant-menu-item .anticon, .ant-menu-submenu-title .anticon {
+    margin-right: 10px;
+    font-size: 16px;
+    min-width: 16px;
+}
+.ant-menu-sub .ant-menu-item .anticon {
+    font-size: 14px;
 }
 
-/* 二级菜单悬停效果 */
-.modern-menu .ant-menu-sub > .ant-menu-item:hover,
-.modern-menu .ant-menu-sub > .ant-menu-submenu:hover > .ant-menu-submenu-title {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
-    color: #1890ff !important;
-    border-color: #e6f7ff !important;
-    transform: translateX(1px) !important;
-    box-shadow: 0 1px 4px rgba(24, 144, 255, 0.1) !important;
+/* 箭头 */
+.ant-menu-submenu-arrow {
+    color: #8c8c8c;
+}
+.ant-menu-submenu-arrow:hover {
+    color: #ffffff;
 }
 
-/* 二级菜单选中状态 */
-.modern-menu .ant-menu-sub > .ant-menu-item-selected {
-    background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
-    color: #ffffff !important;
-    border-color: #1890ff !important;
-    font-weight: 500 !important;
-    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.25) !important;
+/* 滚动条 */
+.modern-menu.ant-menu::-webkit-scrollbar {
+    width: 5px;
 }
-
-/* 二级菜单展开状态 */
-.modern-menu .ant-menu-sub > .ant-menu-submenu-open > .ant-menu-submenu-title {
-    background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%) !important;
-    color: #1890ff !important;
-    border-color: #91d5ff !important;
-    font-weight: 500 !important;
-}
-
-/* 三级菜单容器 */
-.modern-menu .ant-menu-sub .ant-menu-sub {
-    background: rgba(248, 248, 248, 0.9) !important;
-    border-radius: 4px !important;
-    margin: 2px 0 4px 12px !important;
-    padding: 2px 0 !important;
-    border: 1px solid #f5f5f5 !important;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
-}
-
-/* 三级菜单项 */
-.modern-menu .ant-menu-sub .ant-menu-sub > .ant-menu-item {
-    height: 32px !important;
-    line-height: 32px !important;
-    padding: 0 12px 0 24px !important;
-    margin: 1px 6px !important;
-    background: transparent !important;
-    border: 1px solid transparent !important;
-    border-radius: 4px !important;
-    color: #bfbfbf !important;
-    font-size: 12px !important;
-    font-weight: 400 !important;
-    transition: all 0.3s ease !important;
-    display: flex !important;
-    align-items: center !important;
-}
-
-/* 三级菜单悬停效果 */
-.modern-menu .ant-menu-sub .ant-menu-sub > .ant-menu-item:hover {
-    background: rgba(24, 144, 255, 0.08) !important;
-    color: #1890ff !important;
-    border-color: rgba(24, 144, 255, 0.15) !important;
-}
-
-/* 三级菜单选中状态 */
-.modern-menu .ant-menu-sub .ant-menu-sub > .ant-menu-item-selected {
-    background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%) !important;
-    color: #ffffff !important;
-    border-color: #1890ff !important;
-    font-weight: 500 !important;
-    box-shadow: 0 1px 4px rgba(24, 144, 255, 0.2) !important;
-}
-
-/* 菜单图标样式 */
-.modern-menu .ant-menu-item .anticon,
-.modern-menu .ant-menu-submenu-title .anticon {
-    margin-right: 10px !important;
-    font-size: 16px !important;
-    min-width: 16px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-}
-
-.modern-menu .ant-menu-sub .ant-menu-item .anticon,
-.modern-menu .ant-menu-sub .ant-menu-submenu-title .anticon {
-    margin-right: 8px !important;
-    font-size: 14px !important;
-    min-width: 14px !important;
-}
-
-.modern-menu .ant-menu-sub .ant-menu-sub .ant-menu-item .anticon {
-    margin-right: 6px !important;
-    font-size: 12px !important;
-    min-width: 12px !important;
-}
-
-/* 展开/折叠箭头 */
-.modern-menu .ant-menu-submenu-arrow {
-    color: #bfbfbf !important;
-    transition: all 0.3s ease !important;
-    right: 16px !important;
-}
-
-.modern-menu .ant-menu-submenu:hover .ant-menu-submenu-arrow {
-    color: #1890ff !important;
-}
-
-.modern-menu .ant-menu-submenu-open .ant-menu-submenu-arrow {
-    color: #1890ff !important;
-    transform: rotate(180deg) !important;
-}
-
-/* 修复布局问题 */
-.modern-menu .ant-menu-item-group-title {
-    display: none !important;
-}
-
-.modern-menu .ant-menu-item::after,
-.modern-menu .ant-menu-submenu-title::after {
-    display: none !important;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .modern-sidebar {
-        position: fixed !important;
-        left: -100% !important;
-        top: 0 !important;
-        height: 100vh !important;
-        z-index: 1000 !important;
-        transition: left 0.3s ease !important;
-        width: 256px !important;
-    }
-    
-    .modern-sidebar.mobile-open {
-        left: 0 !important;
-    }
-}
-
-/* 滚动条样式 */
-.modern-sidebar::-webkit-scrollbar {
-    width: 4px;
-}
-
-.modern-sidebar::-webkit-scrollbar-track {
+.modern-menu.ant-menu::-webkit-scrollbar-track {
     background: transparent;
 }
-
-.modern-sidebar::-webkit-scrollbar-thumb {
-    background: rgba(24, 144, 255, 0.2);
-    border-radius: 2px;
+.modern-menu.ant-menu::-webkit-scrollbar-thumb {
+    background: #434343;
+    border-radius: 5px;
 }
-
-.modern-sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(24, 144, 255, 0.4);
-}
-
-/* 性能优化 */
-.modern-sidebar * {
-    backface-visibility: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+.modern-menu.ant-menu::-webkit-scrollbar-thumb:hover {
+    background: #595959;
 } 

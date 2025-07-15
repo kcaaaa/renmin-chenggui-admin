@@ -1,63 +1,39 @@
 ﻿// 现代化侧边栏导航组件 - 基于UI设计参考优化
 const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
-    const { Menu } = antd;
-    const [openKeys, setOpenKeys] = React.useState(['content']);
+    const { Menu, Typography } = antd;
+    const { Title } = Typography;
+    const [openKeys, setOpenKeys] = React.useState(['content', 'exhibition', 'operation', 'system']);
 
     const menuItems = [
         {
             key: 'Dashboard',
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '🏠'),
+            icon: React.createElement('i', { className: 'anticon' }, '🏠'),
             label: '系统首页',
         },
         {
             key: 'content',
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '📝'),
+            icon: React.createElement('i', { className: 'anticon' }, '📝'),
             label: '内容管理',
             children: [
-                { 
-                    key: 'ContentPublish', 
-                    label: '内容发布', 
-                    page: 'ContentPublish',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '✍️')
-                },
-                { 
-                    key: 'ContentList', 
-                    label: '内容列表', 
-                    page: 'ContentList',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📋')
-                }
-            ]
+                { key: 'ContentPublish', label: '内容发布', page: 'ContentPublish' },
+                { key: 'ContentList', label: '内容列表', page: 'ContentList' },
+            ],
         },
         {
             key: 'ComplaintManagement',
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '⚠️'),
+            icon: React.createElement('i', { className: 'anticon' }, '⚠️'),
             label: '投诉管理',
             page: 'ComplaintManagement'
         },
         {
             key: 'TagManagement', 
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '🏷️'),
+            icon: React.createElement('i', { className: 'anticon' }, '🏷️'),
             label: '标签管理',
             page: 'TagManagement'
         },
         {
             key: 'review',
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '🔍'),
+            icon: React.createElement('i', { className: 'anticon' }, '🔍'),
             label: '审核管理',
             children: [
                 { 
@@ -88,10 +64,7 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
         },
         {
             key: 'exhibition',
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '🏢'),
+            icon: React.createElement('i', { className: 'anticon' }, '🏢'),
             label: '展会管理',
             children: [
                 {
@@ -172,10 +145,7 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
         },
         {
             key: 'operation',
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '📊'),
+            icon: React.createElement('i', { className: 'anticon' }, '📊'),
             label: '运营管理',
             children: [
                 {
@@ -244,189 +214,100 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
         },
         {
             key: 'system',
-            icon: React.createElement('i', { 
-                className: 'anticon',
-                style: { fontSize: '16px' }
-            }, '⚙️'),
+            icon: React.createElement('i', { className: 'anticon' }, '⚙️'),
             label: '系统管理',
             children: [
-                { 
-                    key: 'UserManagement', 
-                    label: '用户管理', 
-                    page: 'UserManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '👥')
-                },
-                { 
-                    key: 'OrganizationManagement', 
-                    label: '组织结构', 
-                    page: 'OrganizationManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🏗️')
-                },
-                { 
-                    key: 'RoleManagement', 
-                    label: '角色管理', 
-                    page: 'RoleManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '👤')
-                },
+                { key: 'UserManagement', label: '用户管理', page: 'UserManagement' },
+                { key: 'OrganizationManagement', label: '组织结构', page: 'OrganizationManagement'},
+                { key: 'RoleManagement', label: '角色管理', page: 'RoleManagement' },
                 {
                     key: 'log-management',
                     label: '日志管理',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📜'),
                     children: [
-                        { 
-                            key: 'LogManagement', 
-                            label: '用户操作日志', 
-                            page: 'LogManagement',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'LoginLogoutLogs', 
-                            label: '登录登出日志', 
-                            page: 'LoginLogoutLogs',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'ContentPublishLogs', 
-                            label: '作品发布日志', 
-                            page: 'ContentPublishLogs',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'ApprovalLogs', 
-                            label: '审批日志', 
-                            page: 'ApprovalLogs',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        }
+                        { key: 'LogManagement', label: '用户操作日志', page: 'LogManagement' },
+                        { key: 'LoginLogoutLogs', label: '登录登出日志', page: 'LoginLogoutLogs' },
+                        { key: 'ContentPublishLogs', label: '作品发布日志', page: 'ContentPublishLogs' },
+                        { key: 'ApprovalLogs', label: '审批日志', page: 'ApprovalLogs' },
                     ]
                 },
-                { 
-                    key: 'AIManagement', 
-                    label: 'AI管理', 
-                    page: 'AIManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🧠')
-                },
-                { 
-                    key: 'MenuManagement', 
-                    label: '菜单管理', 
-                    page: 'MenuManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📋')
-                },
-                { 
-                    key: 'UserProfile', 
-                    label: '个人中心', 
-                    page: 'UserProfile',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '👤')
-                }
-            ]
+                { key: 'AIManagement', label: 'AI管理', page: 'AIManagement' },
+                { key: 'MenuManagement', label: '菜单管理', page: 'MenuManagement' },
+                { key: 'UserProfile', label: '个人中心', page: 'UserProfile' },
+            ],
         }
     ];
 
+
     const handleMenuClick = ({ key }) => {
-        // 查找菜单项
-        const menuItem = findMenuItemByKey(menuItems, key);
-        
-        // 只有叶子节点(没有children的菜单项)才触发页面跳转
+        const findItem = (items) => {
+            for (const item of items) {
+                if (item.key === key) return item;
+                if (item.children) {
+                    const found = findItem(item.children);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+        const menuItem = findItem(menuItems);
         if (menuItem && !menuItem.children) {
-            const pageKey = menuItem.page || key;
-            onPageChange(pageKey);
+            onPageChange(menuItem.page || key);
         }
-        // 如果是有children的菜单项，不做任何操作，只让Ant Design处理展开/折叠
-    };
-
-    // 递归查找菜单项
-    const findMenuItemByKey = (items, targetKey) => {
-        for (const item of items) {
-            if (item.key === targetKey) {
-                return item;
-            }
-            if (item.children) {
-                const found = findMenuItemByKey(item.children, targetKey);
-                if (found) return found;
-            }
-        }
-        return null;
-    };
-
-    const handleOpenChange = (keys) => {
-        setOpenKeys(keys);
     };
 
     const renderMenuItem = (item) => {
-        if (item.children) {
-            return {
-                key: item.key,
-                icon: item.icon || null,
-                label: item.label,
-                children: item.children.map(renderMenuItem)
-            };
-        }
-        return {
+        const result = {
             key: item.key,
             icon: item.icon || null,
-            label: item.label
+            label: item.label,
         };
+        if (item.children) {
+            result.children = item.children.map(renderMenuItem);
+        }
+        return result;
     };
 
-    // 现代化侧边栏样式
-    const sidebarStyle = {
+    const sidebarContainerStyle = {
         width: collapsed ? 80 : 256,
         minHeight: '100vh',
-        background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)',
-        borderRight: '1px solid #e8e8e8',
-        transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)',
-        boxShadow: '2px 0 8px rgba(0, 0, 0, 0.06)',
-        position: 'relative',
-        zIndex: 10
-    };
-
-    const logoStyle = {
-        height: 64,
-        background: 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
-        margin: '16px 12px 24px 12px',
-        borderRadius: 8,
+        transition: 'width 0.3s cubic-bezier(0.2, 0, 0, 1)',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        fontSize: collapsed ? 14 : 16,
-        fontWeight: 600,
-        letterSpacing: '0.5px',
-        boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)',
-        transition: 'all 0.3s ease'
-    };
-
-    const menuStyle = {
-        border: 'none',
-        background: 'transparent',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+        flexDirection: 'column',
     };
 
     return React.createElement('div', {
         className: 'modern-sidebar',
-        style: sidebarStyle
+        style: sidebarContainerStyle
     }, [
-        React.createElement('div', {
-            key: 'logo',
-            className: 'sidebar-logo',
-            style: logoStyle
-        }, collapsed ? '人民城轨' : '人民城轨2.0管理后台'),
+        // 新增的头部
+        !collapsed && React.createElement('div', {
+            key: 'header',
+            className: 'sidebar-header'
+        }, [
+            React.createElement('div', { key: 'icon', className: 'header-icon-container'}, '🚇'),
+            React.createElement('div', { key: 'title', className: 'header-title-container' }, [
+                React.createElement(Title, { level: 5 }, '人民城轨2.0'),
+                React.createElement('div', { className: 'header-subtitle' }, '运营管理后台')
+            ])
+        ]),
+        
+        // 菜单
         React.createElement(Menu, {
             key: 'menu',
             mode: 'inline',
+            theme: 'dark', // 明确主题
             selectedKeys: [currentPage],
             openKeys: openKeys,
-            onOpenChange: handleOpenChange,
+            onOpenChange: setOpenKeys,
             onClick: handleMenuClick,
             items: menuItems.map(renderMenuItem),
-            style: menuStyle,
-            className: 'modern-menu'
+            className: 'modern-menu',
         })
     ]);
 };
 
-// 导出组件
 window.Sidebar = Sidebar;
-window.Navigation = Sidebar; // 兼容性：同时挂载为Navigation
+window.Navigation = Sidebar;
 
-console.log('✅ 现代化Sidebar/Navigation组件已加载');
+console.log('✅ 深色主题Sidebar/Navigation组件已加载');
 
