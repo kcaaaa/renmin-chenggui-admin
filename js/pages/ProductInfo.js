@@ -1,509 +1,347 @@
-// 产品信息组件
-const ProductInfo = () => {
-    const { Card, Table, Button, Tag, Space, Statistic, Row, Col, message, Modal, Form, Input, Select, InputNumber, Upload } = antd;
-    const { Option } = Select;
+// ProductInfo.js - 产品信息管理
+// 展商可在此管理其希望在线上展会中展示的产品，并查看和回复用户评论
+
+function ProductInfo() {
+    const { useState, useEffect } = React;
+    const { Card, Table, Button, Modal, Form, Input, Upload, Select, Space, message, Popconfirm, Tag, Divider } = antd;
+    const { Column } = Table;
     const { TextArea } = Input;
-    
-    const [loading, setLoading] = React.useState(false);
-    const [products, setProducts] = React.useState([]);
-    const [modalVisible, setModalVisible] = React.useState(false);
-    const [editingProduct, setEditingProduct] = React.useState(null);
+
+    const [loading, setLoading] = useState(false);
+    const [dataSource, setDataSource] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [commentModalVisible, setCommentModalVisible] = useState(false);
+    const [editingRecord, setEditingRecord] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const [form] = Form.useForm();
-    
+    const [imageFileList, setImageFileList] = useState([]);
+
     // 模拟产品数据
     const mockProducts = [
-        { 
-            id: 1, 
-            name: 'CRH380A高速动车组', 
-            category: '轨道车辆', 
-            type: 'vehicle',
-            status: 'active',
-            manufacturer: '中车集团',
-            model: 'CRH380A',
-            price: 180000000,
-            specifications: '8节编组，运营速度350km/h',
-            description: '中国标准动车组，具有完全自主知识产权',
-            images: ['/images/crh380a-1.jpg', '/images/crh380a-2.jpg'],
-            certifications: ['ISO9001', 'CE认证'],
-            warranty: '5年',
-            deliveryTime: '12个月',
-            contactPerson: '张工程师',
-            phone: '13800138000',
-            email: 'zhang@crrc.com',
-            createTime: '2024-01-10 10:00:00',
-            updateTime: '2024-01-10 10:00:00'
+        {
+            id: 1,
+            name: '智能信号控制系统',
+            category: ['信号系统', '智能化'],
+            description: '基于AI技术的城轨信号控制系统，提供更安全、高效的列车运行控制解决方案。',
+            status: 'published',
+            createTime: '2024-01-10 09:00:00',
+            commentCount: 5
         },
-        { 
-            id: 2, 
-            name: '城轨信号控制系统', 
-            category: '信号系统', 
-            type: 'system',
-            status: 'active',
-            manufacturer: '华为技术',
-            model: 'HW-SCS-2000',
-            price: 50000000,
-            specifications: 'CBTC系统，支持全自动驾驶',
-            description: '基于5G技术的新一代城轨信号控制系统',
-            images: ['/images/signal-system-1.jpg'],
-            certifications: ['SIL4', 'CENELEC'],
-            warranty: '3年',
-            deliveryTime: '8个月',
-            contactPerson: '李经理',
-            phone: '13800138001',
-            email: 'li@huawei.com',
-            createTime: '2024-01-11 11:00:00',
-            updateTime: '2024-01-11 11:00:00'
-        },
-        { 
-            id: 3, 
-            name: '轨道检测设备', 
-            category: '检测设备', 
-            type: 'equipment',
-            status: 'pending',
-            manufacturer: '中铁检测',
-            model: 'ZT-RD-300',
-            price: 8000000,
-            specifications: '激光检测，精度±0.1mm',
-            description: '高精度轨道几何状态检测设备',
-            images: ['/images/detection-equipment-1.jpg'],
-            certifications: ['ISO17025'],
-            warranty: '2年',
-            deliveryTime: '6个月',
-            contactPerson: '王主任',
-            phone: '13800138002',
-            email: 'wang@ztjc.com',
-            createTime: '2024-01-12 12:00:00',
-            updateTime: '2024-01-12 12:00:00'
+        {
+            id: 2,
+            name: '轨道交通综合监控平台',
+            category: ['监控系统', '运营管理'],
+            description: '集成视频监控、环境监测、设备状态监控的综合平台系统。',
+            status: 'reviewing',
+            createTime: '2024-01-12 14:30:00',
+            commentCount: 2
         }
     ];
-    
-    React.useEffect(() => {
-        loadProducts();
+
+    // 模拟评论数据
+    const mockComments = [
+        {
+            id: 1,
+            productId: 1,
+            content: '这个信号系统看起来很先进，能否提供更详细的技术参数？',
+            userName: '李工程师',
+            createTime: '2024-01-15 10:30:00',
+            status: 'show'
+        },
+        {
+            id: 2,
+            productId: 1,
+            content: '我们公司正在寻找类似的解决方案，希望能进一步了解合作方式。',
+            userName: '王总',
+            createTime: '2024-01-14 16:20:00',
+            status: 'show'
+        }
+    ];
+
+    useEffect(() => {
+        loadData();
     }, []);
-    
-    const loadProducts = () => {
+
+    const loadData = () => {
         setLoading(true);
         setTimeout(() => {
-            setProducts(mockProducts);
+            setDataSource(mockProducts);
             setLoading(false);
-        }, 1000);
+        }, 500);
     };
-    
-    const getStatusTag = (status) => {
-        const statusMap = {
-            'active': { color: 'green', text: '上架' },
-            'pending': { color: 'orange', text: '待审核' },
-            'inactive': { color: 'default', text: '下架' }
-        };
-        const config = statusMap[status] || { color: 'default', text: status };
-        return React.createElement(Tag, { color: config.color }, config.text);
-    };
-    
-    const getTypeTag = (type) => {
-        const typeMap = {
-            'vehicle': { color: 'blue', text: '车辆' },
-            'system': { color: 'purple', text: '系统' },
-            'equipment': { color: 'cyan', text: '设备' },
-            'component': { color: 'green', text: '部件' }
-        };
-        const config = typeMap[type] || { color: 'default', text: type };
-        return React.createElement(Tag, { color: config.color }, config.text);
-    };
-    
-    const columns = [
-        {
-            title: '产品名称',
-            dataIndex: 'name',
-            key: 'name',
-            render: (name, record) => React.createElement('div', {
-                style: { display: 'flex', alignItems: 'center', gap: '8px' }
-            }, [
-                record.images && record.images.length > 0 && React.createElement('img', {
-                    key: 'image',
-                    src: record.images[0],
-                    alt: name,
-                    style: { width: 40, height: 40, borderRadius: '4px', objectFit: 'cover' },
-                    onError: (e) => { e.target.style.display = 'none'; }
-                }),
-                React.createElement('span', { key: 'name' }, name)
-            ])
-        },
-        {
-            title: '类型',
-            dataIndex: 'type',
-            key: 'type',
-            render: getTypeTag
-        },
-        {
-            title: '分类',
-            dataIndex: 'category',
-            key: 'category'
-        },
-        {
-            title: '制造商',
-            dataIndex: 'manufacturer',
-            key: 'manufacturer'
-        },
-        {
-            title: '型号',
-            dataIndex: 'model',
-            key: 'model'
-        },
-        {
-            title: '价格',
-            dataIndex: 'price',
-            key: 'price',
-            render: (price) => `¥${(price / 10000).toFixed(0)}万`
-        },
-        {
-            title: '状态',
-            dataIndex: 'status',
-            key: 'status',
-            render: getStatusTag
-        },
-        {
-            title: '联系人',
-            dataIndex: 'contactPerson',
-            key: 'contactPerson'
-        },
-        {
-            title: '更新时间',
-            dataIndex: 'updateTime',
-            key: 'updateTime'
-        },
-        {
-            title: '操作',
-            key: 'actions',
-            render: (_, record) => React.createElement(Space, { size: 'small' }, [
-                React.createElement(Button, {
-                    key: 'edit',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => handleEdit(record)
-                }, '编辑'),
-                React.createElement(Button, {
-                    key: 'view',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => viewDetail(record)
-                }, '查看'),
-                React.createElement(Button, {
-                    key: 'audit',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => auditProduct(record)
-                }, '审核')
-            ])
-        }
-    ];
-    
+
     const handleAdd = () => {
-        setEditingProduct(null);
+        setEditingRecord(null);
         form.resetFields();
+        setImageFileList([]);
         setModalVisible(true);
     };
-    
+
     const handleEdit = (record) => {
-        setEditingProduct(record);
+        setEditingRecord(record);
         form.setFieldsValue(record);
         setModalVisible(true);
     };
-    
-    const viewDetail = (record) => {
-        message.info(`查看 ${record.name} 详情`);
-    };
-    
-    const auditProduct = (record) => {
-        Modal.confirm({
-            title: '审核产品',
-            content: `确定要审核通过 ${record.name} 吗？`,
-            onOk: () => {
-                message.success('审核成功');
-                loadProducts();
-            }
-        });
-    };
-    
+
     const handleSubmit = (values) => {
-        console.log('保存产品信息:', values);
-        message.success(editingProduct ? '编辑成功' : '新建成功');
+        const now = new Date().toLocaleString('zh-CN');
+        
+        if (editingRecord) {
+            setDataSource(dataSource.map(item => 
+                item.id === editingRecord.id 
+                    ? { ...item, ...values, updateTime: now }
+                    : item
+            ));
+            message.success('修改成功！已提交审核');
+        } else {
+            const newRecord = {
+                id: Date.now(),
+                ...values,
+                status: 'reviewing',
+                createTime: now,
+                commentCount: 0
+            };
+            setDataSource([...dataSource, newRecord]);
+            message.success('添加成功！已提交审核');
+        }
+        
         setModalVisible(false);
         form.resetFields();
-        loadProducts();
+        setImageFileList([]);
     };
-    
-    return React.createElement('div', { style: { padding: '24px' } }, [
-        React.createElement('div', {
-            key: 'header',
-            style: { marginBottom: 24 }
-        }, [
-            React.createElement('h1', {
-                key: 'title',
-                style: { fontSize: '24px', fontWeight: '600', margin: 0 }
-            }, '产品信息'),
-            React.createElement('p', {
-                key: 'desc',
-                style: { color: '#8c8c8c', marginTop: 8 }
-            }, '管理和维护产品信息')
-        ]),
-        
-        React.createElement(Row, {
-            key: 'stats',
-            gutter: 16,
-            style: { marginBottom: 24 }
-        }, [
-            React.createElement(Col, { key: 'total', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '总产品数',
-                        value: products.length
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'active', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '上架产品',
-                        value: products.filter(p => p.status === 'active').length,
-                        valueStyle: { color: '#52c41a' }
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'pending', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '待审核',
-                        value: products.filter(p => p.status === 'pending').length,
-                        valueStyle: { color: '#faad14' }
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'value', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '总价值',
-                        value: products.reduce((sum, p) => sum + p.price, 0) / 100000000,
-                        suffix: '亿',
-                        valueStyle: { color: '#1890ff' }
-                    })
-                )
-            )
-        ]),
-        
+
+    const handleDelete = (id) => {
+        setDataSource(dataSource.filter(item => item.id !== id));
+        message.success('删除成功');
+    };
+
+    const handleViewComments = (record) => {
+        setSelectedProduct(record);
+        setCommentModalVisible(true);
+    };
+
+    const getStatusTag = (status) => {
+        const statusMap = {
+            published: { color: 'success', text: '已发布' },
+            reviewing: { color: 'warning', text: '审核中' },
+            rejected: { color: 'error', text: '已驳回' },
+            offline: { color: 'default', text: '已下架' }
+        };
+        const config = statusMap[status] || statusMap.reviewing;
+        return React.createElement(Tag, { color: config.color }, config.text);
+    };
+
+    const uploadProps = {
+        listType: 'picture-card',
+        beforeUpload: (file) => {
+            const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+            if (!isJpgOrPng) {
+                message.error('只能上传 JPG/PNG 格式的图片！');
+                return false;
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+                message.error('图片大小不能超过 2MB！');
+                return false;
+            }
+            return false;
+        }
+    };
+
+    return React.createElement('div', { style: { padding: 24 } },
         React.createElement(Card, {
-            key: 'actions',
-            style: { marginBottom: 16 }
-        }, React.createElement(Space, {}, [
-            React.createElement(Button, {
-                key: 'add',
+            title: '产品信息管理',
+            extra: React.createElement(Button, {
                 type: 'primary',
                 onClick: handleAdd
-            }, '新建产品'),
-            React.createElement(Button, {
-                key: 'refresh',
-                onClick: loadProducts
-            }, '刷新'),
-            React.createElement(Select, {
-                key: 'category-filter',
-                placeholder: '分类筛选',
-                style: { width: 120 },
-                allowClear: true
-            }, [
-                React.createElement(Option, { key: 'vehicle', value: '轨道车辆' }, '轨道车辆'),
-                React.createElement(Option, { key: 'signal', value: '信号系统' }, '信号系统'),
-                React.createElement(Option, { key: 'equipment', value: '检测设备' }, '检测设备')
-            ]),
-            React.createElement(Select, {
-                key: 'status-filter',
-                placeholder: '状态筛选',
-                style: { width: 120 },
-                allowClear: true
-            }, [
-                React.createElement(Option, { key: 'active', value: 'active' }, '上架'),
-                React.createElement(Option, { key: 'pending', value: 'pending' }, '待审核'),
-                React.createElement(Option, { key: 'inactive', value: 'inactive' }, '下架')
-            ])
-        ])),
-        
-        React.createElement(Card, {
-            key: 'table'
-        }, React.createElement(Table, {
-            columns: columns,
-            dataSource: products,
-            rowKey: 'id',
-            loading: loading,
-            pagination: {
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`
-            }
-        })),
-        
+            }, '新增产品')
+        },
+            React.createElement('div', { style: { marginBottom: 16, padding: 16, background: '#f6f8fa', borderRadius: 8 } },
+                React.createElement('h4', { style: { margin: '0 0 8px 0', color: '#1890ff' } }, '功能说明'),
+                React.createElement('p', { style: { margin: 0, color: '#666' } }, 
+                    '在此管理希望在展会中展示的产品。产品信息提交后需要会展部门审核，审核通过后将在APP端展会板块中展示。您可以查看和回复用户对产品的评论。'
+                )
+            ),
+            
+            React.createElement(Table, {
+                dataSource: dataSource,
+                loading: loading,
+                rowKey: 'id',
+                pagination: { pageSize: 10 }
+            },
+                React.createElement(Column, {
+                    title: '产品名称',
+                    dataIndex: 'name',
+                    key: 'name',
+                    width: 200
+                }),
+                React.createElement(Column, {
+                    title: '所属分类',
+                    dataIndex: 'category',
+                    key: 'category',
+                    width: 200,
+                    render: (categories) => categories?.map(cat => 
+                        React.createElement(Tag, { key: cat, color: 'blue' }, cat)
+                    )
+                }),
+                React.createElement(Column, {
+                    title: '发布状态',
+                    dataIndex: 'status',
+                    key: 'status',
+                    width: 120,
+                    render: (status) => getStatusTag(status)
+                }),
+                React.createElement(Column, {
+                    title: '评论数',
+                    dataIndex: 'commentCount',
+                    key: 'commentCount',
+                    width: 100,
+                    render: (count, record) => React.createElement(Button, {
+                        type: 'link',
+                        onClick: () => handleViewComments(record),
+                        disabled: count === 0
+                    }, count || 0)
+                }),
+                React.createElement(Column, {
+                    title: '创建时间',
+                    dataIndex: 'createTime',
+                    key: 'createTime',
+                    width: 150
+                }),
+                React.createElement(Column, {
+                    title: '操作',
+                    key: 'action',
+                    width: 200,
+                    render: (_, record) => React.createElement(Space, { size: 'small' },
+                        React.createElement(Button, {
+                            type: 'link',
+                            size: 'small',
+                            onClick: () => handleEdit(record)
+                        }, '编辑'),
+                        React.createElement(Popconfirm, {
+                            title: '确定要删除这个产品吗？',
+                            onConfirm: () => handleDelete(record.id),
+                            okText: '确定',
+                            cancelText: '取消'
+                        },
+                            React.createElement(Button, {
+                                type: 'link',
+                                size: 'small',
+                                danger: true
+                            }, '删除')
+                        )
+                    )
+                })
+            )
+        ),
+
+        // 产品编辑Modal
         React.createElement(Modal, {
-            key: 'modal',
-            title: editingProduct ? '编辑产品' : '新建产品',
-            visible: modalVisible,
+            title: editingRecord ? '编辑产品' : '新增产品',
+            open: modalVisible,
             onCancel: () => {
                 setModalVisible(false);
                 form.resetFields();
+                setImageFileList([]);
             },
+            onOk: () => form.submit(),
+            width: 800
+        },
+            React.createElement(Form, {
+                form: form,
+                layout: 'vertical',
+                onFinish: handleSubmit
+            },
+                React.createElement(Form.Item, {
+                    name: 'name',
+                    label: '产品名称',
+                    rules: [{ required: true, message: '请输入产品名称' }]
+                },
+                    React.createElement(Input, { placeholder: '请输入产品名称' })
+                ),
+                React.createElement(Form.Item, {
+                    name: 'category',
+                    label: '产品分类',
+                    rules: [{ required: true, message: '请选择产品分类' }]
+                },
+                    React.createElement(Select, { 
+                        mode: 'tags',
+                        placeholder: '请选择或输入产品分类'
+                    },
+                        React.createElement(Select.Option, { value: '信号系统' }, '信号系统'),
+                        React.createElement(Select.Option, { value: '监控系统' }, '监控系统'),
+                        React.createElement(Select.Option, { value: '智能化' }, '智能化'),
+                        React.createElement(Select.Option, { value: '运营管理' }, '运营管理')
+                    )
+                ),
+                React.createElement(Form.Item, {
+                    name: 'description',
+                    label: '产品简介',
+                    rules: [{ required: true, message: '请输入产品简介' }]
+                },
+                    React.createElement(TextArea, { 
+                        rows: 4,
+                        placeholder: '请详细描述产品的功能特点、技术优势等',
+                        showCount: true,
+                        maxLength: 500
+                    })
+                ),
+                React.createElement(Form.Item, {
+                    label: '产品图片',
+                    help: '最多可上传3张图片，支持拖拽排序'
+                },
+                    React.createElement(Upload, {
+                        ...uploadProps,
+                        fileList: imageFileList,
+                        onChange: ({ fileList }) => setImageFileList(fileList),
+                        maxCount: 3,
+                        multiple: true
+                    },
+                        imageFileList.length >= 3 ? null : React.createElement('div', null,
+                            React.createElement('div', { style: { marginTop: 8 } }, '上传图片')
+                        )
+                    )
+                )
+            )
+        ),
+
+        // 评论管理Modal
+        React.createElement(Modal, {
+            title: `产品评论管理 - ${selectedProduct?.name}`,
+            open: commentModalVisible,
+            onCancel: () => setCommentModalVisible(false),
             footer: null,
             width: 800
-        }, React.createElement(Form, {
-            form: form,
-            layout: 'vertical',
-            onFinish: handleSubmit
-        }, [
-            React.createElement(Row, { key: 'row1', gutter: 16 }, [
-                React.createElement(Col, { key: 'name', span: 12 },
-                    React.createElement(Form.Item, {
-                        name: 'name',
-                        label: '产品名称',
-                        rules: [{ required: true, message: '请输入产品名称' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入产品名称'
-                    }))
+        },
+            selectedProduct ? React.createElement('div', null,
+                React.createElement('p', { style: { marginBottom: 16, color: '#666' } }, 
+                    '以下是用户对该产品的评论，您可以选择展示、隐藏或删除评论，也可以进行回复。'
                 ),
-                React.createElement(Col, { key: 'model', span: 12 },
-                    React.createElement(Form.Item, {
-                        name: 'model',
-                        label: '产品型号',
-                        rules: [{ required: true, message: '请输入产品型号' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入产品型号'
-                    }))
+                mockComments.filter(comment => comment.productId === selectedProduct.id).map(comment =>
+                    React.createElement(Card, {
+                        key: comment.id,
+                        size: 'small',
+                        style: { marginBottom: 12 },
+                        actions: [
+                            React.createElement(Button, { type: 'link', size: 'small' }, '回复'),
+                            React.createElement(Button, { type: 'link', size: 'small' }, 
+                                comment.status === 'show' ? '隐藏' : '展示'
+                            ),
+                            React.createElement(Button, { type: 'link', size: 'small', danger: true }, '删除')
+                        ]
+                    },
+                        React.createElement('div', null,
+                            React.createElement('p', { style: { margin: 0 } }, comment.content),
+                            React.createElement('div', { style: { marginTop: 8, fontSize: '12px', color: '#999' } },
+                                `${comment.userName} · ${comment.createTime}`
+                            )
+                        )
+                    )
                 )
-            ]),
-            
-            React.createElement(Row, { key: 'row2', gutter: 16 }, [
-                React.createElement(Col, { key: 'type', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'type',
-                        label: '产品类型',
-                        rules: [{ required: true, message: '请选择产品类型' }]
-                    }, React.createElement(Select, {
-                        placeholder: '请选择产品类型'
-                    }, [
-                        React.createElement(Option, { key: 'vehicle', value: 'vehicle' }, '车辆'),
-                        React.createElement(Option, { key: 'system', value: 'system' }, '系统'),
-                        React.createElement(Option, { key: 'equipment', value: 'equipment' }, '设备'),
-                        React.createElement(Option, { key: 'component', value: 'component' }, '部件')
-                    ]))
-                ),
-                React.createElement(Col, { key: 'category', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'category',
-                        label: '产品分类',
-                        rules: [{ required: true, message: '请输入产品分类' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入产品分类'
-                    }))
-                ),
-                React.createElement(Col, { key: 'manufacturer', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'manufacturer',
-                        label: '制造商',
-                        rules: [{ required: true, message: '请输入制造商' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入制造商'
-                    }))
-                )
-            ]),
-            
-            React.createElement(Row, { key: 'row3', gutter: 16 }, [
-                React.createElement(Col, { key: 'price', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'price',
-                        label: '价格（元）',
-                        rules: [{ required: true, message: '请输入价格' }]
-                    }, React.createElement(InputNumber, {
-                        style: { width: '100%' },
-                        placeholder: '请输入价格'
-                    }))
-                ),
-                React.createElement(Col, { key: 'warranty', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'warranty',
-                        label: '质保期'
-                    }, React.createElement(Input, {
-                        placeholder: '请输入质保期'
-                    }))
-                ),
-                React.createElement(Col, { key: 'deliveryTime', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'deliveryTime',
-                        label: '交付周期'
-                    }, React.createElement(Input, {
-                        placeholder: '请输入交付周期'
-                    }))
-                )
-            ]),
-            
-            React.createElement(Form.Item, {
-                key: 'specifications',
-                name: 'specifications',
-                label: '产品规格'
-            }, React.createElement(TextArea, {
-                rows: 2,
-                placeholder: '请输入产品规格'
-            })),
-            
-            React.createElement(Form.Item, {
-                key: 'description',
-                name: 'description',
-                label: '产品描述'
-            }, React.createElement(TextArea, {
-                rows: 3,
-                placeholder: '请输入产品描述'
-            })),
-            
-            React.createElement(Row, { key: 'row4', gutter: 16 }, [
-                React.createElement(Col, { key: 'contactPerson', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'contactPerson',
-                        label: '联系人',
-                        rules: [{ required: true, message: '请输入联系人' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入联系人'
-                    }))
-                ),
-                React.createElement(Col, { key: 'phone', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'phone',
-                        label: '联系电话',
-                        rules: [{ required: true, message: '请输入联系电话' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入联系电话'
-                    }))
-                ),
-                React.createElement(Col, { key: 'email', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'email',
-                        label: '邮箱',
-                        rules: [{ required: true, message: '请输入邮箱' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入邮箱'
-                    }))
-                )
-            ]),
-            
-            React.createElement(Form.Item, {
-                key: 'submit',
-                style: { marginBottom: 0, marginTop: 24 }
-            }, React.createElement(Space, {
-                style: { width: '100%', justifyContent: 'flex-end' }
-            }, [
-                React.createElement(Button, {
-                    key: 'cancel',
-                    onClick: () => setModalVisible(false)
-                }, '取消'),
-                React.createElement(Button, {
-                    key: 'confirm',
-                    type: 'primary',
-                    htmlType: 'submit'
-                }, '确定')
-            ]))
-        ]))
-    ]);
-};
+            ) : null
+        )
+    );
+}
 
+// 注册到全局
 window.ProductInfo = ProductInfo; 

@@ -169,7 +169,18 @@ const App = () => {
             'ApprovalLogs': window.ApprovalLogs,
             'AIManagement': window.AIManagement,
             'MenuManagement': window.MenuManagement,
-            'UserProfile': window.UserProfile
+            'UserProfile': window.UserProfile,
+            // 展会管理
+            'ExhibitionList': window.ExhibitionList,
+            'RegistrationManagement': window.RegistrationManagement,
+            'BoothManagement': window.BoothManagement,
+            'ExhibitorDetail': window.ExhibitorDetail,
+            'MeetingActivityManagement': window.MeetingActivityManagement,
+            'RegistrationEntrance': window.RegistrationEntrance,
+            'ExhibitorBasicInfo': window.ExhibitorBasicInfo,
+            'ProductInfo': window.ProductInfo,
+            'ExhibitorActivityInfo': window.ExhibitorActivityInfo,
+            'BusinessMatching': window.BusinessMatching,
         };
 
         // 获取页面组件

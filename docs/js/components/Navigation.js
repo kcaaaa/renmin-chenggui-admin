@@ -46,11 +46,18 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
             icon: '🏢',
             label: '展会管理',
             children: [
-                { key: 'ExhibitionManagement', label: '展会管理', page: 'ExhibitionManagement' },
-                { key: 'RegistrationManagement', label: '报名管理', page: 'RegistrationManagement' },
-                { key: 'BoothManagement', label: '场馆信息', page: 'BoothManagement' },
-                { key: 'ExhibitorQuery', label: '展商详情', page: 'ExhibitorQuery' },
-                { key: 'MeetingActivityManagement', label: '会议活动', page: 'MeetingActivityManagement' },
+                {
+                    key: 'exhibition-manage',
+                    label: '展会管理',
+                    children: [
+                        { key: 'ExhibitionList', label: '展会列表', page: 'ExhibitionList' },
+                        { key: 'RegistrationManagement', label: '报名管理', page: 'RegistrationManagement' },
+                        { key: 'BoothManagement', label: '场馆信息', page: 'BoothManagement' },
+                        { key: 'ExhibitorDetail', label: '展商详情', page: 'ExhibitorDetail' },
+                        { key: 'MeetingActivityManagement', label: '会议活动', page: 'MeetingActivityManagement' },
+                    ]
+                },
+                { key: 'RegistrationEntrance', label: '报名入口', page: 'RegistrationEntrance' },
                 {
                     key: 'exhibitor-info',
                     label: '展商信息',
@@ -58,7 +65,7 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
                         { key: 'ExhibitorBasicInfo', label: '展商基础信息', page: 'ExhibitorBasicInfo' },
                         { key: 'ProductInfo', label: '产品信息', page: 'ProductInfo' },
                         { key: 'ExhibitorActivityInfo', label: '展商活动信息', page: 'ExhibitorActivityInfo' },
-                        { key: 'BusinessMatching', label: '商务配对', page: 'BusinessMatching' }
+                        { key: 'BusinessMatching', label: '商务配对', page: 'BusinessMatching' },
                     ]
                 }
             ]

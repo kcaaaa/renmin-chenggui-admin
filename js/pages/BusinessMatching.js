@@ -1,526 +1,363 @@
-// 商务配对组件
-const BusinessMatching = () => {
-    const { Card, Table, Button, Tag, Space, Statistic, Row, Col, message, Modal, Form, Input, Select, DatePicker, Descriptions } = antd;
-    const { Option } = Select;
+// BusinessMatching.js - 商务配对
+// 展商可发布供需信息，助力商业合作达成
+
+function BusinessMatching() {
+    const { useState, useEffect } = React;
+    const { Card, Table, Button, Modal, Form, Input, Select, Space, message, Popconfirm, Tag, Divider } = antd;
+    const { Column } = Table;
     const { TextArea } = Input;
-    
-    const [loading, setLoading] = React.useState(false);
-    const [matches, setMatches] = React.useState([]);
-    const [modalVisible, setModalVisible] = React.useState(false);
-    const [editingMatch, setEditingMatch] = React.useState(null);
+
+    const [loading, setLoading] = useState(false);
+    const [dataSource, setDataSource] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
-    
-    // 模拟商务配对数据
-    const mockMatches = [
+
+    // 模拟供需信息数据
+    const mockData = [
         {
             id: 1,
-            type: 'supply',
-            title: '智能信号系统供应',
-            company: '中车信号有限公司',
-            contact: '张经理',
-            phone: '13800138001',
-            email: 'zhang@crsc.com',
-            description: '提供城市轨道交通智能信号系统解决方案，包括ATP、ATO、ATS等核心产品',
-            targetCompany: '北京地铁运营有限公司',
-            status: 'active',
-            publishTime: '2024-01-15 10:30',
-            viewCount: 125,
-            contactCount: 8,
-            category: '信号系统',
-            budget: '500-1000万'
+            companyName: '北京城轨科技有限公司',
+            companyIntro: '专业从事城市轨道交通智能化解决方案的研发与实施。',
+            publishTime: '2024-01-15 10:30:00',
+            publisher: '张经理',
+            publisherPhone: '13800138000',
+            publisherEmail: 'zhang@example.com',
+            targetCompany: '上海地铁运营有限公司',
+            negotiationContent: '我们希望与贵公司在智能信号系统领域建立合作关系，可以提供完整的技术解决方案和维护服务。',
+            type: 'supply', // supply 供应, demand 需求
+            status: 'published' // published 已发布, reviewing 审核中
         },
         {
             id: 2,
-            type: 'demand',
-            title: '寻求车辆维护服务',
-            company: '上海地铁维护有限公司',
-            contact: '李主管',
-            phone: '13800138002',
-            email: 'li@shmetro.com',
-            description: '需要专业的地铁车辆维护保养服务，包括日常检修、大修等',
+            companyName: '北京城轨科技有限公司',
+            companyIntro: '专业从事城市轨道交通智能化解决方案的研发与实施。',
+            publishTime: '2024-01-12 14:20:00',
+            publisher: '李总监',
+            publisherPhone: '13900139000',
+            publisherEmail: 'li@example.com',
             targetCompany: '',
-            status: 'active',
-            publishTime: '2024-01-16 14:20',
-            viewCount: 89,
-            contactCount: 5,
-            category: '车辆维护',
-            budget: '200-500万'
-        },
-        {
-            id: 3,
-            type: 'supply',
-            title: '站台屏蔽门系统',
-            company: '康尼机电股份有限公司',
-            contact: '王工程师',
-            phone: '13800138003',
-            email: 'wang@kangni.com',
-            description: '专业生产站台屏蔽门系统，具有完整的产品线和丰富的项目经验',
-            targetCompany: '广州地铁集团',
-            status: 'matched',
-            publishTime: '2024-01-17 09:15',
-            viewCount: 156,
-            contactCount: 12,
-            category: '屏蔽门',
-            budget: '1000-2000万'
-        },
-        {
-            id: 4,
+            negotiationContent: '我们正在寻找轨道交通综合监控平台的合作伙伴，希望能够集成视频监控、环境监测等多项功能。',
             type: 'demand',
-            title: '轨道交通安全监控',
-            company: '深圳地铁运营集团',
-            contact: '陈总监',
-            phone: '13800138004',
-            email: 'chen@szmc.net',
-            description: '需要建设完善的轨道交通安全监控系统，包括视频监控、入侵检测等',
-            targetCompany: '海康威视数字技术股份有限公司',
-            status: 'negotiating',
-            publishTime: '2024-01-18 16:45',
-            viewCount: 203,
-            contactCount: 15,
-            category: '安全监控',
-            budget: '300-800万'
+            status: 'published'
         }
     ];
-    
-    React.useEffect(() => {
-        loadMatches();
+
+    // 模拟系统中的公司列表
+    const mockCompanies = [
+        '上海地铁运营有限公司',
+        '北京地铁运营有限公司',
+        '广州地铁集团有限公司',
+        '深圳市地铁集团有限公司',
+        '成都地铁运营有限公司'
+    ];
+
+    useEffect(() => {
+        loadData();
     }, []);
-    
-    const loadMatches = () => {
+
+    const loadData = () => {
         setLoading(true);
         setTimeout(() => {
-            setMatches(mockMatches);
+            setDataSource(mockData);
             setLoading(false);
-        }, 1000);
+        }, 500);
     };
-    
-    const getTypeTag = (type) => {
-        return type === 'supply' 
-            ? React.createElement(Tag, { color: 'blue' }, '供应')
-            : React.createElement(Tag, { color: 'green' }, '需求');
-    };
-    
-    const getStatusTag = (status) => {
-        const statusMap = {
-            'active': { color: 'processing', text: '进行中' },
-            'matched': { color: 'success', text: '已匹配' },
-            'negotiating': { color: 'warning', text: '洽谈中' },
-            'completed': { color: 'default', text: '已完成' },
-            'cancelled': { color: 'error', text: '已取消' }
-        };
-        const config = statusMap[status] || { color: 'default', text: status };
-        return React.createElement(Tag, { color: config.color }, config.text);
-    };
-    
-    const columns = [
-        {
-            title: '供需信息',
-            key: 'info',
-            render: (_, record) => React.createElement('div', {}, [
-                React.createElement('div', { 
-                    key: 'title',
-                    style: { fontWeight: 'bold', marginBottom: '4px' } 
-                }, record.title),
-                React.createElement('div', { 
-                    key: 'type',
-                    style: { marginBottom: '4px' } 
-                }, getTypeTag(record.type)),
-                React.createElement('div', { 
-                    key: 'category',
-                    style: { color: '#8c8c8c', fontSize: '12px' } 
-                }, `分类：${record.category}`)
-            ])
-        },
-        {
-            title: '发布企业',
-            key: 'company',
-            render: (_, record) => React.createElement('div', {}, [
-                React.createElement('div', { key: 'company' }, record.company),
-                React.createElement('div', { 
-                    key: 'contact',
-                    style: { color: '#8c8c8c', fontSize: '12px' } 
-                }, record.contact)
-            ])
-        },
-        {
-            title: '预算范围',
-            dataIndex: 'budget',
-            key: 'budget'
-        },
-        {
-            title: '状态',
-            dataIndex: 'status',
-            key: 'status',
-            render: getStatusTag
-        },
-        {
-            title: '数据统计',
-            key: 'stats',
-            render: (_, record) => React.createElement('div', {}, [
-                React.createElement('div', { key: 'view' }, `浏览：${record.viewCount}`),
-                React.createElement('div', { 
-                    key: 'contact',
-                    style: { color: '#1890ff' } 
-                }, `联系：${record.contactCount}`)
-            ])
-        },
-        {
-            title: '发布时间',
-            dataIndex: 'publishTime',
-            key: 'publishTime'
-        },
-        {
-            title: '操作',
-            key: 'actions',
-            render: (_, record) => React.createElement(Space, { size: 'small' }, [
-                React.createElement(Button, {
-                    key: 'view',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => viewDetail(record)
-                }, '查看'),
-                React.createElement(Button, {
-                    key: 'edit',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => handleEdit(record)
-                }, '编辑'),
-                React.createElement(Button, {
-                    key: 'contact',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => contactPublisher(record)
-                }, '联系')
-            ])
-        }
-    ];
-    
+
     const handleAdd = () => {
-        setEditingMatch(null);
+        setEditingRecord(null);
         form.resetFields();
+        // 设置默认值
+        form.setFieldsValue({
+            companyName: '北京城轨科技有限公司',
+            companyIntro: '专业从事城市轨道交通智能化解决方案的研发与实施。',
+            publisher: '张经理',
+            publisherPhone: '13800138000',
+            publisherEmail: 'zhang@example.com'
+        });
         setModalVisible(true);
     };
-    
+
     const handleEdit = (record) => {
-        setEditingMatch(record);
+        setEditingRecord(record);
         form.setFieldsValue(record);
         setModalVisible(true);
     };
-    
-    const viewDetail = (record) => {
-        Modal.info({
-            title: `${record.title} - 详细信息`,
-            width: 800,
-            content: React.createElement(Descriptions, {
-                column: 1,
-                bordered: true
-            }, [
-                React.createElement(Descriptions.Item, {
-                    key: 'type',
-                    label: '供需类型'
-                }, getTypeTag(record.type)),
-                React.createElement(Descriptions.Item, {
-                    key: 'company',
-                    label: '发布企业'
-                }, record.company),
-                React.createElement(Descriptions.Item, {
-                    key: 'contact',
-                    label: '联系人'
-                }, record.contact),
-                React.createElement(Descriptions.Item, {
-                    key: 'phone',
-                    label: '联系电话'
-                }, record.phone),
-                React.createElement(Descriptions.Item, {
-                    key: 'email',
-                    label: '邮箱'
-                }, record.email),
-                React.createElement(Descriptions.Item, {
-                    key: 'category',
-                    label: '分类'
-                }, record.category),
-                React.createElement(Descriptions.Item, {
-                    key: 'budget',
-                    label: '预算范围'
-                }, record.budget),
-                React.createElement(Descriptions.Item, {
-                    key: 'target',
-                    label: '目标企业'
-                }, record.targetCompany || '不限'),
-                React.createElement(Descriptions.Item, {
-                    key: 'description',
-                    label: '详细描述'
-                }, record.description),
-                React.createElement(Descriptions.Item, {
-                    key: 'status',
-                    label: '状态'
-                }, getStatusTag(record.status)),
-                React.createElement(Descriptions.Item, {
-                    key: 'publishTime',
-                    label: '发布时间'
-                }, record.publishTime)
-            ])
-        });
-    };
-    
-    const contactPublisher = (record) => {
-        Modal.info({
-            title: '联系发布方',
-            content: React.createElement('div', {}, [
-                React.createElement('p', { key: 'info' }, '您可以通过以下方式联系发布方：'),
-                React.createElement('p', { key: 'contact' }, React.createElement('strong', {}, '联系人：'), record.contact),
-                React.createElement('p', { key: 'phone' }, React.createElement('strong', {}, '电话：'), record.phone),
-                React.createElement('p', { key: 'email' }, React.createElement('strong', {}, '邮箱：'), record.email)
-            ])
-        });
-    };
-    
+
     const handleSubmit = (values) => {
-        console.log('保存商务配对:', values);
-        message.success(editingMatch ? '编辑成功' : '发布成功');
+        const now = new Date().toLocaleString('zh-CN');
+        
+        if (editingRecord) {
+            setDataSource(dataSource.map(item => 
+                item.id === editingRecord.id 
+                    ? { ...item, ...values, updateTime: now }
+                    : item
+            ));
+            message.success('修改成功！已提交审核');
+        } else {
+            const newRecord = {
+                id: Date.now(),
+                ...values,
+                publishTime: now,
+                status: 'reviewing'
+            };
+            setDataSource([...dataSource, newRecord]);
+            message.success('发布成功！已提交审核');
+        }
+        
         setModalVisible(false);
         form.resetFields();
-        loadMatches();
     };
-    
-    const totalMatches = matches.length;
-    const supplyCount = matches.filter(m => m.type === 'supply').length;
-    const demandCount = matches.filter(m => m.type === 'demand').length;
-    const activeCount = matches.filter(m => m.status === 'active').length;
-    
-    return React.createElement('div', { style: { padding: '24px' } }, [
-        React.createElement('div', {
-            key: 'header',
-            style: { marginBottom: 24 }
-        }, [
-            React.createElement('h1', {
-                key: 'title',
-                style: { fontSize: '24px', fontWeight: '600', margin: 0 }
-            }, '商务配对'),
-            React.createElement('p', {
-                key: 'desc',
-                style: { color: '#8c8c8c', marginTop: 8 }
-            }, '展商供需信息发布与匹配平台')
-        ]),
-        
-        React.createElement(Row, {
-            key: 'stats',
-            gutter: 16,
-            style: { marginBottom: 24 }
-        }, [
-            React.createElement(Col, { key: 'total', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '总信息数',
-                        value: totalMatches
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'supply', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '供应信息',
-                        value: supplyCount,
-                        valueStyle: { color: '#1890ff' }
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'demand', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '需求信息',
-                        value: demandCount,
-                        valueStyle: { color: '#52c41a' }
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'active', span: 6 },
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '进行中',
-                        value: activeCount,
-                        valueStyle: { color: '#faad14' }
-                    })
-                )
-            )
-        ]),
-        
+
+    const handleDelete = (id) => {
+        setDataSource(dataSource.filter(item => item.id !== id));
+        message.success('删除成功');
+    };
+
+    const getTypeTag = (type) => {
+        return React.createElement(Tag, { 
+            color: type === 'supply' ? 'green' : 'blue' 
+        }, type === 'supply' ? '供应信息' : '需求信息');
+    };
+
+    const getStatusTag = (status) => {
+        const statusMap = {
+            published: { color: 'success', text: '已发布' },
+            reviewing: { color: 'warning', text: '审核中' },
+            rejected: { color: 'error', text: '已驳回' }
+        };
+        const config = statusMap[status] || statusMap.reviewing;
+        return React.createElement(Tag, { color: config.color }, config.text);
+    };
+
+    return React.createElement('div', { style: { padding: 24 } },
         React.createElement(Card, {
-            key: 'actions',
-            style: { marginBottom: 16 }
-        }, React.createElement(Space, {}, [
-            React.createElement(Button, {
-                key: 'add',
+            title: '商务配对',
+            extra: React.createElement(Button, {
                 type: 'primary',
                 onClick: handleAdd
-            }, '发布供需信息'),
-            React.createElement(Button, {
-                key: 'refresh',
-                onClick: loadMatches
-            }, '刷新'),
-            React.createElement(Select, {
-                key: 'type-filter',
-                placeholder: '类型筛选',
-                style: { width: 120 },
-                allowClear: true
-            }, [
-                React.createElement(Option, { key: 'supply', value: 'supply' }, '供应'),
-                React.createElement(Option, { key: 'demand', value: 'demand' }, '需求')
-            ]),
-            React.createElement(Select, {
-                key: 'status-filter',
-                placeholder: '状态筛选',
-                style: { width: 120 },
-                allowClear: true
-            }, [
-                React.createElement(Option, { key: 'active', value: 'active' }, '进行中'),
-                React.createElement(Option, { key: 'matched', value: 'matched' }, '已匹配'),
-                React.createElement(Option, { key: 'negotiating', value: 'negotiating' }, '洽谈中'),
-                React.createElement(Option, { key: 'completed', value: 'completed' }, '已完成')
-            ])
-        ])),
-        
-        React.createElement(Card, {
-            key: 'table'
-        }, React.createElement(Table, {
-            columns: columns,
-            dataSource: matches,
-            rowKey: 'id',
-            loading: loading,
-            pagination: {
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`
-            }
-        })),
-        
+            }, '发布供需信息')
+        },
+            React.createElement('div', { style: { marginBottom: 16, padding: 16, background: '#f6f8fa', borderRadius: 8 } },
+                React.createElement('h4', { style: { margin: '0 0 8px 0', color: '#1890ff' } }, '功能说明'),
+                React.createElement('p', { style: { margin: 0, color: '#666' } }, 
+                    '您可以在此发布供应或需求信息，寻找合作伙伴。发布的信息将在APP端商务配对板块展示，帮助您与其他展商建立业务联系。信息发布后需要审核，审核通过后正式展示。'
+                )
+            ),
+            
+            React.createElement(Table, {
+                dataSource: dataSource,
+                loading: loading,
+                rowKey: 'id',
+                pagination: { pageSize: 10 },
+                expandable: {
+                    expandedRowRender: (record) => React.createElement('div', { style: { padding: 16 } },
+                        React.createElement('h4', { style: { marginBottom: 8 } }, '洽谈内容'),
+                        React.createElement('p', { style: { margin: 0, lineHeight: '1.6' } }, record.negotiationContent)
+                    ),
+                    rowExpandable: (record) => !!record.negotiationContent
+                }
+            },
+                React.createElement(Column, {
+                    title: '信息类型',
+                    dataIndex: 'type',
+                    key: 'type',
+                    width: 120,
+                    render: (type) => getTypeTag(type)
+                }),
+                React.createElement(Column, {
+                    title: '发布人',
+                    dataIndex: 'publisher',
+                    key: 'publisher',
+                    width: 100
+                }),
+                React.createElement(Column, {
+                    title: '联系方式',
+                    key: 'contact',
+                    width: 200,
+                    render: (_, record) => React.createElement('div', null,
+                        React.createElement('div', null, `手机：${record.publisherPhone}`),
+                        React.createElement('div', null, `邮箱：${record.publisherEmail}`)
+                    )
+                }),
+                React.createElement(Column, {
+                    title: '想约见公司',
+                    dataIndex: 'targetCompany',
+                    key: 'targetCompany',
+                    width: 200,
+                    render: (company) => company || React.createElement('span', { style: { color: '#999' } }, '未指定')
+                }),
+                React.createElement(Column, {
+                    title: '发布状态',
+                    dataIndex: 'status',
+                    key: 'status',
+                    width: 120,
+                    render: (status) => getStatusTag(status)
+                }),
+                React.createElement(Column, {
+                    title: '发布时间',
+                    dataIndex: 'publishTime',
+                    key: 'publishTime',
+                    width: 150
+                }),
+                React.createElement(Column, {
+                    title: '操作',
+                    key: 'action',
+                    width: 200,
+                    render: (_, record) => React.createElement(Space, { size: 'small' },
+                        React.createElement(Button, {
+                            type: 'link',
+                            size: 'small',
+                            onClick: () => handleEdit(record)
+                        }, '编辑'),
+                        React.createElement(Popconfirm, {
+                            title: '确定要删除这条供需信息吗？',
+                            onConfirm: () => handleDelete(record.id),
+                            okText: '确定',
+                            cancelText: '取消'
+                        },
+                            React.createElement(Button, {
+                                type: 'link',
+                                size: 'small',
+                                danger: true
+                            }, '删除')
+                        )
+                    )
+                })
+            )
+        ),
+
+        // 发布/编辑Modal
         React.createElement(Modal, {
-            key: 'modal',
-            title: editingMatch ? '编辑供需信息' : '发布供需信息',
-            visible: modalVisible,
+            title: editingRecord ? '编辑供需信息' : '发布供需信息',
+            open: modalVisible,
             onCancel: () => {
                 setModalVisible(false);
                 form.resetFields();
             },
-            footer: null,
+            onOk: () => form.submit(),
             width: 800
-        }, React.createElement(Form, {
-            form: form,
-            layout: 'vertical',
-            onFinish: handleSubmit
-        }, [
-            React.createElement(Row, { key: 'row1', gutter: 16 }, [
-                React.createElement(Col, { key: 'type', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'type',
-                        label: '供需类型',
-                        rules: [{ required: true, message: '请选择供需类型' }]
-                    }, React.createElement(Select, {
-                        placeholder: '请选择供需类型'
-                    }, [
-                        React.createElement(Option, { key: 'supply', value: 'supply' }, '供应'),
-                        React.createElement(Option, { key: 'demand', value: 'demand' }, '需求')
-                    ]))
+        },
+            React.createElement(Form, {
+                form: form,
+                layout: 'vertical',
+                onFinish: handleSubmit
+            },
+                React.createElement(Form.Item, {
+                    name: 'type',
+                    label: '信息类型',
+                    rules: [{ required: true, message: '请选择信息类型' }]
+                },
+                    React.createElement(Select, { placeholder: '请选择信息类型' },
+                        React.createElement(Select.Option, { value: 'supply' }, '供应信息'),
+                        React.createElement(Select.Option, { value: 'demand' }, '需求信息')
+                    )
                 ),
-                React.createElement(Col, { key: 'category', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'category',
-                        label: '分类',
-                        rules: [{ required: true, message: '请选择分类' }]
-                    }, React.createElement(Select, {
-                        placeholder: '请选择分类'
-                    }, [
-                        React.createElement(Option, { key: 'signal', value: '信号系统' }, '信号系统'),
-                        React.createElement(Option, { key: 'vehicle', value: '车辆维护' }, '车辆维护'),
-                        React.createElement(Option, { key: 'door', value: '屏蔽门' }, '屏蔽门'),
-                        React.createElement(Option, { key: 'security', value: '安全监控' }, '安全监控')
-                    ]))
-                ),
-                React.createElement(Col, { key: 'budget', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'budget',
-                        label: '预算范围',
-                        rules: [{ required: true, message: '请输入预算范围' }]
-                    }, React.createElement(Input, {
-                        placeholder: '如：100-500万'
-                    }))
-                )
-            ]),
-            
-            React.createElement(Form.Item, {
-                key: 'title',
-                name: 'title',
-                label: '标题',
-                rules: [{ required: true, message: '请输入标题' }]
-            }, React.createElement(Input, {
-                placeholder: '请输入供需信息标题'
-            })),
-            
-            React.createElement(Form.Item, {
-                key: 'description',
-                name: 'description',
-                label: '详细描述',
-                rules: [{ required: true, message: '请输入详细描述' }]
-            }, React.createElement(TextArea, {
-                rows: 4,
-                placeholder: '请详细描述供需内容'
-            })),
-            
-            React.createElement(Row, { key: 'row2', gutter: 16 }, [
-                React.createElement(Col, { key: 'contact', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'contact',
-                        label: '联系人',
-                        rules: [{ required: true, message: '请输入联系人' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入联系人'
-                    }))
-                ),
-                React.createElement(Col, { key: 'phone', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'phone',
-                        label: '联系电话',
-                        rules: [{ required: true, message: '请输入联系电话' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入联系电话'
-                    }))
-                ),
-                React.createElement(Col, { key: 'email', span: 8 },
-                    React.createElement(Form.Item, {
-                        name: 'email',
-                        label: '邮箱',
-                        rules: [{ required: true, message: '请输入邮箱' }]
-                    }, React.createElement(Input, {
-                        placeholder: '请输入邮箱'
-                    }))
-                )
-            ]),
-            
-            React.createElement(Form.Item, {
-                key: 'targetCompany',
-                name: 'targetCompany',
-                label: '目标企业（可选）'
-            }, React.createElement(Input, {
-                placeholder: '如有特定目标企业，请填写'
-            })),
-            
-            React.createElement(Form.Item, {
-                key: 'submit',
-                style: { marginBottom: 0, marginTop: 24 }
-            }, React.createElement(Space, {
-                style: { width: '100%', justifyContent: 'flex-end' }
-            }, [
-                React.createElement(Button, {
-                    key: 'cancel',
-                    onClick: () => setModalVisible(false)
-                }, '取消'),
-                React.createElement(Button, {
-                    key: 'confirm',
-                    type: 'primary',
-                    htmlType: 'submit'
-                }, '确定')
-            ]))
-        ]))
-    ]);
-};
 
+                React.createElement(Divider, { children: '公司信息' }),
+
+                React.createElement(Form.Item, {
+                    name: 'companyName',
+                    label: '发布公司名称',
+                    rules: [{ required: true, message: '请输入公司名称' }]
+                },
+                    React.createElement(Input, { 
+                        placeholder: '请输入公司名称',
+                        disabled: true,
+                        style: { background: '#f5f5f5' }
+                    })
+                ),
+
+                React.createElement(Form.Item, {
+                    name: 'companyIntro',
+                    label: '公司介绍',
+                    rules: [{ required: true, message: '请输入公司介绍' }]
+                },
+                    React.createElement(TextArea, { 
+                        rows: 3,
+                        placeholder: '请简要介绍贵公司的业务范围和优势',
+                        showCount: true,
+                        maxLength: 200
+                    })
+                ),
+
+                React.createElement(Divider, { children: '联系信息' }),
+
+                React.createElement('div', { style: { display: 'flex', gap: 16 } },
+                    React.createElement('div', { style: { flex: 1 } },
+                        React.createElement(Form.Item, {
+                            name: 'publisher',
+                            label: '发布人',
+                            rules: [{ required: true, message: '请输入发布人姓名' }]
+                        },
+                            React.createElement(Input, { placeholder: '请输入发布人姓名' })
+                        )
+                    ),
+                    React.createElement('div', { style: { flex: 1 } },
+                        React.createElement(Form.Item, {
+                            name: 'publisherPhone',
+                            label: '联系电话',
+                            rules: [{ required: true, message: '请输入联系电话' }]
+                        },
+                            React.createElement(Input, { 
+                                placeholder: '请输入联系电话',
+                                disabled: true,
+                                style: { background: '#f5f5f5' }
+                            })
+                        )
+                    )
+                ),
+
+                React.createElement(Form.Item, {
+                    name: 'publisherEmail',
+                    label: '联系邮箱',
+                    rules: [
+                        { required: true, message: '请输入联系邮箱' },
+                        { type: 'email', message: '请输入有效的邮箱地址' }
+                    ]
+                },
+                    React.createElement(Input, { placeholder: '请输入联系邮箱' })
+                ),
+
+                React.createElement(Form.Item, {
+                    name: 'targetCompany',
+                    label: '想约见公司',
+                    help: '非必选，如果您希望与特定公司洽谈，可以选择该公司'
+                },
+                    React.createElement(Select, { 
+                        placeholder: '请选择想约见的公司（可留空）',
+                        allowClear: true,
+                        showSearch: true,
+                        filterOption: (input, option) =>
+                            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                    },
+                        mockCompanies.map(company => 
+                            React.createElement(Select.Option, { 
+                                key: company, 
+                                value: company 
+                            }, company)
+                        )
+                    )
+                ),
+
+                React.createElement(Divider, { children: '洽谈内容' }),
+
+                React.createElement(Form.Item, {
+                    name: 'negotiationContent',
+                    label: '洽谈内容',
+                    rules: [{ required: true, message: '请输入洽谈内容' }]
+                },
+                    React.createElement(TextArea, { 
+                        rows: 5,
+                        placeholder: '请详细描述您的需求或供应内容，包括具体的产品/服务、合作方式、技术要求等',
+                        showCount: true,
+                        maxLength: 500
+                    })
+                )
+            )
+        )
+    );
+}
+
+// 注册到全局
 window.BusinessMatching = BusinessMatching; 
