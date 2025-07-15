@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -577,35 +577,50 @@
     </div>
 
     <!-- React and dependencies -->
-    <script crossorigin src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/moment@2.29.4/moment.js"></script>
-    <script src="https://unpkg.com/antd@4.24.15/dist/antd-with-locales.min.js"></script>
-    <script src="https://unpkg.com/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd-with-locales.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 
-    <!-- Application Scripts -->
-    <!-- 工具类 -->
+    <!-- Application Scripts - 根据实际存在的文件优化加载顺序 -->
+    
+    <!-- 工具类 - 必须最先加载 -->
     <script src="js/utils/mockData.js"></script>
     <script src="js/utils/auth.js"></script>
     
-    <!-- 基础组件 -->
+    <!-- 基础组件 - 依赖工具类 -->
     <script src="js/components/ErrorBoundary.js"></script>
     <script src="js/components/LoginPage.js"></script>
     <script src="js/components/Navigation.js"></script>
     <script src="js/components/TopBar.js"></script>
     
-    <!-- 页面组件 -->
+    <!-- 页面组件 - 按文档功能模块分组，只引用实际存在的文件 -->
+    
+    <!-- 系统首页 -->
     <script src="js/pages/Dashboard.js"></script>
+    
+    <!-- 1. 内容管理 -->
     <script src="js/pages/ContentPublish.js"></script>
     <script src="js/pages/ContentList.js"></script>
+    
+    <!-- 2. 投诉管理 -->
     <script src="js/pages/ComplaintManagement.js"></script>
+    
+    <!-- 3. 标签管理 -->
     <script src="js/pages/TagManagement.js"></script>
+    
+    <!-- 4. 审核管理 -->
     <script src="js/pages/AIReview.js"></script>
     <script src="js/pages/ReviewManagement.js"></script>
     <script src="js/pages/ApprovalProcessManagement.js"></script>
     <script src="js/pages/AuditFlowManagement.js"></script>
+    
+    <!-- 5. 展会管理（核心模块） -->
     <script src="js/pages/ExhibitionManagement.js"></script>
+    <script src="js/pages/ExhibitionList.js"></script>
     <script src="js/pages/RegistrationManagement.js"></script>
+    <script src="js/pages/RegistrationEntrance.js"></script>
     <script src="js/pages/BoothManagement.js"></script>
     <script src="js/pages/ExhibitorQuery.js"></script>
     <script src="js/pages/MeetingActivityManagement.js"></script>
@@ -613,6 +628,8 @@
     <script src="js/pages/ProductInfo.js"></script>
     <script src="js/pages/ExhibitorActivityInfo.js"></script>
     <script src="js/pages/BusinessMatching.js"></script>
+    
+    <!-- 6. 运营管理 -->
     <script src="js/pages/UserAnalysis.js"></script>
     <script src="js/pages/OperationalStats.js"></script>
     <script src="js/pages/DataAnalysis.js"></script>
@@ -621,6 +638,8 @@
     <script src="js/pages/BehaviorStats.js"></script>
     <script src="js/pages/DataManagement.js"></script>
     <script src="js/pages/FeedbackManagement.js"></script>
+    
+    <!-- 7. 系统管理 -->
     <script src="js/pages/UserManagement.js"></script>
     <script src="js/pages/OrganizationManagement.js"></script>
     <script src="js/pages/RoleManagement.js"></script>
@@ -631,19 +650,6 @@
     <script src="js/pages/AIManagement.js"></script>
     <script src="js/pages/MenuManagement.js"></script>
     <script src="js/pages/UserProfile.js"></script>
-    <script src="js/pages/ContentManagement.js"></script>
-    <script src="js/pages/AdminManagement.js"></script>
-    <script src="js/pages/LiveManagement.js"></script>
-    <script src="js/pages/MessageManagement.js"></script>
-    <script src="js/pages/VersionManagement.js"></script>
-    <script src="js/pages/ExhibitionReview.js"></script>
-    <script src="js/pages/AppVersionManagement.js"></script>
-    <script src="js/pages/ExhibitorCenter.js"></script>
-    <script src="js/pages/LiveServiceDescription.js"></script>
-    <script src="js/pages/AdManagement.js"></script>
-    <script src="js/pages/SupplyDemandManagement.js"></script>
-    <script src="js/pages/PermissionManagement.js"></script>
-    <script src="js/pages/ExhibitorManagement.js"></script>
     
     <!-- 主应用 - 必须最后加载 -->
     <script src="js/App.js?v=20250114-complete"></script>
@@ -789,3 +795,4 @@
     </script>
 </body>
 </html> 
+
