@@ -1,4 +1,13 @@
- // 人民城轨2.0运营管理后台 - 主应用组件（修复版）
+// 人民城轨2.0运营管理后台 - 主应用组件
+// 版本: v2.1-force-refresh-20250118
+// 最后更新: 2025-01-18 - 强制GitHub Pages缓存刷新
+
+const { useState, useEffect, createElement: h } = React;
+
+// 应用版本信息
+const APP_VERSION = 'v2.1-force-refresh-20250118';
+const BUILD_TIME = new Date().toISOString();
+
 const App = () => {
     console.log('🚀 App组件开始渲染 - 版本 20250118-user-management-upgrade');
     
