@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>清除缓存 - 人民城轨2.0</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; text-align: center; background: #f0f2f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .btn { padding: 12px 24px; margin: 10px; background: #1890ff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        .btn:hover { background: #0050b3; }
+        .status { margin: 20px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #f6ffed; border: 1px solid #b7eb8f; color: #52c41a; }
+        .info { background: #e6f7ff; border: 1px solid #91d5ff; color: #1890ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚇 人民城轨2.0</h1>
+        <h2>缓存清除工具</h2>
+        
+        <div class="status info">
+            <strong>用户管理模块已升级完成</strong><br>
+            版本：20250118-user-management-upgrade<br>
+            新增：三种用户类型管理、组织结构分类、批量操作、权限配置
+        </div>
+        
+        <p>如果您看不到最新的系统管理功能，请执行以下步骤：</p>
+        
+        <button class="btn" onclick="clearCacheAndReload()">🔄 清除缓存并重新加载</button>
+        <button class="btn" onclick="hardRefresh()">💪 强制刷新</button>
+        <button class="btn" onclick="goToMain()">🏠 返回主页</button>
+        
+        <div id="status"></div>
+        
+        <h3>手动清除步骤：</h3>
+        <ol style="text-align: left; max-width: 400px; margin: 0 auto;">
+            <li>按 <code>Ctrl + Shift + Delete</code>（Windows）或 <code>Cmd + Shift + Delete</code>（Mac）</li>
+            <li>选择 "缓存的图片和文件"</li>
+            <li>点击 "清除数据"</li>
+            <li>刷新页面</li>
+        </ol>
+        
+        <p style="margin-top: 30px; color: #666; font-size: 14px;">
+            或者尝试使用隐私模式/无痕模式访问系统
+        </p>
+    </div>
+    
+    <script>
+        function clearCacheAndReload() {
+            const status = document.getElementById('status');
+            status.innerHTML = '<div class="status info">正在清除缓存...</div>';
+            
+            // 尝试使用服务工作者清除缓存
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    return Promise.all(
+                        names.map(name => caches.delete(name))
+                    );
+                }).then(() => {
+                    status.innerHTML = '<div class="status success">缓存已清除，正在重新加载...</div>';
+                    setTimeout(() => {
+                        window.location.href = '/?_t=' + Date.now();
+                    }, 1000);
+                });
+            } else {
+                // 降级方案：添加时间戳重新加载
+                status.innerHTML = '<div class="status info">正在重新加载...</div>';
+                setTimeout(() => {
+                    window.location.href = '/?_t=' + Date.now();
+                }, 500);
+            }
+        }
+        
+        function hardRefresh() {
+            // 强制刷新（绕过缓存）
+            window.location.reload(true);
+        }
+        
+        function goToMain() {
+            window.location.href = '/?_t=' + Date.now();
+        }
+        
+        // 显示当前时间戳
+        document.addEventListener('DOMContentLoaded', function() {
+            const timestamp = new Date().toLocaleString();
+            console.log('缓存清除页面加载时间:', timestamp);
+        });
+    </script>
+</body>
+</html> 

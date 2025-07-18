@@ -148,66 +148,28 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
             icon: React.createElement('i', { className: 'anticon' }, '📊'),
             label: '运营管理',
             children: [
-                {
-                    key: 'operational-stats',
-                    label: '运营数据统计',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📈'),
-                    children: [
-                        { 
-                            key: 'UserAnalysis', 
-                            label: '用户分析', 
-                            page: 'UserAnalysis',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'OperationalStats', 
-                            label: 'APP行为统计', 
-                            page: 'OperationalStats',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'DataAnalysis', 
-                            label: '功能使用分析', 
-                            page: 'DataAnalysis',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'BehaviorAnalysis', 
-                            label: '异常情况统计', 
-                            page: 'BehaviorAnalysis',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        }
-                    ]
-                },
-                {
-                    key: 'user-behavior-stats',
-                    label: '用户行为统计',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📊'),
-                    children: [
-                        { 
-                            key: 'UserBehaviorStats', 
-                            label: '数据概览', 
-                            page: 'UserBehaviorStats',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'BehaviorStats', 
-                            label: '基础行为统计', 
-                            page: 'BehaviorStats',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'DataManagement', 
-                            label: '深度行为统计', 
-                            page: 'DataManagement',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        }
-                    ]
+                { 
+                    key: 'OperationalDataStats', 
+                    label: '运营数据统计', 
+                    page: 'OperationalDataStats',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📈')
                 },
                 { 
-                    key: 'FeedbackManagement', 
+                    key: 'UserBehaviorStats', 
+                    label: '用户行为统计', 
+                    page: 'UserBehaviorStats',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📊')
+                },
+                { 
+                    key: 'SystemResourceMonitor', 
+                    label: '系统资源监控', 
+                    page: 'SystemResourceMonitor',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🖥️')
+                },
+                { 
+                    key: 'SystemFeedbackList', 
                     label: '系统反馈列表', 
-                    page: 'FeedbackManagement',
+                    page: 'SystemFeedbackList',
                     icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '💬')
                 }
             ]
@@ -217,22 +179,86 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
             icon: React.createElement('i', { className: 'anticon' }, '⚙️'),
             label: '系统管理',
             children: [
-                { key: 'UserManagement', label: '用户管理', page: 'UserManagement' },
-                { key: 'OrganizationManagement', label: '组织结构', page: 'OrganizationManagement'},
-                { key: 'RoleManagement', label: '角色管理', page: 'RoleManagement' },
+                { 
+                    key: 'UserManagement', 
+                    label: '用户管理', 
+                    page: 'UserManagement',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '👥')
+                },
+                { 
+                    key: 'OrganizationManagement', 
+                    label: '组织结构', 
+                    page: 'OrganizationManagement',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🏛️')
+                },
+                { 
+                    key: 'RoleManagement', 
+                    label: '角色管理', 
+                    page: 'RoleManagement',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🛡️')
+                },
                 {
                     key: 'log-management',
                     label: '日志管理',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📋'),
                     children: [
-                        { key: 'LogManagement', label: '用户操作日志', page: 'LogManagement' },
-                        { key: 'LoginLogoutLogs', label: '登录登出日志', page: 'LoginLogoutLogs' },
-                        { key: 'ContentPublishLogs', label: '作品发布日志', page: 'ContentPublishLogs' },
-                        { key: 'ApprovalLogs', label: '审批日志', page: 'ApprovalLogs' },
+                        { 
+                            key: 'UserOperationLogs', 
+                            label: '用户操作日志', 
+                            page: 'UserOperationLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🔧')
+                        },
+                        { 
+                            key: 'LoginLogoutLogs', 
+                            label: '登录登出日志', 
+                            page: 'LoginLogoutLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🚪')
+                        },
+                        { 
+                            key: 'ContentPublishLogs', 
+                            label: '作品发布日志', 
+                            page: 'ContentPublishLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '📝')
+                        },
+                        { 
+                            key: 'ApprovalLogs', 
+                            label: '审批日志', 
+                            page: 'ApprovalLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '✅')
+                        },
                     ]
                 },
-                { key: 'AIManagement', label: 'AI管理', page: 'AIManagement' },
-                { key: 'MenuManagement', label: '菜单管理', page: 'MenuManagement' },
-                { key: 'UserProfile', label: '个人中心', page: 'UserProfile' },
+                {
+                    key: 'ai-management',
+                    label: 'AI管理',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🤖'),
+                    children: [
+                        { 
+                            key: 'AgentManagement', 
+                            label: '智能体管理', 
+                            page: 'AgentManagement',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🎭')
+                        },
+                        { 
+                            key: 'KnowledgeBaseManagement', 
+                            label: '知识库管理', 
+                            page: 'KnowledgeBaseManagement',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '📚')
+                        }
+                    ]
+                },
+                { 
+                    key: 'MenuManagement', 
+                    label: '菜单管理', 
+                    page: 'MenuManagement',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🗂️')
+                },
+                { 
+                    key: 'UserProfile', 
+                    label: '个人中心', 
+                    page: 'UserProfile',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '👤')
+                },
             ],
         }
     ];

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>组件测试诊断</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #f6ffed; border: 1px solid #b7eb8f; color: #52c41a; }
+        .error { background: #fff2f0; border: 1px solid #ffccc7; color: #ff4d4f; }
+        .warning { background: #fffbe6; border: 1px solid #ffe58f; color: #faad14; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚇 人民城轨2.0 - 组件诊断测试</h1>
+    <div id="loading">正在加载依赖...</div>
+    <div id="results" style="display: none;"></div>
+    
+    <!-- 加载依赖 -->
+    <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/antd@4.24.15/dist/antd-with-locales.min.js"></script>
+    
+    <!-- 测试基础工具 -->
+    <script src="js/utils/mockData.js"></script>
+    <script src="js/utils/auth.js"></script>
+    
+    <!-- 加载新组件 -->
+    <script src="js/pages/LoginLogoutLogs.js"></script>
+    <script src="js/pages/ContentPublishLogs.js"></script>
+    <script src="js/pages/ApprovalLogs.js"></script>
+    <script src="js/pages/AgentManagement.js"></script>
+    <script src="js/pages/KnowledgeBaseManagement.js"></script>
+    
+    <script>
+        // 等待所有脚本加载完成
+        window.addEventListener('load', function() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            
+            const results = document.getElementById('results');
+            
+            // 检查基础依赖
+            let html = '<h2>📋 基础依赖检查</h2>';
+            
+            const dependencies = {
+                'React': typeof React !== 'undefined',
+                'ReactDOM': typeof ReactDOM !== 'undefined', 
+                'Ant Design': typeof antd !== 'undefined',
+                'AuthUtils': typeof window.AuthUtils !== 'undefined',
+                'MockData': typeof window.MockData !== 'undefined'
+            };
+            
+            for (const [name, status] of Object.entries(dependencies)) {
+                const statusClass = status ? 'success' : 'error';
+                const statusIcon = status ? '✅' : '❌';
+                html += `<div class="status ${statusClass}">${statusIcon} ${name}: ${status ? '已加载' : '未加载'}</div>`;
+            }
+            
+            // 检查组件
+            html += '<h2>🔧 组件加载检查</h2>';
+            const components = [
+                'LoginLogoutLogs',
+                'ContentPublishLogs', 
+                'ApprovalLogs',
+                'AgentManagement',
+                'KnowledgeBaseManagement'
+            ];
+            
+            let componentErrors = [];
+            
+            components.forEach(name => {
+                const exists = window[name];
+                const statusClass = exists ? 'success' : 'error';
+                const statusIcon = exists ? '✅' : '❌';
+                html += `<div class="status ${statusClass}">${statusIcon} ${name}: ${exists ? '已加载' : '未加载'}</div>`;
+                
+                if (exists) {
+                    // 尝试实例化组件
+                    try {
+                        const testInstance = React.createElement(window[name]);
+                        html += `<div class="status success">   └─ ${name} 可以实例化</div>`;
+                    } catch (error) {
+                        html += `<div class="status error">   └─ ${name} 实例化失败: ${error.message}</div>`;
+                        componentErrors.push(`${name}: ${error.message}`);
+                    }
+                }
+            });
+            
+            // 检查全局错误
+            html += '<h2>🐛 错误检查</h2>';
+            
+            if (window.componentLoadErrors && window.componentLoadErrors.length > 0) {
+                html += '<div class="status error">发现组件加载错误:</div>';
+                window.componentLoadErrors.forEach(error => {
+                    html += `<div class="status error">❌ ${error}</div>`;
+                });
+            }
+            
+            if (componentErrors.length > 0) {
+                html += '<div class="status error">发现组件实例化错误:</div>';
+                componentErrors.forEach(error => {
+                    html += `<div class="status error">❌ ${error}</div>`;
+                });
+            }
+            
+            if (window.componentLoadErrors?.length === 0 && componentErrors.length === 0) {
+                html += '<div class="status success">✅ 未发现错误</div>';
+            }
+            
+            // 显示环境信息
+            html += '<h2>🌐 环境信息</h2>';
+            html += `<pre>
+用户代理: ${navigator.userAgent}
+当前URL: ${window.location.href}
+时间戳: ${new Date().toISOString()}
+React版本: ${React.version || '未知'}
+            </pre>`;
+            
+            results.innerHTML = html;
+        });
+        
+        // 全局错误捕获
+        window.componentLoadErrors = [];
+        
+        window.addEventListener('error', function(e) {
+            window.componentLoadErrors.push(`JavaScript错误: ${e.error?.message || e.message} (${e.filename}:${e.lineno})`);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            window.componentLoadErrors.push(`Promise错误: ${e.reason}`);
+        });
+    </script>
+</body>
+</html> 
