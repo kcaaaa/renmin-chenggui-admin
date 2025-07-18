@@ -4,9 +4,69 @@
 
 - **仓库地址**: https://github.com/kcaaaa/renmin-chenggui-admin.git
 - **部署日期**: 2025-01-18
-- **版本**: v2.1 - 用户管理升级版
+- **版本**: v2.2 - 强制缓存刷新部署
 - **部署方式**: GitHub Pages
 - **演示地址**: https://kcaaaa.github.io/renmin-chenggui-admin/
+
+## ⚠️ 重要：缓存问题解决方案
+
+### 🔍 问题识别
+在v2.1部署后发现GitHub Pages仍显示旧版本页面，这是由于以下缓存机制导致：
+
+1. **GitHub Pages CDN缓存**: GitHub Pages使用CDN缓存静态文件
+2. **浏览器缓存**: 用户浏览器缓存了旧版本文件
+3. **DNS缓存**: DNS解析可能仍指向旧版本
+
+### 🛠️ 解决方案
+
+#### 已实施的技术方案
+1. **强制缓存失效**: 在index.html添加meta标签
+   ```html
+   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+   <meta http-equiv="Pragma" content="no-cache">
+   <meta http-equiv="Expires" content="0">
+   ```
+
+2. **版本号更新**: App.js更新版本号为`v2.1-force-refresh-20250118`
+
+3. **URL参数强制刷新**: 
+   ```html
+   <script src="js/App.js?v=20250118-force-refresh&t=1737192000"></script>
+   ```
+
+4. **空提交触发**: 使用空提交强制GitHub Pages重新构建
+
+#### 用户访问建议
+1. **强制刷新**: 按 `Ctrl + F5` 或 `Cmd + Shift + R`
+2. **清除缓存**: 手动清除浏览器缓存
+3. **隐私模式**: 使用浏览器隐私/无痕模式访问
+4. **缓存工具**: 访问 `/clear_cache.html` 进行缓存清理
+
+### 📚 今后避免缓存问题的方法
+
+#### 开发阶段
+1. **版本控制**: 每次重大更新都使用新的版本号
+2. **文件名版本化**: 重要文件使用哈希或时间戳
+3. **渐进发布**: 分阶段发布功能，避免大批量更新
+
+#### 部署阶段
+1. **空提交强制部署**: 
+   ```bash
+   git commit --allow-empty -m "Force GitHub Pages rebuild"
+   git push origin main
+   ```
+
+2. **版本参数**: 关键文件始终带版本参数
+   ```html
+   <script src="js/App.js?v=YYYYMMDD-DESCRIPTION"></script>
+   ```
+
+3. **缓存策略**: 设置合适的缓存控制头
+
+#### 用户通知
+1. **更新通知**: 在重大更新后通知用户清除缓存
+2. **工具页面**: 提供专门的缓存清理工具
+3. **版本信息**: 在页面显示当前版本号
 
 ## ✅ 部署完成确认
 

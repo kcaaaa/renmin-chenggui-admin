@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>强制刷新 - 人民城轨2.0</title>
+    
+    <!-- 强制禁用缓存 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .refresh-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 16px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        .refresh-actions {
+            display: grid;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .refresh-btn {
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .refresh-btn:hover {
+            background: #0066cc;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(24, 144, 255, 0.3);
+        }
+        
+        .refresh-btn.secondary {
+            background: #52c41a;
+        }
+        
+        .refresh-btn.secondary:hover {
+            background: #389e0d;
+            box-shadow: 0 8px 16px rgba(82, 196, 26, 0.3);
+        }
+        
+        .instructions {
+            background: #f6f8fa;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+        
+        .instructions ol {
+            color: #666;
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .version-info {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #0050b3;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online { background: #52c41a; }
+        .status-offline { background: #ff4d4f; }
+        
+        @media (max-width: 576px) {
+            .refresh-container {
+                padding: 24px;
+            }
+            
+            .icon {
+                font-size: 48px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="refresh-container">
+        <div class="icon">🔄</div>
+        <h1>强制刷新页面</h1>
+        <p class="subtitle">
+            如果您看到的是旧版本页面，请使用以下方法强制刷新以获取最新版本
+        </p>
+        
+        <div class="version-info">
+            <strong>🚀 最新版本:</strong> v2.2 - 强制缓存刷新部署<br>
+            <strong>📅 更新时间:</strong> 2025-01-18<br>
+            <strong>🌐 服务状态:</strong> <span class="status-indicator status-online"></span>在线运行
+        </div>
+        
+        <div class="refresh-actions">
+            <button class="refresh-btn" onclick="forceRefresh()">
+                🔄 强制刷新当前页面
+            </button>
+            
+            <a href="../index.html?_refresh=" class="refresh-btn secondary">
+                🏠 返回主页面 (带刷新参数)
+            </a>
+            
+            <button class="refresh-btn" onclick="clearCacheAndReload()">
+                🗑️ 清除缓存并重新加载
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 手动刷新指南</h3>
+            <ol>
+                <li><strong>Windows:</strong> 按 <code>Ctrl + F5</code> 或 <code>Ctrl + Shift + R</code></li>
+                <li><strong>Mac:</strong> 按 <code>Cmd + Shift + R</code></li>
+                <li><strong>手机:</strong> 长按刷新按钮，选择"硬重新加载"</li>
+                <li><strong>彻底清除:</strong> 打开开发者工具 → Network → 勾选"Disable cache" → 刷新</li>
+            </ol>
+        </div>
+        
+        <div class="instructions">
+            <h3>🛠️ 浏览器缓存清除方法</h3>
+            <ol>
+                <li>按 <code>Ctrl + Shift + Delete</code> (Windows) 或 <code>Cmd + Shift + Delete</code> (Mac)</li>
+                <li>选择清除"缓存的图片和文件"</li>
+                <li>选择时间范围为"最近1小时"或"全部时间"</li>
+                <li>点击"清除数据"按钮</li>
+                <li>重新访问页面</li>
+            </ol>
+        </div>
+        
+        <p style="color: #666; font-size: 14px; margin-top: 24px;">
+            如果仍然遇到问题，请尝试使用浏览器的隐私/无痕模式访问，或联系技术支持。
+        </p>
+    </div>
+    
+    <script>
+        // 强制刷新功能
+        function forceRefresh() {
+            // 添加随机参数强制刷新
+            const url = new URL(window.location);
+            url.searchParams.set('_refresh', Date.now());
+            window.location.href = url.toString();
+        }
+        
+        // 清除缓存并重新加载
+        function clearCacheAndReload() {
+            // 清除本地存储
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // 尝试清除缓存 (需要浏览器支持)
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) {
+                        caches.delete(name);
+                    }
+                });
+            }
+            
+            // 强制重新加载
+            setTimeout(() => {
+                window.location.href = '../index.html?_clear=' + Date.now();
+            }, 500);
+        }
+        
+        // 自动检测版本
+        function checkVersion() {
+            fetch('../index.html?_check=' + Date.now())
+                .then(response => response.text())
+                .then(html => {
+                    if (html.includes('v2.1-force-refresh-20250118')) {
+                        console.log('✅ 最新版本已部署');
+                    } else {
+                        console.log('⚠️ 可能仍在使用缓存版本');
+                    }
+                })
+                .catch(err => {
+                    console.log('⚠️ 版本检测失败:', err);
+                });
+        }
+        
+        // 页面加载时检测版本
+        checkVersion();
+        
+        // 每30秒检测一次
+        setInterval(checkVersion, 30000);
+    </script>
+</body>
+</html> 
