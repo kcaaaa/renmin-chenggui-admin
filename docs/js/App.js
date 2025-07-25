@@ -1,6 +1,15 @@
- // 人民城轨2.0运营管理后台 - 主应用组件（修复版）
+// 人民城轨2.0运营管理后台 - 主应用组件
+// 版本: v2.1-force-refresh-20250118
+// 最后更新: 2025-01-18 - 强制GitHub Pages缓存刷新
+
+const { useState, useEffect, createElement: h } = React;
+
+// 应用版本信息
+const APP_VERSION = 'v2.1-force-refresh-20250118';
+const BUILD_TIME = new Date().toISOString();
+
 const App = () => {
-    console.log('🚀 App组件开始渲染');
+    console.log('🚀 App组件开始渲染 - 版本 20250118-user-management-upgrade');
     
     // 检查Ant Design是否正确加载
     if (!window.antd) {
@@ -125,6 +134,7 @@ const App = () => {
             // 1. 内容管理
             'ContentPublish': window.ContentPublish,
             'ContentList': window.ContentList,
+            'ContentManagement': window.ContentManagement,
             
             // 2. 投诉管理
             'ComplaintManagement': window.ComplaintManagement,
@@ -145,11 +155,16 @@ const App = () => {
             'ExhibitorQuery': window.ExhibitorQuery,
             'MeetingActivityManagement': window.MeetingActivityManagement,
             'ExhibitorBasicInfo': window.ExhibitorBasicInfo,
-            'ProductInfo': window.ProductInfo,
             'ExhibitorActivityInfo': window.ExhibitorActivityInfo,
             'BusinessMatching': window.BusinessMatching,
             
             // 6. 运营管理
+            'OperationalDataStats': window.OperationalDataStats,
+            'UserBehaviorStats': window.UserBehaviorStats,
+            'SystemResourceMonitor': window.SystemResourceMonitor,
+            'SystemFeedbackList': window.SystemFeedbackList,
+            
+            // 保留原有的用户分析页面
             'UserAnalysis': window.UserAnalysis,
             'OperationalStats': window.OperationalStats,
             'DataAnalysis': window.DataAnalysis,
@@ -163,24 +178,21 @@ const App = () => {
             'UserManagement': window.UserManagement,
             'OrganizationManagement': window.OrganizationManagement,
             'RoleManagement': window.RoleManagement,
-            'LogManagement': window.LogManagement,
+            // 日志管理子页面
+            'UserOperationLogs': window.LogManagement, // 用户操作日志 - 复用LogManagement
             'LoginLogoutLogs': window.LoginLogoutLogs,
             'ContentPublishLogs': window.ContentPublishLogs,
             'ApprovalLogs': window.ApprovalLogs,
-            'AIManagement': window.AIManagement,
+            // AI管理子页面
+            'AgentManagement': window.AgentManagement,
+            'KnowledgeBaseManagement': window.KnowledgeBaseManagement,
             'MenuManagement': window.MenuManagement,
             'UserProfile': window.UserProfile,
-            // 展会管理
+            // 展会管理 - 补充的展会管理页面
             'ExhibitionList': window.ExhibitionList,
-            'RegistrationManagement': window.RegistrationManagement,
-            'BoothManagement': window.BoothManagement,
-            'ExhibitorDetail': window.ExhibitorDetail,
-            'MeetingActivityManagement': window.MeetingActivityManagement,
             'RegistrationEntrance': window.RegistrationEntrance,
-            'ExhibitorBasicInfo': window.ExhibitorBasicInfo,
-            'ProductInfo': window.ProductInfo,
-            'ExhibitorActivityInfo': window.ExhibitorActivityInfo,
-            'BusinessMatching': window.BusinessMatching,
+            'ExhibitorDetail': window.ExhibitorDetail,
+            'ExhibitorDetailView': window.ExhibitorDetailView
         };
 
         // 获取页面组件

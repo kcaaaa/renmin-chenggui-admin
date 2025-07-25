@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="version" content="2.1-layout-optimized">
-    <title>人民城轨2.0运营管理后台</title>
+    <title>人民城轨管理系统</title>
+    
+    <!-- 强制缓存失效 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- CDN 依赖 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚇</text></svg>">
     
     <!-- Ant Design CSS -->
@@ -605,6 +611,7 @@
     <!-- 1. 内容管理 -->
     <script src="js/pages/ContentPublish.js"></script>
     <script src="js/pages/ContentList.js"></script>
+    <script src="js/pages/ContentManagement.js"></script>
     
     <!-- 2. 投诉管理 -->
     <script src="js/pages/ComplaintManagement.js"></script>
@@ -626,18 +633,24 @@
     <script src="js/pages/BoothManagement.js"></script>
     <script src="js/pages/ExhibitorQuery.js"></script>
     <script src="js/pages/ExhibitorDetail.js"></script>
+    <script src="js/pages/ExhibitorDetailView.js"></script>
     <script src="js/pages/MeetingActivityManagement.js"></script>
     <script src="js/pages/ExhibitorBasicInfo.js"></script>
-    <script src="js/pages/ProductInfo.js"></script>
     <script src="js/pages/ExhibitorActivityInfo.js"></script>
     <script src="js/pages/BusinessMatching.js"></script>
     
     <!-- 6. 运营管理 -->
+    <!-- 新的运营管理组件 - 基于文档6功能设计 -->
+    <script src="js/pages/OperationalDataStats.js"></script>
+    <script src="js/pages/UserBehaviorStats.js"></script>
+    <script src="js/pages/SystemResourceMonitor.js"></script>
+    <script src="js/pages/SystemFeedbackList.js"></script>
+    
+    <!-- 保留原有的运营管理页面 -->
     <script src="js/pages/UserAnalysis.js"></script>
     <script src="js/pages/OperationalStats.js"></script>
     <script src="js/pages/DataAnalysis.js"></script>
     <script src="js/pages/BehaviorAnalysis.js"></script>
-    <script src="js/pages/UserBehaviorStats.js"></script>
     <script src="js/pages/BehaviorStats.js"></script>
     <script src="js/pages/DataManagement.js"></script>
     <script src="js/pages/FeedbackManagement.js"></script>
@@ -650,12 +663,15 @@
     <script src="js/pages/LoginLogoutLogs.js"></script>
     <script src="js/pages/ContentPublishLogs.js"></script>
     <script src="js/pages/ApprovalLogs.js"></script>
+    <!-- AI管理模块 - 基于文档7.5功能设计 -->
+    <script src="js/pages/AgentManagement.js"></script>
+    <script src="js/pages/KnowledgeBaseManagement.js"></script>
     <script src="js/pages/AIManagement.js"></script>
     <script src="js/pages/MenuManagement.js"></script>
     <script src="js/pages/UserProfile.js"></script>
     
     <!-- 主应用 - 必须最后加载 -->
-    <script src="js/App.js?v=20250114-complete"></script>
+    <script src="js/App.js?v=20250118-force-refresh&t=1737192000"></script>
 
     <script>
         // 全局错误处理
