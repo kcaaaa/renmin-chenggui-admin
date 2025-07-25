@@ -1,10 +1,11 @@
-// 内容管理页面
+// 内容管理页面 - v3升级版
 const ContentManagement = () => {
-    const { Card, Table, Button, Input, Select, Space, Tag, Modal, Form, Switch, message, Row, Col, Statistic, DatePicker, Tabs } = antd;
+    const { Card, Table, Button, Input, Select, Space, Tag, Modal, Form, Switch, message, Row, Col, Statistic, DatePicker, Tabs, Tooltip, Popconfirm } = antd;
     const { Search } = Input;
     const { Option } = Select;
     const { RangePicker } = DatePicker;
     const { TabPane } = Tabs;
+    const { TextArea } = Input;
 
     const [loading, setLoading] = React.useState(false);
     const [contentList, setContentList] = React.useState([]);
@@ -16,80 +17,113 @@ const ContentManagement = () => {
     const [filters, setFilters] = React.useState({
         contentType: 'all',
         status: 'all',
-        board: 'all',
         keyword: '',
         dateRange: null
     });
     const [selectedContent, setSelectedContent] = React.useState(null);
     const [detailModalVisible, setDetailModalVisible] = React.useState(false);
-    const [statusModalVisible, setStatusModalVisible] = React.useState(false);
+    const [commentModalVisible, setCommentModalVisible] = React.useState(false);
+    const [previewModalVisible, setPreviewModalVisible] = React.useState(false);
+    const [comments, setComments] = React.useState([]);
     const [form] = Form.useForm();
 
-    // 模拟数据
+    // 模拟当前用户信息（用于权限判断）
+    const currentUser = {
+        id: 1001,
+        name: '张三',
+        role: 'user', // user: 普通用户, association: 协会用户, exhibitor: 展商用户
+        permissions: ['content:view', 'content:edit', 'content:delete']
+    };
+
+    // 模拟本账号发布的内容数据（v3调整：仅显示本账号内容）
     const mockContentData = [
         {
             id: 1,
             title: '城轨建设最新进展',
             type: 'video',
-            board: 'industry',
             publisher: '张三',
             publisherId: 1001,
             publishTime: '2024-01-15 14:30:00',
             status: 'published',
             auditStatus: 'passed',
+            board: 'content', // v3新增：明确内容归属板块
             viewCount: 12580,
             likeCount: 234,
             commentCount: 56,
             shareCount: 89,
+            recommendCount: 156, // v3新增：推荐数
             duration: '3:45',
             thumbnail: '/images/video-thumb-1.jpg',
             tags: ['城轨建设', '最新进展'],
-            description: '介绍最新的城轨建设进展情况...'
+            description: '介绍最新的城轨建设进展情况...',
+            rejectReason: null // v3新增：驳回原因
         },
         {
             id: 2,
             title: '轨道交通技术创新分享',
             type: 'image',
-            board: 'association',
-            publisher: '李四',
-            publisherId: 1002,
+            publisher: '张三',
+            publisherId: 1001,
             publishTime: '2024-01-14 16:20:00',
             status: 'published',
             auditStatus: 'passed',
+            board: 'content',
             viewCount: 8960,
             likeCount: 156,
             commentCount: 32,
             shareCount: 45,
+            recommendCount: 89, // v3新增：推荐数
             imageCount: 5,
             tags: ['技术创新', '分享'],
-            description: '轨道交通领域的技术创新案例分享...'
+            description: '轨道交通领域的技术创新案例分享...',
+            rejectReason: null
         },
         {
             id: 3,
-            title: '展会现场精彩瞬间',
+            title: '智能调度系统研究',
             type: 'video',
-            board: 'exhibition',
-            publisher: '王五',
-            publisherId: 1003,
+            publisher: '张三',
+            publisherId: 1001,
             publishTime: '2024-01-13 10:15:00',
-            status: 'pending',
-            auditStatus: 'manual_pending',
+            status: 'rejected',
+            auditStatus: 'ai_rejected',
+            board: 'content',
             viewCount: 0,
             likeCount: 0,
             commentCount: 0,
             shareCount: 0,
+            recommendCount: 0,
             duration: '2:30',
-            tags: ['展会', '精彩瞬间'],
-            description: '记录展会现场的精彩瞬间...'
+            tags: ['智能调度', '研究'],
+            description: '智能调度系统的深度研究...',
+            rejectReason: '内容中包含敏感词汇，请修改后重新提交' // v3新增：驳回原因
         }
     ];
 
-    // 统计数据
-    const statsData = {
-        totalContent: 1250,
-        todayContent: 45,
-        pendingReview: 23,
-        publishedToday: 38
+    // 模拟评论数据
+    const mockCommentsData = {
+        1: [
+            {
+                id: 101,
+                contentId: 1,
+                user: '李四',
+                userId: 2001,
+                content: '很有用的分享，学到了不少！',
+                createTime: '2024-01-15 15:30:00',
+                status: 'approved',
+                replyContent: '感谢支持！'
+            },
+            {
+                id: 102,
+                contentId: 1,
+                user: '王五',
+                userId: 2002,
+                content: '希望能有更多这样的技术分享',
+                createTime: '2024-01-15 16:20:00',
+                status: 'approved',
+                replyContent: ''
+            }
+        ]
     };
 
     React.useEffect(() => {
@@ -104,15 +138,15 @@ const ContentManagement = () => {
             
             let filteredData = [...mockContentData];
             
+            // v3更新：仅显示当前用户发布的内容
+            filteredData = filteredData.filter(item => item.publisherId === currentUser.id);
+            
             // 应用过滤器
             if (filters.contentType !== 'all') {
                 filteredData = filteredData.filter(item => item.type === filters.contentType);
             }
             if (filters.status !== 'all') {
                 filteredData = filteredData.filter(item => item.status === filters.status);
-            }
-            if (filters.board !== 'all') {
-                filteredData = filteredData.filter(item => item.board === filters.board);
             }
             if (filters.keyword) {
                 filteredData = filteredData.filter(item => 
@@ -133,9 +167,48 @@ const ContentManagement = () => {
         }
     };
 
+    // v3新增：加载评论数据
+    const loadComments = async (contentId) => {
+        try {
+            const contentComments = mockCommentsData[contentId] || [];
+            setComments(contentComments);
+        } catch (error) {
+            message.error('加载评论失败');
+        }
+    };
+
+    // v3新增：回复评论
+    const handleReplyComment = async (commentId, replyContent) => {
+        try {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            setComments(prev => 
+                prev.map(comment => 
+                    comment.id === commentId 
+                        ? { ...comment, replyContent }
+                        : comment
+                )
+            );
+            message.success('回复成功');
+        } catch (error) {
+            message.error('回复失败');
+        }
+    };
+
+    // v3新增：删除评论
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            setComments(prev => prev.filter(comment => comment.id !== commentId));
+            message.success('删除成功');
+        } catch (error) {
+            message.error('删除失败');
+        }
+    };
+
     const handleStatusChange = async (contentId, newStatus) => {
         try {
-            // 模拟API调用
             await new Promise(resolve => setTimeout(resolve, 500));
             
             setContentList(prev => 
@@ -151,26 +224,13 @@ const ContentManagement = () => {
         }
     };
 
-    const handleBatchOperation = async (operation, selectedIds) => {
-        try {
-            setLoading(true);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            message.success(`批量${operation}操作完成`);
-            loadContentList();
-        } catch (error) {
-            message.error(`批量${operation}操作失败`);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const getStatusTag = (status) => {
         const statusMap = {
             published: { color: 'green', text: '已发布' },
             pending: { color: 'orange', text: '待审核' },
             rejected: { color: 'red', text: '已拒绝' },
-            draft: { color: 'gray', text: '草稿' }
+            draft: { color: 'gray', text: '草稿' },
+            offline: { color: 'default', text: '已下架' }
         };
         const config = statusMap[status] || { color: 'gray', text: '未知' };
         return React.createElement(Tag, { color: config.color }, config.text);
@@ -180,6 +240,7 @@ const ContentManagement = () => {
         const statusMap = {
             passed: { color: 'green', text: '审核通过' },
             rejected: { color: 'red', text: '审核拒绝' },
+            ai_rejected: { color: 'red', text: 'AI审核拒绝' },
             ai_pending: { color: 'blue', text: 'AI审核中' },
             manual_pending: { color: 'orange', text: '人工审核中' },
             pending: { color: 'gray', text: '待审核' }
@@ -188,14 +249,15 @@ const ContentManagement = () => {
         return React.createElement(Tag, { color: config.color }, config.text);
     };
 
+    // v3更新：内容归属板块显示
     const getBoardTag = (board) => {
         const boardMap = {
-            association: { color: 'blue', text: '协会发布' },
-            industry: { color: 'green', text: '行业发布' },
-            exhibition: { color: 'purple', text: '展会发布' },
-            content: { color: 'orange', text: '内容发布' }
+            association: { color: 'blue', text: '协会板块' },
+            content: { color: 'green', text: '推荐板块' },
+            exhibition: { color: 'purple', text: '展会板块' },
+            personal: { color: 'orange', text: '个人主页' }
         };
-        const config = boardMap[board] || { color: 'gray', text: '未知' };
+        const config = boardMap[board] || { color: 'gray', text: '未知板块' };
         return React.createElement(Tag, { color: config.color }, config.text);
     };
 
@@ -232,9 +294,9 @@ const ContentManagement = () => {
                     }, [
                         getBoardTag(record.board),
                         React.createElement('span', {
-                            key: 'publisher',
+                            key: 'type',
                             style: { marginLeft: 8 }
-                        }, `发布者：${record.publisher}`)
+                        }, record.type === 'video' ? '视频' : '图文')
                     ])
                 ])
             ])
@@ -252,7 +314,15 @@ const ContentManagement = () => {
             render: (_, record) => React.createElement('div', {}, [
                 getStatusTag(record.status),
                 React.createElement('br', { key: 'br' }),
-                getAuditStatusTag(record.auditStatus)
+                getAuditStatusTag(record.auditStatus),
+                // v3新增：显示驳回原因
+                record.rejectReason && React.createElement(Tooltip, {
+                    key: 'reason',
+                    title: record.rejectReason
+                }, React.createElement(Tag, { 
+                    color: 'red', 
+                    style: { marginTop: 4, cursor: 'pointer' }
+                }, '查看原因'))
             ])
         },
         {
@@ -264,14 +334,16 @@ const ContentManagement = () => {
             }, [
                 React.createElement('div', { key: 'view' }, `观看：${record.viewCount}`),
                 React.createElement('div', { key: 'like' }, `点赞：${record.likeCount}`),
-                React.createElement('div', { key: 'comment' }, `评论：${record.commentCount}`)
+                React.createElement('div', { key: 'comment' }, `评论：${record.commentCount}`),
+                // v3新增：推荐数显示
+                React.createElement('div', { key: 'recommend' }, `推荐：${record.recommendCount}`)
             ])
         },
         {
             title: '操作',
             key: 'actions',
-            width: 200,
-            render: (_, record) => React.createElement(Space, {}, [
+            width: 250,
+            render: (_, record) => React.createElement(Space, { wrap: true }, [
                 React.createElement(Button, {
                     key: 'view',
                     type: 'link',
@@ -282,73 +354,62 @@ const ContentManagement = () => {
                     }
                 }, '查看详情'),
                 React.createElement(Button, {
-                    key: 'status',
+                    key: 'preview',
                     type: 'link',
                     size: 'small',
                     onClick: () => {
                         setSelectedContent(record);
-                        setStatusModalVisible(true);
+                        setPreviewModalVisible(true);
                     }
-                }, '状态管理'),
+                }, '预览'),
+                // v3新增：评论管理
+                React.createElement(Button, {
+                    key: 'comments',
+                    type: 'link',
+                    size: 'small',
+                    onClick: () => {
+                        setSelectedContent(record);
+                        loadComments(record.id);
+                        setCommentModalVisible(true);
+                    }
+                }, `评论(${record.commentCount})`),
                 record.status === 'published' ? 
                     React.createElement(Button, {
                         key: 'hide',
                         type: 'link',
                         size: 'small',
                         danger: true,
-                        onClick: () => handleStatusChange(record.id, 'hidden')
+                        onClick: () => handleStatusChange(record.id, 'offline')
                     }, '下架') :
+                    record.status === 'draft' ?
                     React.createElement(Button, {
                         key: 'publish',
                         type: 'link',
                         size: 'small',
-                        onClick: () => handleStatusChange(record.id, 'published')
-                    }, '发布')
+                        onClick: () => handleStatusChange(record.id, 'pending')
+                    }, '提交审核') :
+                    React.createElement(Button, {
+                        key: 'edit',
+                        type: 'link',
+                        size: 'small'
+                    }, '编辑'),
+                React.createElement(Popconfirm, {
+                    key: 'delete',
+                    title: '确定要删除这个作品吗？',
+                    onConfirm: () => {
+                        message.success('删除成功');
+                        loadContentList();
+                    }
+                }, React.createElement(Button, {
+                    type: 'link',
+                    size: 'small',
+                    danger: true
+                }, '删除'))
             ])
         }
     ];
 
-    const renderStatsCards = () => {
-        return React.createElement(Row, { gutter: 16, style: { marginBottom: 24 } }, [
-            React.createElement(Col, { key: 'total', span: 6 },
-                React.createElement(Card, { size: 'small' },
-                    React.createElement(Statistic, {
-                        title: '总内容数',
-                        value: statsData.totalContent,
-                        prefix: '📄'
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'today', span: 6 },
-                React.createElement(Card, { size: 'small' },
-                    React.createElement(Statistic, {
-                        title: '今日新增',
-                        value: statsData.todayContent,
-                        prefix: '📈'
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'pending', span: 6 },
-                React.createElement(Card, { size: 'small' },
-                    React.createElement(Statistic, {
-                        title: '待审核',
-                        value: statsData.pendingReview,
-                        prefix: '⏳'
-                    })
-                )
-            ),
-            React.createElement(Col, { key: 'published', span: 6 },
-                React.createElement(Card, { size: 'small' },
-                    React.createElement(Statistic, {
-                        title: '今日发布',
-                        value: statsData.publishedToday,
-                        prefix: '✅'
-                    })
-                )
-            )
-        ]);
-    };
-
+    // v3移除：统计卡片（简化界面）
     const renderFilters = () => {
         return React.createElement(Card, {
             size: 'small',
@@ -377,21 +438,8 @@ const ContentManagement = () => {
                     React.createElement(Option, { key: 'published', value: 'published' }, '已发布'),
                     React.createElement(Option, { key: 'pending', value: 'pending' }, '待审核'),
                     React.createElement(Option, { key: 'rejected', value: 'rejected' }, '已拒绝'),
-                    React.createElement(Option, { key: 'draft', value: 'draft' }, '草稿')
-                ])
-            ),
-            React.createElement(Col, { key: 'board', span: 4 },
-                React.createElement(Select, {
-                    placeholder: '发布板块',
-                    value: filters.board,
-                    onChange: (value) => setFilters(prev => ({ ...prev, board: value })),
-                    style: { width: '100%' }
-                }, [
-                    React.createElement(Option, { key: 'all', value: 'all' }, '全部板块'),
-                    React.createElement(Option, { key: 'association', value: 'association' }, '协会发布'),
-                    React.createElement(Option, { key: 'industry', value: 'industry' }, '行业发布'),
-                    React.createElement(Option, { key: 'exhibition', value: 'exhibition' }, '展会发布'),
-                    React.createElement(Option, { key: 'content', value: 'content' }, '内容发布')
+                    React.createElement(Option, { key: 'draft', value: 'draft' }, '草稿'),
+                    React.createElement(Option, { key: 'offline', value: 'offline' }, '已下架')
                 ])
             ),
             React.createElement(Col, { key: 'date', span: 6 },
@@ -410,7 +458,172 @@ const ContentManagement = () => {
                     onSearch: loadContentList,
                     enterButton: true
                 })
+            ),
+            React.createElement(Col, { key: 'refresh', span: 4 },
+                React.createElement(Button, {
+                    onClick: loadContentList,
+                    style: { width: '100%' }
+                }, '手动刷新')
             )
+        ]));
+    };
+
+    // v3新增：评论管理模态框
+    const renderCommentModal = () => {
+        return React.createElement(Modal, {
+            title: '评论管理',
+            visible: commentModalVisible,
+            onCancel: () => setCommentModalVisible(false),
+            footer: [
+                React.createElement(Button, {
+                    key: 'close',
+                    onClick: () => setCommentModalVisible(false)
+                }, '关闭')
+            ],
+            width: 800
+        }, React.createElement('div', {}, 
+            comments.length === 0 ? 
+                React.createElement('div', {
+                    style: { textAlign: 'center', padding: '40px 0', color: '#999' }
+                }, '暂无评论') :
+                comments.map(comment => 
+                    React.createElement('div', {
+                        key: comment.id,
+                        style: { 
+                            border: '1px solid #f0f0f0', 
+                            padding: 16, 
+                            marginBottom: 12,
+                            borderRadius: 4
+                        }
+                    }, [
+                        React.createElement('div', {
+                            key: 'header',
+                            style: { 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                marginBottom: 8
+                            }
+                        }, [
+                            React.createElement('span', { key: 'user' }, comment.user),
+                            React.createElement('span', { 
+                                key: 'time',
+                                style: { color: '#999', fontSize: 12 }
+                            }, comment.createTime)
+                        ]),
+                        React.createElement('div', {
+                            key: 'content',
+                            style: { marginBottom: 8 }
+                        }, comment.content),
+                        comment.replyContent && React.createElement('div', {
+                            key: 'reply',
+                            style: { 
+                                background: '#f8f9fa', 
+                                padding: 8, 
+                                borderRadius: 4,
+                                marginBottom: 8
+                            }
+                        }, [
+                            React.createElement('strong', { key: 'label' }, '我的回复：'),
+                            comment.replyContent
+                        ]),
+                        React.createElement(Space, { key: 'actions' }, [
+                            React.createElement(Button, {
+                                key: 'reply',
+                                size: 'small',
+                                onClick: () => {
+                                    const reply = prompt('请输入回复内容：');
+                                    if (reply) {
+                                        handleReplyComment(comment.id, reply);
+                                    }
+                                }
+                            }, comment.replyContent ? '修改回复' : '回复'),
+                            React.createElement(Popconfirm, {
+                                key: 'delete',
+                                title: '确定要删除这条评论吗？',
+                                onConfirm: () => handleDeleteComment(comment.id)
+                            }, React.createElement(Button, {
+                                size: 'small',
+                                danger: true
+                            }, '删除'))
+                        ])
+                    ])
+                )
+        ));
+    };
+
+    // v3新增：内容预览模态框
+    const renderPreviewModal = () => {
+        if (!selectedContent) return null;
+
+        return React.createElement(Modal, {
+            title: '内容预览',
+            visible: previewModalVisible,
+            onCancel: () => setPreviewModalVisible(false),
+            footer: [
+                React.createElement(Button, {
+                    key: 'close',
+                    onClick: () => setPreviewModalVisible(false)
+                }, '关闭')
+            ],
+            width: 900
+        }, React.createElement('div', {
+            style: { 
+                background: '#f8f9fa',
+                padding: 20,
+                borderRadius: 8
+            }
+        }, [
+            React.createElement('h2', { 
+                key: 'title',
+                style: { marginBottom: 16 }
+            }, selectedContent.title),
+            React.createElement('div', {
+                key: 'content',
+                style: {
+                    background: '#fff',
+                    padding: 16,
+                    borderRadius: 4,
+                    minHeight: 200
+                }
+            }, [
+                selectedContent.type === 'video' ?
+                    React.createElement('div', {
+                        key: 'video',
+                        style: {
+                            width: '100%',
+                            height: 300,
+                            background: '#000',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            fontSize: 18
+                        }
+                    }, `视频预览 (${selectedContent.duration})`) :
+                    React.createElement('div', {
+                        key: 'images',
+                        style: {
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: 8
+                        }
+                    }, Array(selectedContent.imageCount || 1).fill(0).map((_, index) =>
+                        React.createElement('div', {
+                            key: index,
+                            style: {
+                                height: 100,
+                                background: '#f0f0f0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }
+                        }, `图片 ${index + 1}`)
+                    )),
+                React.createElement('p', {
+                    key: 'desc',
+                    style: { marginTop: 16 }
+                }, selectedContent.description)
+            ])
         ]));
     };
 
@@ -432,12 +645,18 @@ const ContentManagement = () => {
             React.createElement('h3', { key: 'title' }, selectedContent.title),
             React.createElement('p', { key: 'desc' }, selectedContent.description),
             React.createElement('div', { key: 'meta', style: { marginTop: 16 } }, [
-                React.createElement('p', { key: 'publisher' }, `发布者：${selectedContent.publisher}`),
                 React.createElement('p', { key: 'time' }, `发布时间：${selectedContent.publishTime}`),
                 React.createElement('p', { key: 'board' }, ['发布板块：', getBoardTag(selectedContent.board)]),
                 React.createElement('p', { key: 'type' }, `内容类型：${selectedContent.type === 'video' ? '视频' : '图文'}`),
                 selectedContent.duration && React.createElement('p', { key: 'duration' }, `视频时长：${selectedContent.duration}`),
-                selectedContent.imageCount && React.createElement('p', { key: 'images' }, `图片数量：${selectedContent.imageCount}张`)
+                selectedContent.imageCount && React.createElement('p', { key: 'images' }, `图片数量：${selectedContent.imageCount}张`),
+                // v3新增：推荐数显示
+                React.createElement('p', { key: 'recommend' }, `推荐数：${selectedContent.recommendCount}`),
+                // v3新增：驳回原因显示
+                selectedContent.rejectReason && React.createElement('p', { 
+                    key: 'reason',
+                    style: { color: '#ff4d4f' }
+                }, `驳回原因：${selectedContent.rejectReason}`)
             ])
         ]));
     };
@@ -446,11 +665,10 @@ const ContentManagement = () => {
         React.createElement('div', { key: 'header', className: 'page-header' }, [
             React.createElement('h1', { key: 'title', className: 'page-title' }, '内容管理'),
             React.createElement('p', { key: 'desc', className: 'page-description' }, 
-                '查看和管理平台所有内容，包括视频、图文等各类型内容的状态管理'
+                '管理我发布的全部作品，查看浏览、点赞、评论、推荐数据，回复或删除评论'
             )
         ]),
 
-        renderStatsCards(),
         renderFilters(),
 
         React.createElement(Card, { key: 'table-card' }, [
@@ -463,15 +681,21 @@ const ContentManagement = () => {
                     marginBottom: 16 
                 }
             }, [
-                React.createElement('h3', { key: 'title' }, '内容列表'),
+                React.createElement('h3', { key: 'title' }, '我的作品列表'),
                 React.createElement(Space, { key: 'actions' }, [
                     React.createElement(Button, {
-                        key: 'refresh',
-                        onClick: loadContentList
-                    }, '刷新'),
+                        key: 'publish',
+                        type: 'primary',
+                        onClick: () => {
+                            // 跳转到发布页面
+                            message.info('跳转到内容发布页面');
+                        }
+                    }, '发布新作品'),
                     React.createElement(Button, {
                         key: 'export',
-                        type: 'primary'
+                        onClick: () => {
+                            message.success('数据导出成功');
+                        }
                     }, '导出数据')
                 ])
             ]),
@@ -491,11 +715,13 @@ const ContentManagement = () => {
                     }
                 },
                 rowKey: 'id',
-                scroll: { x: 1000 }
+                scroll: { x: 1200 }
             })
         ]),
 
-        renderDetailModal()
+        renderDetailModal(),
+        renderCommentModal(), // v3新增
+        renderPreviewModal() // v3新增
     ]);
 };
 

@@ -15,8 +15,13 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
             icon: React.createElement('i', { className: 'anticon' }, '📝'),
             label: '内容管理',
             children: [
+                {
+                    key: 'ContentManagement',
+                    label: '内容管理',
+                    page: 'ContentManagement'
+                },
                 { key: 'ContentPublish', label: '内容发布', page: 'ContentPublish' },
-                { key: 'ContentList', label: '内容列表', page: 'ContentList' },
+                { key: 'ContentList', label: '我的作品', page: 'ContentList' },
             ],
         },
         {
@@ -111,20 +116,14 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
                     icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🚪')
                 },
                 {
-                    key: 'exhibitor-info',
-                    label: '展商信息',
+                    key: 'exhibitor-center',
+                    label: '展商中心',
                     icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🏪'),
                     children: [
                         { 
                             key: 'ExhibitorBasicInfo', 
-                            label: '展商基础信息', 
+                            label: '展商信息', 
                             page: 'ExhibitorBasicInfo',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
-                        { 
-                            key: 'ProductInfo', 
-                            label: '产品信息', 
-                            page: 'ProductInfo',
                             icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
                         },
                         { 
@@ -138,7 +137,7 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
                             label: '商务配对', 
                             page: 'BusinessMatching',
                             icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '•')
-                        },
+                        }
                     ]
                 }
             ]

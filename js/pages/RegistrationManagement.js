@@ -1,586 +1,487 @@
-// 报名管理页面 - 管理报名参展的展商，确认报名并分配展位
+// 报名管理页面 - v3版本：配置展会报名方式和报名表单
 const RegistrationManagement = () => {
-    const { Card, Table, Button, Modal, Form, Input, Select, Space, message, Tag, Row, Col, Statistic, Descriptions, Steps, DatePicker } = antd;
+    const { Card, Table, Button, Modal, Form, Input, Select, Space, message, Tag, Row, Col, Tabs, Switch, Radio, Divider, Typography } = antd;
     const { Option } = Select;
     const { TextArea } = Input;
-    const { Step } = Steps;
+    const { TabPane } = Tabs;
+    const { Title, Text } = Typography;
     
     const [loading, setLoading] = React.useState(false);
-    const [data, setData] = React.useState([]);
-    const [modalVisible, setModalVisible] = React.useState(false);
-    const [boothModalVisible, setBoothModalVisible] = React.useState(false);
-    const [detailModalVisible, setDetailModalVisible] = React.useState(false);
-    const [currentRegistration, setCurrentRegistration] = React.useState(null);
-    const [viewingRegistration, setViewingRegistration] = React.useState(null);
+    const [exhibitions, setExhibitions] = React.useState([]);
+    const [selectedExhibition, setSelectedExhibition] = React.useState(null);
+    const [registrationConfig, setRegistrationConfig] = React.useState({});
+    const [configModalVisible, setConfigModalVisible] = React.useState(false);
+    const [previewModalVisible, setPreviewModalVisible] = React.useState(false);
     const [form] = Form.useForm();
-    const [boothForm] = Form.useForm();
+    const [fieldForm] = Form.useForm();
 
-    // 模拟统计数据
-    const [stats] = React.useState({
-        totalRegistrations: 156,
-        pendingReview: 23,
-        confirmed: 89,
-        rejected: 12,
-        pendingPayment: 32
-    });
-
-    // 模拟报名数据
-    const mockData = [
-        {
-            key: '1',
-            id: 'REG001',
-            companyName: '北京智慧轨道科技有限公司',
-            contactPerson: '张经理',
-            phone: '13800138001',
-            email: 'zhang@company.com',
-            registrationDate: '2024-01-15 14:30:00',
-            status: 'pending_review',
-            exhibitionId: 'EX001',
-            exhibitionName: '2024中国城市轨道交通博览会',
-            category: '智能设备',
-            boothRequirement: '标准展位',
-            boothSize: '3x3',
-            expectedProducts: 5,
-            expectedVisitors: 200,
-            businessLicense: '营业执照.pdf',
-            companyProfile: '专业从事城市轨道交通智能化系统研发...',
-            website: 'www.smartrail.com',
-            previousExperience: '参加过2023年展会',
-            specialRequirements: '需要电源接入',
-            paymentStatus: 'pending',
-            amount: 15000
-        },
-        {
-            key: '2',
-            id: 'REG002',
-            companyName: '上海轨道交通设备有限公司',
-            contactPerson: '李总',
-            phone: '13800138002',
-            email: 'li@shrt.com',
-            registrationDate: '2024-01-16 10:20:00',
-            status: 'confirmed',
-            exhibitionId: 'EX001',
-            exhibitionName: '2024中国城市轨道交通博览会',
-            category: '车辆设备',
-            boothRequirement: '豪华展位',
-            boothSize: '6x6',
-            expectedProducts: 8,
-            expectedVisitors: 500,
-            businessLicense: '营业执照.pdf',
-            companyProfile: '轨道交通车辆设备制造商...',
-            website: 'www.shrt.com',
-            previousExperience: '多次参展经验',
-            specialRequirements: '需要网络接入和展示屏',
-            paymentStatus: 'paid',
-            amount: 35000,
-            boothNumber: 'A001',
-            assignedDate: '2024-01-18 09:00:00'
-        },
-        {
-            key: '3',
-            id: 'REG003',
-            companyName: '深圳新能源轨道科技',
-            contactPerson: '王经理',
-            phone: '13800138003',
-            email: 'wang@szne.com',
-            registrationDate: '2024-01-17 16:45:00',
-            status: 'rejected',
-            exhibitionId: 'EX001',
-            exhibitionName: '2024中国城市轨道交通博览会',
-            category: '新能源',
-            boothRequirement: '标准展位',
-            boothSize: '3x3',
-            expectedProducts: 3,
-            expectedVisitors: 150,
-            businessLicense: '营业执照.pdf',
-            companyProfile: '新能源轨道交通解决方案...',
-            website: 'www.szne.com',
-            previousExperience: '首次参展',
-            specialRequirements: '无',
-            paymentStatus: 'pending',
-            amount: 12000,
-            rejectReason: '资质不符合要求'
-        }
-    ];
-
-    // 可用展位数据
-    const [availableBooths] = React.useState([
-        { value: 'A001', label: 'A001 - 标准展位 (3x3)' },
-        { value: 'A002', label: 'A002 - 标准展位 (3x3)' },
-        { value: 'B001', label: 'B001 - 豪华展位 (6x6)' },
-        { value: 'B002', label: 'B002 - 豪华展位 (6x6)' },
-        { value: 'C001', label: 'C001 - 特装展位 (9x9)' },
-        { value: 'C002', label: 'C002 - 特装展位 (9x9)' }
-    ]);
-    
+    // 模拟展会数据
     React.useEffect(() => {
-        loadData();
+        loadExhibitions();
     }, []);
-    
-    const loadData = async () => {
+
+    const loadExhibitions = () => {
         setLoading(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            setData(mockData);
-        } catch (error) {
-            message.error('加载数据失败');
-        } finally {
+        // 模拟展会数据
+        const mockExhibitions = [
+            {
+                id: 'EX001',
+                name: '2024中国城市轨道交通博览会',
+                startDate: '2024-06-15',
+                endDate: '2024-06-18',
+                venue: '北京国际展览中心',
+                status: 'upcoming',
+                registrationMethod: 'internal', // internal 或 external
+                externalUrl: '',
+                formFields: [
+                    { id: 1, name: 'companyName', label: '公司名称', type: 'input', required: true, enabled: true },
+                    { id: 2, name: 'contactPerson', label: '联系人', type: 'input', required: true, enabled: true },
+                    { id: 3, name: 'phone', label: '联系电话', type: 'input', required: true, enabled: true },
+                    { id: 4, name: 'email', label: '邮箱', type: 'input', required: true, enabled: true },
+                    { id: 5, name: 'businessLicense', label: '营业执照', type: 'upload', required: true, enabled: true },
+                    { id: 6, name: 'companyProfile', label: '公司简介', type: 'textarea', required: false, enabled: true },
+                    { id: 7, name: 'boothRequirement', label: '展位需求', type: 'select', required: true, enabled: true,
+                      options: ['标准展位', '豪华展位', '特装展位'] }
+                ]
+            },
+            {
+                id: 'EX002',
+                name: '2024智慧交通技术展',
+                startDate: '2024-08-20',
+                endDate: '2024-08-23',
+                venue: '上海新国际博览中心',
+                status: 'upcoming',
+                registrationMethod: 'external',
+                externalUrl: 'https://registration.example.com/smart-transport-2024',
+                formFields: []
+            }
+        ];
+
+        setTimeout(() => {
+            setExhibitions(mockExhibitions);
+            if (mockExhibitions.length > 0) {
+                setSelectedExhibition(mockExhibitions[0]);
+                setRegistrationConfig(mockExhibitions[0]);
+            }
             setLoading(false);
-        }
+        }, 500);
     };
 
-    const handleReview = (record, action) => {
-        if (action === 'approve') {
-            setCurrentRegistration(record);
-            boothForm.resetFields();
-            setBoothModalVisible(true);
-        } else if (action === 'reject') {
-            Modal.confirm({
-                title: '确认拒绝',
-                content: '确定要拒绝这个报名申请吗？',
-                onOk() {
-                    message.success('已拒绝报名申请');
-                    loadData();
-                }
-            });
-        }
+    // 选择展会
+    const handleExhibitionSelect = (exhibition) => {
+        setSelectedExhibition(exhibition);
+        setRegistrationConfig(exhibition);
     };
 
-    const handleAssignBooth = async () => {
-        try {
-            const values = await boothForm.validateFields();
-            console.log('分配展位:', values);
-            message.success('展位分配成功，报名已确认');
-            setBoothModalVisible(false);
-            loadData();
-        } catch (error) {
-            console.log('表单验证失败:', error);
-        }
+    // 保存报名配置
+    const handleSaveConfig = () => {
+        form.validateFields().then(values => {
+            console.log('保存报名配置:', values);
+            message.success('报名配置保存成功！配置完成后，APP端展会板块的"报名入口"将同步显示相应的报名信息。');
+            
+            // 更新配置
+            const updatedConfig = {
+                ...registrationConfig,
+                ...values
+            };
+            setRegistrationConfig(updatedConfig);
+            
+            // 更新展会列表中的配置
+            const updatedExhibitions = exhibitions.map(ex => 
+                ex.id === selectedExhibition.id ? updatedConfig : ex
+            );
+            setExhibitions(updatedExhibitions);
+        });
     };
 
-    const handleViewDetail = (record) => {
-        setViewingRegistration(record);
-        setDetailModalVisible(true);
+    // 添加表单字段
+    const handleAddField = () => {
+        setConfigModalVisible(true);
+        fieldForm.resetFields();
     };
-    
-    const getStatusTag = (status) => {
-        const statusMap = {
-            'pending_review': { color: 'orange', text: '待审核' },
-            'confirmed': { color: 'green', text: '已确认' },
-            'rejected': { color: 'red', text: '已拒绝' },
-            'pending_payment': { color: 'blue', text: '待付款' },
-            'cancelled': { color: 'default', text: '已取消' }
+
+    // 保存新字段
+    const handleSaveField = () => {
+        fieldForm.validateFields().then(values => {
+            const newField = {
+                id: Date.now(),
+                ...values,
+                enabled: true
+            };
+            
+            const updatedFields = [...(registrationConfig.formFields || []), newField];
+            const updatedConfig = {
+                ...registrationConfig,
+                formFields: updatedFields
+            };
+            
+            setRegistrationConfig(updatedConfig);
+            setConfigModalVisible(false);
+            message.success('字段添加成功！');
+        });
+    };
+
+    // 删除字段
+    const handleDeleteField = (fieldId) => {
+        const updatedFields = registrationConfig.formFields.filter(field => field.id !== fieldId);
+        const updatedConfig = {
+            ...registrationConfig,
+            formFields: updatedFields
         };
-        const config = statusMap[status] || { color: 'default', text: status };
-        return React.createElement(Tag, { color: config.color }, config.text);
+        setRegistrationConfig(updatedConfig);
+        message.success('字段删除成功！');
     };
-    
-    const getPaymentStatusTag = (status) => {
-        const statusMap = {
-            'paid': { color: 'green', text: '已付款' },
-            'pending': { color: 'orange', text: '待付款' },
-            'overdue': { color: 'red', text: '逾期' }
+
+    // 切换字段启用状态
+    const handleToggleField = (fieldId, enabled) => {
+        const updatedFields = registrationConfig.formFields.map(field =>
+            field.id === fieldId ? { ...field, enabled } : field
+        );
+        const updatedConfig = {
+            ...registrationConfig,
+            formFields: updatedFields
         };
-        const config = statusMap[status] || { color: 'default', text: status };
-        return React.createElement(Tag, { color: config.color }, config.text);
+        setRegistrationConfig(updatedConfig);
     };
-    
-    const getRegistrationStep = (status) => {
-        const stepMap = {
-            'pending_review': 0,
-            'confirmed': 2,
-            'rejected': 0,
-            'pending_payment': 1
-        };
-        return stepMap[status] || 0;
+
+    // 预览报名表单
+    const handlePreviewForm = () => {
+        setPreviewModalVisible(true);
     };
-    
-    const columns = [
+
+    // 展会列表列定义
+    const exhibitionColumns = [
         {
-            title: '报名信息',
-            key: 'info',
-            width: 280,
-            render: (_, record) => React.createElement('div', {}, [
-                React.createElement('div', { 
-                    key: 'company',
-                    style: { fontWeight: 'bold', fontSize: '14px', marginBottom: '4px' }
-                }, record.companyName),
-                React.createElement('div', { 
-                    key: 'exhibition',
-                    style: { fontSize: '12px', color: '#1890ff', marginBottom: '4px' }
-                }, record.exhibitionName),
-                React.createElement('div', { 
-                    key: 'contact',
-                    style: { fontSize: '12px', color: '#666' }
-                }, `${record.contactPerson} | ${record.phone}`),
-                React.createElement('div', { 
-                    key: 'date',
-                    style: { fontSize: '12px', color: '#666' }
-                }, `报名时间: ${record.registrationDate}`)
-            ])
+            title: '展会名称',
+            dataIndex: 'name',
+            key: 'name',
+            render: (text, record) => (
+                React.createElement('a', {
+                    onClick: () => handleExhibitionSelect(record),
+                    style: { 
+                        color: selectedExhibition?.id === record.id ? '#1890ff' : 'inherit',
+                        fontWeight: selectedExhibition?.id === record.id ? 'bold' : 'normal'
+                    }
+                }, text)
+            )
         },
         {
-            title: '展位需求',
-            key: 'booth',
-            width: 150,
-            render: (_, record) => React.createElement('div', {}, [
-                React.createElement('div', { 
-                    key: 'type',
-                    style: { fontWeight: '500' }
-                }, record.boothRequirement),
-                React.createElement('div', { 
-                    key: 'size',
-                    style: { fontSize: '12px', color: '#666' }
-                }, `规格: ${record.boothSize}`),
-                record.boothNumber && React.createElement('div', { 
-                    key: 'number',
-                    style: { fontSize: '12px', color: '#1890ff', fontWeight: 'bold' }
-                }, `展位: ${record.boothNumber}`)
-            ])
+            title: '展会时间',
+            key: 'time',
+            render: (text, record) => `${record.startDate} 至 ${record.endDate}`
         },
         {
-            title: '分类',
-            dataIndex: 'category',
-            key: 'category',
-            width: 100,
-            render: (text) => React.createElement(Tag, { color: 'blue' }, text)
+            title: '场馆',
+            dataIndex: 'venue',
+            key: 'venue'
+        },
+        {
+            title: '报名方式',
+            dataIndex: 'registrationMethod',
+            key: 'registrationMethod',
+            render: (method) => (
+                React.createElement(Tag, {
+                    color: method === 'internal' ? 'blue' : 'green'
+                }, method === 'internal' ? '内部报名表单' : '外部链接报名')
+            )
         },
         {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            width: 100,
-            render: getStatusTag
+            render: (status) => (
+                React.createElement(Tag, {
+                    color: status === 'upcoming' ? 'blue' : status === 'active' ? 'green' : 'gray'
+                }, status === 'upcoming' ? '即将开始' : status === 'active' ? '进行中' : '已结束')
+            )
+        }
+    ];
+
+    // 表单字段列定义
+    const fieldColumns = [
+        {
+            title: '字段名称',
+            dataIndex: 'label',
+            key: 'label'
         },
         {
-            title: '付款信息',
-            key: 'payment',
-            width: 120,
-            render: (_, record) => React.createElement('div', {}, [
-                React.createElement('div', { 
-                    key: 'amount',
-                    style: { fontWeight: 'bold' }
-                }, `¥${record.amount.toLocaleString()}`),
-                React.createElement('div', { 
-                    key: 'status',
-                    style: { marginTop: '4px' }
-                }, getPaymentStatusTag(record.paymentStatus))
-            ])
+            title: '字段类型',
+            dataIndex: 'type',
+            key: 'type',
+            render: (type) => {
+                const typeMap = {
+                    input: '文本输入',
+                    textarea: '多行文本',
+                    select: '下拉选择',
+                    upload: '文件上传',
+                    radio: '单选',
+                    checkbox: '多选'
+                };
+                return typeMap[type] || type;
+            }
         },
         {
-            title: '预期规模',
-            key: 'scale',
-            width: 120,
-            render: (_, record) => React.createElement('div', {
-                style: { fontSize: '12px' }
-            }, [
-                React.createElement('div', { key: 'products' }, `产品: ${record.expectedProducts}`),
-                React.createElement('div', { key: 'visitors' }, `观众: ${record.expectedVisitors}`)
-            ])
+            title: '是否必填',
+            dataIndex: 'required',
+            key: 'required',
+            render: (required) => (
+                React.createElement(Tag, {
+                    color: required ? 'red' : 'gray'
+                }, required ? '必填' : '选填')
+            )
+        },
+        {
+            title: '启用状态',
+            dataIndex: 'enabled',
+            key: 'enabled',
+            render: (enabled, record) => (
+                React.createElement(Switch, {
+                    checked: enabled,
+                    onChange: (checked) => handleToggleField(record.id, checked)
+                })
+            )
         },
         {
             title: '操作',
             key: 'action',
-            width: 200,
-            render: (_, record) => React.createElement(Space, { size: 'small' }, [
-                React.createElement(Button, {
-                    key: 'detail',
-                    type: 'link',
-                    size: 'small',
-                    onClick: () => handleViewDetail(record)
-                }, '详情'),
-                record.status === 'pending_review' && React.createElement(Button, {
-                    key: 'approve',
-                    type: 'primary',
-                    size: 'small',
-                    onClick: () => handleReview(record, 'approve')
-                }, '通过'),
-                record.status === 'pending_review' && React.createElement(Button, {
-                    key: 'reject',
-                    danger: true,
-                    size: 'small',
-                    onClick: () => handleReview(record, 'reject')
-                }, '拒绝'),
-                record.status === 'confirmed' && React.createElement(Button, {
-                    key: 'manage',
-                    type: 'default',
-                    size: 'small',
-                    onClick: () => message.info('进入展商管理页面')
-                }, '管理')
-            ])
+            render: (text, record) => (
+                React.createElement(Space, null,
+                    React.createElement(Button, {
+                        size: 'small',
+                        danger: true,
+                        onClick: () => handleDeleteField(record.id)
+                    }, '删除')
+                )
+            )
         }
     ];
-    
-    return React.createElement('div', { style: { padding: '24px' } }, [
-        // 统计卡片
-        React.createElement(Row, {
-            key: 'stats',
-            gutter: 16,
-            style: { marginBottom: 24 }
-        }, [
-            React.createElement(Col, { span: 4 }, 
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '总报名数',
-                        value: stats.totalRegistrations,
-                        valueStyle: { color: '#1890ff' }
-                    })
-                )
-            ),
-            React.createElement(Col, { span: 4 }, 
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '待审核',
-                        value: stats.pendingReview,
-                        valueStyle: { color: '#faad14' }
-                    })
-                )
-            ),
-            React.createElement(Col, { span: 4 }, 
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '已确认',
-                        value: stats.confirmed,
-                        valueStyle: { color: '#52c41a' }
-                    })
-                )
-            ),
-            React.createElement(Col, { span: 4 }, 
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '已拒绝',
-                        value: stats.rejected,
-                        valueStyle: { color: '#ff4d4f' }
-                    })
-                )
-            ),
-            React.createElement(Col, { span: 4 }, 
-                React.createElement(Card, {},
-                    React.createElement(Statistic, {
-                        title: '待付款',
-                        value: stats.pendingPayment,
-                        valueStyle: { color: '#722ed1' }
-                    })
-                )
-            ),
-            React.createElement(Col, { span: 4 }, 
-                React.createElement(Button, {
-                    type: 'primary',
-                    onClick: loadData,
-                    style: { width: '100%', height: '100%' }
-                }, '刷新数据')
-            )
-        ]),
 
-        React.createElement(Card, { key: 'main' }, [
-            React.createElement('div', {
-                key: 'header',
-                style: { marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
-            }, [
-                React.createElement('h3', { key: 'title' }, '报名管理'),
-                React.createElement(Space, { key: 'actions' }, [
-            React.createElement(Select, {
-                key: 'status-filter',
-                placeholder: '状态筛选',
-                style: { width: 120 },
-                allowClear: true
-            }, [
-                        React.createElement(Option, { value: 'pending_review' }, '待审核'),
-                        React.createElement(Option, { value: 'confirmed' }, '已确认'),
-                        React.createElement(Option, { value: 'rejected' }, '已拒绝'),
-                        React.createElement(Option, { value: 'pending_payment' }, '待付款')
-            ]),
-            React.createElement(Select, {
-                        key: 'exhibition-filter',
-                        placeholder: '展会筛选',
-                        style: { width: 200 },
-                allowClear: true
-            }, [
-                        React.createElement(Option, { value: 'EX001' }, '2024中国城市轨道交通博览会'),
-                        React.createElement(Option, { value: 'EX002' }, '2024智慧城轨技术论坛')
-                    ])
-                ])
-            ]),
-
-            React.createElement('div', {
-                key: 'description',
-                style: { 
-                    padding: '12px', 
-                    background: '#fff7e6', 
-                    border: '1px solid #ffd591',
-                    borderRadius: '4px',
-                    marginBottom: '16px'
-                }
-            }, '报名管理用于审核和处理展商报名申请。审核通过后需要分配展位，展商确认并完成付款后即可进入展商详情列表。'),
-
-            React.createElement(Table, {
-                key: 'table',
-                columns,
-                dataSource: data,
-                loading,
-            pagination: {
-                    pageSize: 10,
-                showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条/共 ${total} 条`
-            }
-            })
-        ]),
+    return React.createElement('div', { style: { padding: 24 } },
+        React.createElement(Title, { level: 2 }, '报名管理'),
+        React.createElement(Text, { type: 'secondary' }, 
+            '配置展会报名方式和报名表单，配置完成后在APP端展会板块可同步显示报名信息和跳转链接。'
+        ),
         
-        // 分配展位弹窗
+        React.createElement(Row, { gutter: 24, style: { marginTop: 24 } },
+            // 左侧：展会列表
+            React.createElement(Col, { span: 10 },
+                React.createElement(Card, { 
+                    title: '展会列表',
+                    size: 'small'
+                },
+                    React.createElement(Table, {
+                        columns: exhibitionColumns,
+                        dataSource: exhibitions,
+                        rowKey: 'id',
+                        loading: loading,
+                        pagination: false,
+                        size: 'small'
+                    })
+                )
+            ),
+            
+            // 右侧：报名配置
+            React.createElement(Col, { span: 14 },
+                selectedExhibition ? React.createElement(Card, {
+                    title: `${selectedExhibition.name} - 报名配置`,
+                    extra: React.createElement(Space, null,
+                        React.createElement(Button, {
+                            onClick: handlePreviewForm
+                        }, '预览报名表单'),
+                        React.createElement(Button, {
+                            type: 'primary',
+                            onClick: handleSaveConfig
+                        }, '保存配置')
+                    )
+                },
+                    React.createElement(Form, {
+                        form: form,
+                        layout: 'vertical',
+                        initialValues: registrationConfig
+                    },
+                        React.createElement(Form.Item, {
+                            name: 'registrationMethod',
+                            label: '报名方式'
+                        },
+                            React.createElement(Radio.Group, null,
+                                React.createElement(Radio, { value: 'internal' }, '内部报名表单'),
+                                React.createElement(Radio, { value: 'external' }, '外部链接报名')
+                            )
+                        ),
+                        
+                        // 外部链接配置
+                        React.createElement(Form.Item, {
+                            noStyle: true
+                        },
+                            React.createElement(Form.Item, {
+                                name: 'externalUrl',
+                                label: '外部报名链接',
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请输入外部报名链接',
+                                        validator: (_, value) => {
+                                            const method = form.getFieldValue('registrationMethod');
+                                            if (method === 'external' && !value) {
+                                                return Promise.reject('请输入外部报名链接');
+                                            }
+                                            return Promise.resolve();
+                                        }
+                                    }
+                                ]
+                            },
+                                React.createElement(Input, {
+                                    placeholder: '请输入外部报名平台链接地址',
+                                    disabled: form.getFieldValue('registrationMethod') !== 'external'
+                                })
+                            )
+                        ),
+                        
+                        React.createElement(Divider, null),
+                        
+                        // 内部表单字段配置
+                        React.createElement('div', null,
+                            React.createElement('div', {
+                                style: { 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    marginBottom: 16
+                                }
+                            },
+                                React.createElement(Title, { level: 4, style: { margin: 0 } }, '报名表单字段'),
+                                React.createElement(Button, {
+                                    onClick: handleAddField,
+                                    disabled: registrationConfig.registrationMethod !== 'internal'
+                                }, '添加字段')
+                            ),
+                            
+                            React.createElement(Table, {
+                                columns: fieldColumns,
+                                dataSource: registrationConfig.formFields || [],
+                                rowKey: 'id',
+                                pagination: false,
+                                size: 'small'
+                            })
+                        )
+                    )
+                ) : React.createElement(Card, null,
+                    React.createElement('div', {
+                        style: { textAlign: 'center', padding: 40, color: '#999' }
+                    }, '请选择一个展会进行报名配置')
+                )
+            )
+        ),
+        
+        // 添加字段Modal
         React.createElement(Modal, {
-            key: 'booth-modal',
-            title: '分配展位',
-            open: boothModalVisible,
-            onOk: handleAssignBooth,
-            onCancel: () => setBoothModalVisible(false),
+            title: '添加表单字段',
+            visible: configModalVisible,
+            onOk: handleSaveField,
+            onCancel: () => setConfigModalVisible(false),
             width: 600
-        }, currentRegistration && React.createElement('div', {}, [
-            React.createElement(Descriptions, {
-                key: 'company-info',
-                title: '申请公司信息',
-                bordered: true,
-                column: 2,
-                style: { marginBottom: 24 }
-            }, [
-                React.createElement(Descriptions.Item, { label: '公司名称' }, currentRegistration.companyName),
-                React.createElement(Descriptions.Item, { label: '联系人' }, currentRegistration.contactPerson),
-                React.createElement(Descriptions.Item, { label: '展位需求' }, currentRegistration.boothRequirement),
-                React.createElement(Descriptions.Item, { label: '规格要求' }, currentRegistration.boothSize)
-            ]),
-
+        },
             React.createElement(Form, {
-                key: 'booth-form',
-                form: boothForm,
+                form: fieldForm,
                 layout: 'vertical'
-            }, [
+            },
                 React.createElement(Form.Item, {
-                    label: '分配展位',
-                    name: 'boothNumber',
-                    rules: [{ required: true, message: '请选择展位' }]
-                }, React.createElement(Select, {
-                    placeholder: '请选择可用展位',
-                    style: { width: '100%' }
-                }, availableBooths.map(booth => 
-                    React.createElement(Option, { 
-                        key: booth.value, 
-                        value: booth.value 
-                    }, booth.label)
-                ))),
-
-                    React.createElement(Form.Item, {
-                    label: '展位费用',
-                    name: 'boothFee'
-                    }, React.createElement(Input, {
-                    type: 'number',
-                    placeholder: '请输入展位费用',
-                    addonAfter: '元'
-                })),
-
-                    React.createElement(Form.Item, {
-                    label: '备注说明',
-                    name: 'remarks'
-                }, React.createElement(TextArea, {
-                    rows: 3,
-                    placeholder: '请输入备注说明'
-                }))
-            ])
-        ])),
-
-        // 报名详情弹窗
+                    name: 'label',
+                    label: '字段标签',
+                    rules: [{ required: true, message: '请输入字段标签' }]
+                },
+                    React.createElement(Input, { placeholder: '如：公司名称' })
+                ),
+                React.createElement(Form.Item, {
+                    name: 'name',
+                    label: '字段名称',
+                    rules: [{ required: true, message: '请输入字段名称' }]
+                },
+                    React.createElement(Input, { placeholder: '如：companyName' })
+                ),
+                React.createElement(Form.Item, {
+                    name: 'type',
+                    label: '字段类型',
+                    rules: [{ required: true, message: '请选择字段类型' }]
+                },
+                    React.createElement(Select, { placeholder: '请选择字段类型' },
+                        React.createElement(Option, { value: 'input' }, '文本输入'),
+                        React.createElement(Option, { value: 'textarea' }, '多行文本'),
+                        React.createElement(Option, { value: 'select' }, '下拉选择'),
+                        React.createElement(Option, { value: 'upload' }, '文件上传'),
+                        React.createElement(Option, { value: 'radio' }, '单选'),
+                        React.createElement(Option, { value: 'checkbox' }, '多选')
+                    )
+                ),
+                React.createElement(Form.Item, {
+                    name: 'required',
+                    label: '是否必填',
+                    valuePropName: 'checked'
+                },
+                    React.createElement(Switch, null)
+                ),
+                React.createElement(Form.Item, {
+                    name: 'options',
+                    label: '选项配置（适用于下拉选择、单选、多选）'
+                },
+                    React.createElement(TextArea, {
+                        placeholder: '请输入选项，每行一个选项',
+                        rows: 4
+                    })
+                )
+            )
+        ),
+        
+        // 预览Modal
         React.createElement(Modal, {
-            key: 'detail-modal',
-            title: '报名详情',
-            open: detailModalVisible,
-            onCancel: () => setDetailModalVisible(false),
-            footer: [
-                React.createElement(Button, {
-                    key: 'close',
-                    onClick: () => setDetailModalVisible(false)
-                }, '关闭')
-            ],
+            title: `${selectedExhibition?.name} - 报名表单预览`,
+            visible: previewModalVisible,
+            onCancel: () => setPreviewModalVisible(false),
+            footer: null,
             width: 800
-        }, viewingRegistration && React.createElement('div', {}, [
-            // 审核流程
-            React.createElement('div', {
-                key: 'process',
-                style: { marginBottom: 24 }
-            }, [
-                React.createElement('h4', { 
-                    key: 'title',
-                    style: { marginBottom: 16 }
-                }, '审核流程'),
-                React.createElement(Steps, {
-                    key: 'steps',
-                    current: getRegistrationStep(viewingRegistration.status),
-                    status: viewingRegistration.status === 'rejected' ? 'error' : 'process'
-                }, [
-                    React.createElement(Step, { title: '提交报名', description: '展商提交报名申请' }),
-                    React.createElement(Step, { title: '审核通过', description: '运营人员审核并分配展位' }),
-                    React.createElement(Step, { title: '确认参展', description: '展商确认并完成付款' })
-                ])
-            ]),
-
-            // 基本信息
-            React.createElement(Descriptions, {
-                key: 'basic-info',
-                title: '基本信息',
-                bordered: true,
-                column: 2,
-                style: { marginBottom: 24 }
-            }, [
-                React.createElement(Descriptions.Item, { label: '公司名称' }, viewingRegistration.companyName),
-                React.createElement(Descriptions.Item, { label: '联系人' }, viewingRegistration.contactPerson),
-                React.createElement(Descriptions.Item, { label: '联系电话' }, viewingRegistration.phone),
-                React.createElement(Descriptions.Item, { label: '邮箱' }, viewingRegistration.email),
-                React.createElement(Descriptions.Item, { label: '公司网址' }, viewingRegistration.website),
-                React.createElement(Descriptions.Item, { label: '行业分类' }, viewingRegistration.category),
-                React.createElement(Descriptions.Item, { label: '报名展会' }, viewingRegistration.exhibitionName),
-                React.createElement(Descriptions.Item, { label: '报名时间' }, viewingRegistration.registrationDate),
-                React.createElement(Descriptions.Item, { 
-                    label: '公司简介',
-                    span: 2
-                }, viewingRegistration.companyProfile)
-            ]),
-
-            // 展位信息
-            React.createElement(Descriptions, {
-                key: 'booth-info',
-                title: '展位信息',
-                bordered: true,
-                column: 2,
-                style: { marginBottom: 24 }
-            }, [
-                React.createElement(Descriptions.Item, { label: '展位类型' }, viewingRegistration.boothRequirement),
-                React.createElement(Descriptions.Item, { label: '展位规格' }, viewingRegistration.boothSize),
-                React.createElement(Descriptions.Item, { label: '预期产品数' }, viewingRegistration.expectedProducts),
-                React.createElement(Descriptions.Item, { label: '预期观众数' }, viewingRegistration.expectedVisitors),
-                viewingRegistration.boothNumber && React.createElement(Descriptions.Item, { label: '分配展位' }, viewingRegistration.boothNumber),
-                viewingRegistration.assignedDate && React.createElement(Descriptions.Item, { label: '分配时间' }, viewingRegistration.assignedDate),
-                React.createElement(Descriptions.Item, { 
-                    label: '特殊要求',
-                    span: 2
-                }, viewingRegistration.specialRequirements || '无')
-            ]),
-
-            // 付款信息
-            React.createElement(Descriptions, {
-                key: 'payment-info',
-                title: '付款信息',
-                bordered: true,
-                column: 2
-            }, [
-                React.createElement(Descriptions.Item, { label: '费用金额' }, `¥${viewingRegistration.amount.toLocaleString()}`),
-                React.createElement(Descriptions.Item, { label: '付款状态' }, getPaymentStatusTag(viewingRegistration.paymentStatus)),
-                React.createElement(Descriptions.Item, { label: '参展经验' }, viewingRegistration.previousExperience),
-                React.createElement(Descriptions.Item, { label: '营业执照' }, viewingRegistration.businessLicense),
-                viewingRegistration.rejectReason && React.createElement(Descriptions.Item, { 
-                    label: '拒绝原因',
-                    span: 2
-                }, viewingRegistration.rejectReason)
-            ])
-        ]))
-    ]);
+        },
+            React.createElement('div', { style: { padding: 20 } },
+                React.createElement(Title, { level: 3, style: { textAlign: 'center' } }, 
+                    selectedExhibition?.name
+                ),
+                React.createElement(Text, { style: { display: 'block', textAlign: 'center', marginBottom: 30 } }, 
+                    `${selectedExhibition?.startDate} 至 ${selectedExhibition?.endDate}`
+                ),
+                
+                registrationConfig.registrationMethod === 'external' ? 
+                    React.createElement('div', { style: { textAlign: 'center' } },
+                        React.createElement(Text, null, '报名方式：外部链接报名'),
+                        React.createElement('br'),
+                        React.createElement('a', { 
+                            href: registrationConfig.externalUrl, 
+                            target: '_blank',
+                            style: { fontSize: 16, marginTop: 10, display: 'inline-block' }
+                        }, '点击进入报名页面 →')
+                    ) :
+                    React.createElement(Form, { layout: 'vertical' },
+                        (registrationConfig.formFields || [])
+                            .filter(field => field.enabled)
+                            .map(field => 
+                                React.createElement(Form.Item, {
+                                    key: field.id,
+                                    label: field.label + (field.required ? ' *' : ''),
+                                    required: field.required
+                                },
+                                    field.type === 'input' ? React.createElement(Input, { placeholder: `请输入${field.label}` }) :
+                                    field.type === 'textarea' ? React.createElement(TextArea, { placeholder: `请输入${field.label}`, rows: 3 }) :
+                                    field.type === 'select' ? React.createElement(Select, { placeholder: `请选择${field.label}` }) :
+                                    field.type === 'upload' ? React.createElement('div', null, '文件上传组件') :
+                                    React.createElement(Input, { placeholder: `请输入${field.label}` })
+                                )
+                            ),
+                        React.createElement('div', { style: { textAlign: 'center', marginTop: 20 } },
+                            React.createElement(Button, { type: 'primary', size: 'large' }, '提交报名')
+                        )
+                    )
+            )
+        )
+    );
 };
 
+// 导出组件
 window.RegistrationManagement = RegistrationManagement; 

@@ -134,6 +134,7 @@ const App = () => {
             // 1. 内容管理
             'ContentPublish': window.ContentPublish,
             'ContentList': window.ContentList,
+            'ContentManagement': window.ContentManagement,
             
             // 2. 投诉管理
             'ComplaintManagement': window.ComplaintManagement,
@@ -154,7 +155,6 @@ const App = () => {
             'ExhibitorQuery': window.ExhibitorQuery,
             'MeetingActivityManagement': window.MeetingActivityManagement,
             'ExhibitorBasicInfo': window.ExhibitorBasicInfo,
-            'ProductInfo': window.ProductInfo,
             'ExhibitorActivityInfo': window.ExhibitorActivityInfo,
             'BusinessMatching': window.BusinessMatching,
             
@@ -191,7 +191,8 @@ const App = () => {
             // 展会管理 - 补充的展会管理页面
             'ExhibitionList': window.ExhibitionList,
             'RegistrationEntrance': window.RegistrationEntrance,
-            'ExhibitorDetail': window.ExhibitorDetail
+            'ExhibitorDetail': window.ExhibitorDetail,
+            'ExhibitorDetailView': window.ExhibitorDetailView
         };
 
         // 获取页面组件
