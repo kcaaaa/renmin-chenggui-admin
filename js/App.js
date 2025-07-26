@@ -145,8 +145,7 @@ const App = () => {
             // 4. 审核管理
             'AIReview': window.AIReview,
             'ReviewManagement': window.ReviewManagement,
-            'ApprovalProcessManagement': window.ApprovalProcessManagement,
-            'AuditFlowManagement': window.AuditFlowManagement,
+            'WorkflowDesigner': window.WorkflowDesigner,
             
             // 5. 展会管理（核心模块）
             'ExhibitionManagement': window.ExhibitionManagement,
@@ -197,6 +196,16 @@ const App = () => {
 
         // 获取页面组件
         let PageComponent = pageComponents[currentPage];
+        
+        // 调试信息：检查组件是否在window对象中
+        console.log('🔍 查找组件:', currentPage);
+        console.log('🔍 window对象中的组件:', {
+            'WorkflowDesigner': typeof window.WorkflowDesigner,
+            'FlowAssignment': typeof window.FlowAssignment,
+            'AIReview': typeof window.AIReview,
+            'Dashboard': typeof window.Dashboard
+        });
+        console.log('🔍 pageComponents映射:', pageComponents[currentPage] ? '找到' : '未找到');
         
         // 如果找不到组件，返回错误页面
         if (!PageComponent) {

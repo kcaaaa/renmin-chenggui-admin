@@ -49,21 +49,15 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
                 },
                 { 
                     key: 'ReviewManagement', 
-                    label: '审批流程', 
+                    label: '内容审核', 
                     page: 'ReviewManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🔄')
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '👁️')
                 },
                 { 
-                    key: 'ApprovalProcessManagement', 
-                    label: '作品审批流程', 
-                    page: 'ApprovalProcessManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📝')
-                },
-                { 
-                    key: 'AuditFlowManagement', 
-                    label: '展商审批流程', 
-                    page: 'AuditFlowManagement',
-                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🏢')
+                    key: 'WorkflowDesigner', 
+                    label: '审批流程设计器', 
+                    page: 'WorkflowDesigner',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🎨')
                 }
             ]
         },

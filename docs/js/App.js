@@ -145,8 +145,7 @@ const App = () => {
             // 4. 审核管理
             'AIReview': window.AIReview,
             'ReviewManagement': window.ReviewManagement,
-            'ApprovalProcessManagement': window.ApprovalProcessManagement,
-            'AuditFlowManagement': window.AuditFlowManagement,
+            'WorkflowDesigner': window.WorkflowDesigner,
             
             // 5. 展会管理（核心模块）
             'ExhibitionManagement': window.ExhibitionManagement,
