@@ -241,6 +241,12 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
                     ]
                 },
                 { 
+                    key: 'MusicManagement', 
+                    label: '音乐管理', 
+                    page: 'MusicManagement',
+                    icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '🎵')
+                },
+                { 
                     key: 'MenuManagement', 
                     label: '菜单管理', 
                     page: 'MenuManagement',

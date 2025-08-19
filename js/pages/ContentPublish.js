@@ -52,14 +52,46 @@ const ContentPublish = () => {
         ];
     };
     
-    // v3新增：背景音乐选项
-    const backgroundMusicOptions = [
-        { value: 'none', label: '无背景音乐' },
-        { value: 'gentle', label: '轻柔音乐' },
-        { value: 'upbeat', label: '活泼音乐' },
-        { value: 'professional', label: '商务音乐' },
-        { value: 'traditional', label: '传统音乐' }
-    ];
+    // v3更新：动态获取背景音乐选项
+    const [backgroundMusicOptions, setBackgroundMusicOptions] = React.useState([
+        { value: 'none', label: '无背景音乐' }
+    ]);
+
+    // 从音乐管理获取音乐列表
+    const loadMusicOptions = () => {
+        try {
+            const musicData = JSON.parse(localStorage.getItem('musicData') || '[]');
+            const enabledMusic = musicData.filter(music => music.enabled);
+            
+            const options = [
+                { value: 'none', label: '无背景音乐' },
+                ...enabledMusic.map(music => ({
+                    value: music.id,
+                    label: music.name,
+                    filename: music.filename,
+                    description: music.description
+                }))
+            ];
+            
+            setBackgroundMusicOptions(options);
+            console.log('✅ 背景音乐选项已更新:', options.length - 1, '首可用音乐');
+        } catch (error) {
+            console.error('❌ 加载音乐选项失败:', error);
+            // 如果失败，使用默认选项
+            setBackgroundMusicOptions([
+                { value: 'none', label: '无背景音乐' },
+                { value: 'gentle', label: '轻柔音乐' },
+                { value: 'upbeat', label: '活泼音乐' },
+                { value: 'professional', label: '商务音乐' },
+                { value: 'traditional', label: '传统音乐' }
+            ]);
+        }
+    };
+
+    // 组件加载时获取音乐选项
+    React.useEffect(() => {
+        loadMusicOptions();
+    }, []);
     
     // 发布模式变更处理
     const handlePublishModeChange = (mode) => {
@@ -480,20 +512,104 @@ const ContentPublish = () => {
                     ]
                 })),
                 
-                // v3新增：背景音乐选择
+                // v3增强：背景音乐选择（集成音乐管理）
                 React.createElement(Form.Item, {
                     key: 'backgroundMusic',
                     name: 'backgroundMusic',
                     label: '背景音乐'
-                }, React.createElement(Select, {
-                    placeholder: '请选择背景音乐（可选）',
-                    allowClear: true
-                }, backgroundMusicOptions.map(option =>
-                    React.createElement(Option, {
-                        key: option.value,
-                        value: option.value
-                    }, option.label)
-                ))),
+                }, React.createElement('div', {}, [
+                    React.createElement(Select, {
+                        key: 'music-select',
+                        placeholder: '请选择背景音乐（可选）',
+                        allowClear: true,
+                        optionRender: option => {
+                            if (option.value === 'none') {
+                                return React.createElement('div', {}, option.label);
+                            }
+                            
+                            const musicData = backgroundMusicOptions.find(m => m.value === option.value);
+                            if (!musicData) return React.createElement('div', {}, option.label);
+                            
+                            return React.createElement('div', {
+                                style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
+                            }, [
+                                React.createElement('div', {
+                                    key: 'info',
+                                    style: { flex: 1 }
+                                }, [
+                                    React.createElement('div', { 
+                                        key: 'name',
+                                        style: { fontWeight: 'bold' }
+                                    }, musicData.label),
+                                    musicData.description && React.createElement('div', {
+                                        key: 'desc',
+                                        style: { fontSize: '12px', color: '#666' }
+                                    }, musicData.description)
+                                ]),
+                                React.createElement('button', {
+                                    key: 'play-btn',
+                                    type: 'button',
+                                    style: {
+                                        border: 'none',
+                                        background: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        fontSize: '14px'
+                                    },
+                                    onClick: (e) => {
+                                        e.stopPropagation();
+                                        // 试听功能
+                                        if (musicData.filename) {
+                                            try {
+                                                const audio = new Audio(`music/${musicData.filename}`);
+                                                audio.play().catch(err => {
+                                                    console.error('播放失败:', err);
+                                                    antd.message.error('音乐文件播放失败');
+                                                });
+                                            } catch (error) {
+                                                console.error('试听失败:', error);
+                                                antd.message.error('试听失败');
+                                            }
+                                        }
+                                    },
+                                    title: '试听音乐'
+                                }, '🎵')
+                            ]);
+                        }
+                    }, backgroundMusicOptions.map(option =>
+                        React.createElement(Option, {
+                            key: option.value,
+                            value: option.value
+                        }, option.label)
+                    )),
+                    
+                    React.createElement('div', {
+                        key: 'music-help',
+                        style: { 
+                            marginTop: '8px', 
+                            fontSize: '12px', 
+                            color: '#666',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }
+                    }, [
+                        React.createElement('span', {
+                            key: 'tip'
+                        }, '💡 点击音符图标可试听音乐'),
+                        React.createElement('a', {
+                            key: 'manage-link',
+                            href: '#',
+                            onClick: (e) => {
+                                e.preventDefault();
+                                // 刷新音乐选项
+                                loadMusicOptions();
+                                antd.message.success('音乐列表已刷新');
+                            },
+                            style: { fontSize: '12px' }
+                        }, '🔄 刷新音乐列表')
+                    ])
+                ])),
                 
                 // 提交按钮
                 React.createElement(Form.Item, {

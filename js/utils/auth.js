@@ -141,7 +141,7 @@ const AuthUtils = {
             if (!token) return null;
             
             return {
-                'Authorization': Bearer ,
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             };
         } catch (error) {

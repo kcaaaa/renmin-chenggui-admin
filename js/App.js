@@ -185,6 +185,8 @@ const App = () => {
             // AI管理子页面
             'AgentManagement': window.AgentManagement,
             'KnowledgeBaseManagement': window.KnowledgeBaseManagement,
+            // 音乐管理
+            'MusicManagement': window.MusicManagement,
             'MenuManagement': window.MenuManagement,
             'UserProfile': window.UserProfile,
             // 展会管理 - 补充的展会管理页面
