@@ -177,11 +177,18 @@ const App = () => {
             'UserManagement': window.UserManagement,
             'OrganizationManagement': window.OrganizationManagement,
             'RoleManagement': window.RoleManagement,
-            // 日志管理子页面
-            'UserOperationLogs': window.LogManagement, // 用户操作日志 - 复用LogManagement
-            'LoginLogoutLogs': window.LoginLogoutLogs,
-            'ContentPublishLogs': window.ContentPublishLogs,
-            'ApprovalLogs': window.ApprovalLogs,
+            // 日志管理子页面 - 11种独立日志类型
+            'NormalUserLogs': window.NormalUserLogs,
+            'AssociationUserLogs': window.AssociationUserLogs,
+            'ExhibitorUserLogs': window.ExhibitorUserLogs,
+            'AssociationAIReviewLogs': window.AssociationAIReviewLogs,
+            'AssociationManualReviewLogs': window.AssociationManualReviewLogs,
+                            'NormalAIReviewLogs': window.NormalAIReviewLogs,
+                'NormalManualReviewLogs': window.NormalManualReviewLogs,
+                'UserFreezeUnfreezeLogs': window.UserFreezeUnfreezeLogs,
+                'UserRegistrationLogs': window.UserRegistrationLogs,
+                'ExhibitionMaintenanceLogs': window.ExhibitionMaintenanceLogs,
+                'SystemOperationLogs': window.SystemOperationLogs,
             // AI管理子页面
             'AgentManagement': window.AgentManagement,
             'KnowledgeBaseManagement': window.KnowledgeBaseManagement,

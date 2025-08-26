@@ -8,11 +8,10 @@ const LogManagement = () => {
     const { RangePicker: DateRangePicker } = DatePicker;
     const { TextArea } = Input;
     
-    const [activeTab, setActiveTab] = React.useState('audit');
+    const [activeTab, setActiveTab] = React.useState('normal_user');
     
     // 状态管理
     const [logModalVisible, setLogModalVisible] = React.useState(false);
-    const [configModalVisible, setConfigModalVisible] = React.useState(false);
     const [selectedLog, setSelectedLog] = React.useState(null);
     const [loading, setLoading] = React.useState(false);
     const [selectedRows, setSelectedRows] = React.useState([]);
@@ -20,234 +19,303 @@ const LogManagement = () => {
     // 搜索和筛选状态
     const [searchText, setSearchText] = React.useState('');
     const [logTypeFilter, setLogTypeFilter] = React.useState('all');
-    const [levelFilter, setLevelFilter] = React.useState('all');
-    const [userFilter, setUserFilter] = React.useState('all');
+    const [userFilter, setUserFilter] = React.useState('');
+    const [ipFilter, setIpFilter] = React.useState('');
     const [timeRange, setTimeRange] = React.useState(null);
     
-    // 模拟数据
+    // 模拟数据 - 根据最新需求文档的11种日志类型
     const [logData, setLogData] = React.useState({
-        // 安全审计日志
-        auditLogs: [
+        // 1. 普通用户操作日志
+        normal_user: [
             {
-                id: 'audit_001',
-                type: 'login',
-                level: 'info',
-                user: '系统管理员',
-                userId: 'admin_001',
-                operation: '后台登录',
-                ip: '192.168.1.100',
-                device: 'Windows 10 - Chrome 120',
-                result: 'success',
-                details: '管理员成功登录后台系统',
-                timestamp: '2024-01-15 09:30:25',
-                location: '北京市朝阳区',
-                sessionId: 'sess_1234567890'
+                id: 'nu_001',
+                username: '张三',
+                phone: '13800138001',
+                ipv4: '192.168.1.100',
+                ipv6: '2001:db8::1',
+                operationType: '登录',
+                operationResult: '成功',
+                operationTime: '2024-01-15 09:30:25'
             },
             {
-                id: 'audit_002',
-                type: 'permission',
-                level: 'warning',
-                user: '运营专员',
-                userId: 'op_002',
-                operation: '权限变更',
-                ip: '192.168.1.105',
-                device: 'Windows 11 - Edge 118',
-                result: 'success',
-                details: '为用户"张三"添加了"内容审核"权限',
-                timestamp: '2024-01-15 10:15:30',
-                targetUser: '张三',
-                targetUserId: 'user_12345',
-                permissionChange: '添加内容审核权限'
+                id: 'nu_002',
+                username: '李四',
+                phone: '13800138002',
+                ipv4: '192.168.1.101',
+                ipv6: '2001:db8::2',
+                operationType: '发布',
+                operationResult: '成功',
+                operationTime: '2024-01-15 10:15:30'
             },
             {
-                id: 'audit_003',
-                type: 'config',
-                level: 'warning',
-                user: '系统管理员',
-                userId: 'admin_001',
-                operation: '系统配置变更',
-                ip: '192.168.1.100',
-                result: 'success',
-                details: 'AI审核阈值从0.8调整为0.7',
-                timestamp: '2024-01-15 11:20:15',
-                configKey: 'ai_review_threshold',
-                oldValue: '0.8',
-                newValue: '0.7'
-            },
-            {
-                id: 'audit_004',
-                type: 'data_access',
-                level: 'info',
-                user: '数据分析师',
-                userId: 'analyst_001',
-                operation: '敏感数据访问',
-                ip: '192.168.1.110',
-                result: 'success',
-                details: '导出了用户行为统计数据（包含1000条记录）',
-                timestamp: '2024-01-15 14:45:20',
-                dataType: '用户行为数据',
-                recordCount: 1000
-            },
-            {
-                id: 'audit_005',
-                type: 'abnormal',
-                level: 'error',
-                user: '未知用户',
-                userId: 'unknown',
-                operation: '异常登录尝试',
-                ip: '203.119.89.156',
-                device: 'Unknown Device',
-                result: 'failed',
-                details: '连续5次密码错误，IP已被临时封禁',
-                timestamp: '2024-01-15 15:30:45',
-                attemptCount: 5,
-                blockDuration: '30分钟'
+                id: 'nu_003',
+                username: '王五',
+                phone: '13800138003',
+                ipv4: '192.168.1.102',
+                ipv6: '2001:db8::3',
+                operationType: '评论',
+                operationResult: '成功',
+                operationTime: '2024-01-15 11:20:15'
             }
         ],
         
-        // 业务操作日志
-        businessLogs: [
+        // 2. 协会用户操作日志
+        association_user: [
             {
-                id: 'biz_001',
-                type: 'content_review',
-                level: 'info',
-                user: '审核员A',
-                userId: 'reviewer_001',
-                operation: '内容审核',
-                result: 'approved',
-                details: '图文内容审核通过',
-                timestamp: '2024-01-15 09:45:30',
-                contentId: 'content_12345',
-                contentType: '图文',
-                contentTitle: '城轨技术发展趋势分析',
-                reviewTime: '3分钟',
-                aiScore: 85,
-                reason: '内容健康，符合平台规范'
+                id: 'au_001',
+                username: '协会管理员',
+                phone: '13900139001',
+                ipv4: '192.168.2.100',
+                ipv6: '2001:db8::100',
+                operationType: '登录',
+                operationResult: '成功',
+                operationTime: '2024-01-15 08:30:25'
             },
             {
-                id: 'biz_002',
-                type: 'content_publish',
-                level: 'info',
-                user: '企业用户_华为',
-                userId: 'corp_huawei',
-                operation: '内容发布',
-                result: 'success',
-                details: '发布视频内容到展会模块',
-                timestamp: '2024-01-15 10:20:15',
-                contentId: 'content_12346',
-                contentType: '视频',
-                contentTitle: '5G技术在轨道交通中的应用',
-                publishModule: '展会模块',
-                fileSize: '45.2MB',
-                duration: '8分30秒'
-            },
-            {
-                id: 'biz_003',
-                type: 'user_management',
-                level: 'warning',
-                user: '用户管理员',
-                userId: 'user_admin_001',
-                operation: '用户封禁',
-                result: 'success',
-                details: '因发布违规内容封禁用户7天',
-                timestamp: '2024-01-15 11:30:20',
-                targetUser: '违规用户123',
-                targetUserId: 'user_54321',
-                banDuration: '7天',
-                banReason: '发布不当内容'
-            },
-            {
-                id: 'biz_004',
-                type: 'message_push',
-                level: 'info',
-                user: '运营专员',
-                userId: 'op_002',
-                operation: '消息推送',
-                result: 'success',
-                details: '系统维护通知推送给全体用户',
-                timestamp: '2024-01-15 16:00:00',
-                messageType: '系统通知',
-                targetCount: 125634,
-                sentCount: 125634,
-                title: '系统维护通知'
-            },
-            {
-                id: 'biz_005',
-                type: 'data_export',
-                level: 'warning',
-                user: '数据分析师',
-                userId: 'analyst_001',
-                operation: '数据导出',
-                result: 'success',
-                details: '导出用户注册数据（近30天）',
-                timestamp: '2024-01-15 17:15:30',
-                dataType: '用户注册数据',
-                timeRange: '近30天',
-                recordCount: 5678,
-                fileFormat: 'Excel'
+                id: 'au_002',
+                username: '协会编辑',
+                phone: '13900139002',
+                ipv4: '192.168.2.101',
+                ipv6: '2001:db8::101',
+                operationType: '发布',
+                operationResult: '成功',
+                operationTime: '2024-01-15 09:15:30'
             }
         ],
         
-        // 系统运行日志
-        systemLogs: [
+        // 3. 展商用户操作日志
+        exhibitor_user: [
             {
-                id: 'sys_001',
-                type: 'performance',
-                level: 'info',
-                operation: '系统性能监控',
-                details: 'CPU使用率正常，内存使用率偏高',
-                timestamp: '2024-01-15 09:00:00',
-                cpuUsage: '45%',
-                memoryUsage: '78%',
-                diskUsage: '60%',
-                networkIO: '正常'
+                id: 'eu_001',
+                username: '华为展商',
+                phone: '13700137001',
+                ipv4: '192.168.3.100',
+                ipv6: '2001:db8::200',
+                operationType: '登录',
+                operationResult: '成功',
+                operationTime: '2024-01-15 08:00:25'
             },
             {
-                id: 'sys_002',
-                type: 'api_call',
-                level: 'info',
-                operation: 'API调用监控',
-                details: 'AI审核服务调用成功',
-                timestamp: '2024-01-15 09:30:15',
-                apiName: '/api/content/ai-review',
-                responseTime: '1.2秒',
-                statusCode: 200,
-                requestSize: '2.5MB'
-            },
-            {
-                id: 'sys_003',
-                type: 'backup',
-                level: 'info',
-                operation: '数据备份',
-                details: '定时数据备份任务执行成功',
-                timestamp: '2024-01-15 03:00:00',
-                backupType: '增量备份',
-                dataSize: '1.2GB',
-                duration: '15分钟',
-                backupPath: '/backup/20240115/'
-            },
-            {
-                id: 'sys_004',
-                type: 'error',
-                level: 'error',
-                operation: '系统异常',
-                details: '数据库连接超时，已自动重连',
-                timestamp: '2024-01-15 14:30:45',
-                errorCode: 'DB_TIMEOUT',
-                affectedUsers: 0,
-                recoveryTime: '30秒'
+                id: 'eu_002',
+                username: '中兴展商',
+                phone: '13700137002',
+                ipv4: '192.168.3.101',
+                ipv6: '2001:db8::201',
+                operationType: '维护',
+                operationResult: '成功',
+                operationTime: '2024-01-15 09:45:30'
             }
         ],
         
-        // 统计数据
-        statistics: {
-            totalLogs: 125678,
-            todayLogs: 2456,
-            errorLogs: 23,
-            warningLogs: 145,
-            criticalEvents: 2,
-            storageUsage: 68.5
-        }
+        // 4. 协会作品AI审核日志
+        association_ai_review: [
+            {
+                id: 'aar_001',
+                workId: 'work_001',
+                workName: '城轨技术发展趋势分析',
+                publisher: '协会官方',
+                reviewRating: '无风险',
+                operationStatus: '通过',
+                operationResult: '成功',
+                submitTime: '2024-01-15 09:00:00',
+                approvalTime: '2024-01-15 09:05:00'
+            },
+            {
+                id: 'aar_002',
+                workId: 'work_002',
+                workName: '轨道交通安全标准',
+                publisher: '协会技术部',
+                reviewRating: '低危',
+                operationStatus: '人工审核',
+                operationResult: '成功',
+                submitTime: '2024-01-15 10:00:00',
+                approvalTime: '2024-01-15 10:10:00'
+            }
+        ],
+        
+        // 5. 协会作品人工审核日志
+        association_manual_review: [
+            {
+                id: 'amr_001',
+                title: '城轨技术发展趋势分析',
+                publisher: '协会官方',
+                reviewer: '审核员A',
+                aiReviewRating: '无风险',
+                operationType: '通过',
+                operationResult: '成功',
+                submitTime: '2024-01-15 09:00:00',
+                approvalTime: '2024-01-15 09:05:00',
+                remark: ''
+            },
+            {
+                id: 'amr_002',
+                title: '轨道交通安全标准',
+                publisher: '协会技术部',
+                reviewer: '审核员B',
+                aiReviewRating: '低危',
+                operationType: '通过',
+                operationResult: '成功',
+                submitTime: '2024-01-15 10:00:00',
+                approvalTime: '2024-01-15 10:10:00',
+                remark: ''
+            }
+        ],
+        
+        // 6. 普通作品AI审核日志
+        normal_ai_review: [
+            {
+                id: 'nar_001',
+                workId: 'work_003',
+                workName: '我的城轨见闻',
+                publisher: '张三',
+                reviewRating: '无风险',
+                operationStatus: '通过',
+                operationResult: '成功',
+                submitTime: '2024-01-15 11:00:00',
+                approvalTime: '2024-01-15 11:02:00'
+            },
+            {
+                id: 'nar_002',
+                workId: 'work_004',
+                workName: '城轨摄影作品',
+                publisher: '李四',
+                reviewRating: '低危',
+                operationStatus: '人工审核',
+                operationResult: '成功',
+                submitTime: '2024-01-15 12:00:00',
+                approvalTime: '2024-01-15 12:05:00'
+            }
+        ],
+        
+        // 7. 普通作品人工审核日志
+        normal_manual_review: [
+            {
+                id: 'nmr_001',
+                title: '我的城轨见闻',
+                publisher: '张三',
+                reviewer: '审核员C',
+                aiReviewRating: '无风险',
+                operationStatus: '通过',
+                operationResult: '成功',
+                submitTime: '2024-01-15 11:00:00',
+                approvalTime: '2024-01-15 11:02:00',
+                remark: ''
+            },
+            {
+                id: 'nmr_002',
+                title: '城轨摄影作品',
+                publisher: '李四',
+                reviewer: '审核员D',
+                aiReviewRating: '低危',
+                operationStatus: '通过',
+                operationResult: '成功',
+                submitTime: '2024-01-15 12:00:00',
+                approvalTime: '2024-01-15 12:05:00',
+                remark: ''
+            }
+        ],
+        
+        // 8. 用户冻结/解冻日志
+        user_freeze_unfreeze: [
+            {
+                id: 'ufu_001',
+                targetUsername: '违规用户',
+                targetPhone: '13600136001',
+                operator: '管理员A',
+                operationType: '冻结',
+                operationResult: '成功',
+                operationTime: '2024-01-15 13:00:00',
+                remark: '发布违规内容，冻结7天'
+            },
+            {
+                id: 'ufu_002',
+                targetUsername: '违规用户',
+                targetPhone: '13600136001',
+                operator: '管理员B',
+                operationType: '解冻',
+                operationResult: '成功',
+                operationTime: '2024-01-15 20:00:00',
+                remark: '冻结期已满，自动解冻'
+            }
+        ],
+        
+        // 9. 用户注册日志
+        user_registration: [
+            {
+                id: 'ur_001',
+                username: '新用户A',
+                phone: '13500135001',
+                id: 'user_001',
+                ipv4: '192.168.4.100',
+                ipv6: '2001:db8::300',
+                registrationTime: '2024-01-15 14:00:00',
+                operationResult: '成功'
+            },
+            {
+                id: 'ur_002',
+                username: '新用户B',
+                phone: '13500135002',
+                id: 'user_002',
+                ipv4: '192.168.4.101',
+                ipv6: '2001:db8::301',
+                registrationTime: '2024-01-15 15:00:00',
+                operationResult: '成功'
+            }
+        ],
+        
+        // 10. 展会维护日志
+        exhibition_maintenance: [
+            {
+                id: 'em_001',
+                username: '维护员A',
+                phone: '13400134001',
+                ipv4: '192.168.5.100',
+                ipv6: '2001:db8::400',
+                maintenanceCompany: '华为技术有限公司',
+                operationType: '编辑',
+                operationColumn: '展商简介',
+                operationResult: '成功',
+                operationTime: '2024-01-15 16:00:00'
+            },
+            {
+                id: 'em_002',
+                username: '维护员B',
+                phone: '13400134002',
+                ipv4: '192.168.5.101',
+                ipv6: '2001:db8::401',
+                maintenanceCompany: '中兴通讯股份有限公司',
+                operationType: '新增',
+                operationColumn: '核心展品展示',
+                operationResult: '成功',
+                operationTime: '2024-01-15 17:00:00'
+            }
+        ],
+        
+        // 11. 系统操作日志
+        system_operation: [
+            {
+                id: 'so_001',
+                operatorAccount: 'admin_001',
+                operatorName: '系统管理员',
+                operationBehavior: '修改系统配置',
+                operationModule: '系统设置',
+                operationTime: '2024-01-15 18:00:00',
+                operationResult: '成功',
+                ipAddress: '192.168.1.1',
+                operationDetails: '修改AI审核阈值从0.8调整为0.7'
+            },
+            {
+                id: 'so_002',
+                operatorAccount: 'op_001',
+                operatorName: '运营专员',
+                operationBehavior: '批量用户管理',
+                operationModule: '用户管理',
+                operationTime: '2024-01-15 19:00:00',
+                operationResult: '成功',
+                ipAddress: '192.168.1.2',
+                operationDetails: '批量重置50个用户的密码'
+            }
+        ]
     });
 
     React.useEffect(() => {
@@ -269,49 +337,57 @@ const LogManagement = () => {
 
     // 日志类型配置
     const LOG_TYPES = {
-        // 安全审计日志类型
-        login: { label: '登录日志', color: 'blue', icon: '🔑' },
-        permission: { label: '权限变更', color: 'orange', icon: '🔐' },
-        config: { label: '配置变更', color: 'purple', icon: '⚙️' },
-        data_access: { label: '数据访问', color: 'cyan', icon: '📊' },
-        abnormal: { label: '异常行为', color: 'red', icon: '⚠️' },
-        
-        // 业务操作日志类型
-        content_review: { label: '内容审核', color: 'green', icon: '✅' },
-        content_publish: { label: '内容发布', color: 'blue', icon: '📝' },
-        user_management: { label: '用户管理', color: 'orange', icon: '👥' },
-        message_push: { label: '消息推送', color: 'purple', icon: '💬' },
-        data_export: { label: '数据导出', color: 'magenta', icon: '📤' },
-        
-        // 系统运行日志类型
-        performance: { label: '性能监控', color: 'blue', icon: '📈' },
-        api_call: { label: 'API调用', color: 'cyan', icon: '🔗' },
-        backup: { label: '数据备份', color: 'green', icon: '💾' },
-        error: { label: '系统错误', color: 'red', icon: '❌' }
+        normal_user: { label: '普通用户操作日志', color: 'blue', icon: '👤' },
+        association_user: { label: '协会用户操作日志', color: 'green', icon: '🏢' },
+        exhibitor_user: { label: '展商用户操作日志', color: 'orange', icon: '🏪' },
+        association_ai_review: { label: '协会作品AI审核日志', color: 'purple', icon: '🤖' },
+        association_manual_review: { label: '协会作品人工审核日志', color: 'cyan', icon: '👨‍💼' },
+        normal_ai_review: { label: '普通作品AI审核日志', color: 'magenta', icon: '🤖' },
+        normal_manual_review: { label: '普通作品人工审核日志', color: 'geekblue', icon: '👩‍💼' },
+        user_freeze_unfreeze: { label: '用户冻结/解冻日志', color: 'red', icon: '🔒' },
+        user_registration: { label: '用户注册日志', color: 'lime', icon: '📝' },
+        exhibition_maintenance: { label: '展会维护日志', color: 'gold', icon: '🏗️' },
+        system_operation: { label: '系统操作日志', color: 'volcano', icon: '⚙️' }
     };
 
-    // 日志级别配置
-    const LOG_LEVELS = {
-        info: { label: '信息', color: 'blue' },
-        warning: { label: '警告', color: 'orange' },
-        error: { label: '错误', color: 'red' },
-        critical: { label: '严重', color: 'magenta' }
+    // 操作类型配置
+    const OPERATION_TYPES = {
+        '登录': { color: 'blue' },
+        '评论': { color: 'green' },
+        '发布': { color: 'orange' },
+        '下架': { color: 'red' },
+        '私信': { color: 'purple' },
+        '注销': { color: 'volcano' },
+        '维护': { color: 'cyan' },
+        '编辑': { color: 'geekblue' },
+        '删除': { color: 'red' },
+        '新增': { color: 'green' },
+        '通过': { color: 'green' },
+        '驳回': { color: 'red' },
+        '冻结': { color: 'red' },
+        '解冻': { color: 'green' }
     };
 
     // 操作结果配置
     const RESULT_CONFIG = {
-        success: { label: '成功', color: 'green' },
-        failed: { label: '失败', color: 'red' },
-        approved: { label: '通过', color: 'green' },
-        rejected: { label: '拒绝', color: 'red' }
+        '成功': { color: 'green' },
+        '失败': { color: 'red' }
+    };
+
+    // 审核评级配置
+    const REVIEW_RATINGS = {
+        '无风险': { color: 'green' },
+        '低危': { color: 'orange' },
+        '中危': { color: 'red' },
+        '高危': { color: 'volcano' }
     };
 
     // 重置筛选条件
     const resetFilters = () => {
         setSearchText('');
         setLogTypeFilter('all');
-        setLevelFilter('all');
-        setUserFilter('all');
+        setUserFilter('');
+        setIpFilter('');
         setTimeRange(null);
     };
 
@@ -328,22 +404,12 @@ const LogManagement = () => {
 
     // 获取当前Tab的数据
     const getCurrentData = () => {
-        switch(activeTab) {
-            case 'audit': return logData.auditLogs;
-            case 'business': return logData.businessLogs;
-            case 'system': return logData.systemLogs;
-            default: return [];
-        }
+        return logData[activeTab] || [];
     };
 
     // 获取Tab显示名称
     const getTabDisplayName = (tab) => {
-        const names = {
-            audit: '安全审计日志',
-            business: '业务操作日志',
-            system: '系统运行日志'
-        };
-        return names[tab] || '日志';
+        return LOG_TYPES[tab]?.label || '日志';
     };
 
     // 数据筛选逻辑
@@ -353,30 +419,35 @@ const LogManagement = () => {
         return data.filter(item => {
             // 文本搜索
             if (searchText && 
-                !item.operation?.toLowerCase().includes(searchText.toLowerCase()) && 
-                !item.details?.toLowerCase().includes(searchText.toLowerCase()) &&
-                !item.user?.toLowerCase().includes(searchText.toLowerCase())) {
+                !Object.values(item).some(value => 
+                    String(value).toLowerCase().includes(searchText.toLowerCase())
+                )) {
                 return false;
             }
             
             // 日志类型筛选
-            if (logTypeFilter !== 'all' && item.type !== logTypeFilter) {
-                return false;
-            }
-            
-            // 级别筛选
-            if (levelFilter !== 'all' && item.level !== levelFilter) {
+            if (logTypeFilter !== 'all' && activeTab !== logTypeFilter) {
                 return false;
             }
             
             // 用户筛选
-            if (userFilter !== 'all' && item.userId !== userFilter) {
+            if (userFilter && 
+                !item.username?.toLowerCase().includes(userFilter.toLowerCase()) &&
+                !item.publisher?.toLowerCase().includes(userFilter.toLowerCase()) &&
+                !item.operator?.toLowerCase().includes(userFilter.toLowerCase())) {
+                return false;
+            }
+            
+            // IP地址筛选
+            if (ipFilter && 
+                !item.ipv4?.includes(ipFilter) &&
+                !item.ipv6?.includes(ipFilter)) {
                 return false;
             }
             
             // 时间范围筛选
             if (timeRange && timeRange.length === 2) {
-                const itemTime = new Date(item.timestamp);
+                const itemTime = new Date(item.operationTime || item.submitTime || item.registrationTime);
                 const startTime = timeRange[0].startOf('day');
                 const endTime = timeRange[1].endOf('day');
                 if (itemTime < startTime || itemTime > endTime) {
@@ -407,7 +478,7 @@ const LogManagement = () => {
             }, [
                 React.createElement(Col, { span: 6 }, [
                     React.createElement(Search, {
-                        placeholder: '搜索操作、详情或用户名',
+                        placeholder: '搜索任意字段内容',
                         value: searchText,
                         onChange: (e) => setSearchText(e.target.value),
                         onSearch: (value) => setSearchText(value),
@@ -415,31 +486,21 @@ const LogManagement = () => {
                         enterButton: true
                     })
                 ]),
-                React.createElement(Col, { span: 3 }, [
-                    React.createElement(Select, {
-                        placeholder: "日志类型",
-                        value: logTypeFilter,
-                        onChange: setLogTypeFilter,
-                        style: { width: '100%' }
-                    }, [
-                        React.createElement(Option, { value: 'all' }, '全部类型'),
-                        ...Object.entries(LOG_TYPES).map(([key, config]) =>
-                            React.createElement(Option, { key: key, value: key }, config.label)
-                        )
-                    ])
+                React.createElement(Col, { span: 4 }, [
+                    React.createElement(Input, {
+                        placeholder: "用户名/发布人/操作人",
+                        value: userFilter,
+                        onChange: (e) => setUserFilter(e.target.value),
+                        allowClear: true
+                    })
                 ]),
-                React.createElement(Col, { span: 3 }, [
-                    React.createElement(Select, {
-                        placeholder: "日志级别",
-                        value: levelFilter,
-                        onChange: setLevelFilter,
-                        style: { width: '100%' }
-                    }, [
-                        React.createElement(Option, { value: 'all' }, '全部级别'),
-                        ...Object.entries(LOG_LEVELS).map(([key, config]) =>
-                            React.createElement(Option, { key: key, value: key }, config.label)
-                        )
-                    ])
+                React.createElement(Col, { span: 4 }, [
+                    React.createElement(Input, {
+                        placeholder: "IP地址",
+                        value: ipFilter,
+                        onChange: (e) => setIpFilter(e.target.value),
+                        allowClear: true
+                    })
                 ]),
                 React.createElement(Col, { span: 6 }, [
                     React.createElement(DateRangePicker, {
@@ -451,7 +512,7 @@ const LogManagement = () => {
                         showTime: true
                     })
                 ]),
-                React.createElement(Col, { span: 6 }, [
+                React.createElement(Col, { span: 4 }, [
                     React.createElement(Space, {}, [
                         React.createElement(Button, {
                             onClick: resetFilters
@@ -471,548 +532,349 @@ const LogManagement = () => {
 
     // 渲染统计卡片
     const renderStatistics = () => {
+        const totalLogs = Object.values(logData).reduce((sum, logs) => sum + logs.length, 0);
+        const todayLogs = Math.floor(totalLogs * 0.1); // 模拟今日日志数量
+        
         return React.createElement(Row, {
             gutter: [16, 16],
             style: { marginBottom: '16px' }
         }, [
-            React.createElement(Col, { span: 4 }, [
+            React.createElement(Col, { span: 6 }, [
                 React.createElement(Card, {
                     size: 'small'
                 }, React.createElement(Statistic, {
                     title: '总日志数',
-                    value: logData.statistics.totalLogs,
+                    value: totalLogs,
                     prefix: '📋'
                 }))
             ]),
-            React.createElement(Col, { span: 4 }, [
+            React.createElement(Col, { span: 6 }, [
                 React.createElement(Card, {
                     size: 'small'
                 }, React.createElement(Statistic, {
                     title: '今日日志',
-                    value: logData.statistics.todayLogs,
+                    value: todayLogs,
                     prefix: '📅'
                 }))
             ]),
-            React.createElement(Col, { span: 4 }, [
+            React.createElement(Col, { span: 6 }, [
                 React.createElement(Card, {
                     size: 'small'
                 }, React.createElement(Statistic, {
-                    title: '错误日志',
-                    value: logData.statistics.errorLogs,
-                    prefix: '❌',
-                    valueStyle: { color: '#f5222d' }
+                    title: '日志类型',
+                    value: Object.keys(LOG_TYPES).length,
+                    prefix: '🏷️'
                 }))
             ]),
-            React.createElement(Col, { span: 4 }, [
+            React.createElement(Col, { span: 6 }, [
                 React.createElement(Card, {
                     size: 'small'
                 }, React.createElement(Statistic, {
-                    title: '警告日志',
-                    value: logData.statistics.warningLogs,
-                    prefix: '⚠️',
-                    valueStyle: { color: '#fa8c16' }
-                }))
-            ]),
-            React.createElement(Col, { span: 4 }, [
-                React.createElement(Card, {
-                    size: 'small'
-                }, React.createElement(Statistic, {
-                    title: '严重事件',
-                    value: logData.statistics.criticalEvents,
-                    prefix: '🚨',
-                    valueStyle: { color: '#f5222d' }
-                }))
-            ]),
-            React.createElement(Col, { span: 4 }, [
-                React.createElement(Card, {
-                    size: 'small'
-                }, React.createElement(Statistic, {
-                    title: '存储使用率',
-                    value: logData.statistics.storageUsage,
-                    suffix: '%',
-                    prefix: '💾'
+                    title: '等保三级',
+                    value: '合规',
+                    prefix: '✅',
+                    valueStyle: { color: '#3f8600' }
                 }))
             ])
         ]);
     };
 
-    // 渲染安全审计日志
-    const renderAuditLogs = () => {
-        const columns = [
-            {
-                title: '日志类型',
-                dataIndex: 'type',
-                width: 120,
-                render: (type) => {
-                    const config = LOG_TYPES[type];
-                    return React.createElement(Tag, {
-                        color: config?.color || 'default'
-                    }, [
-                        React.createElement('span', { key: 'icon' }, config?.icon),
-                        React.createElement('span', { key: 'label', style: { marginLeft: '4px' } }, config?.label)
-                    ]);
-                }
-            },
-            {
-                title: '级别',
-                dataIndex: 'level',
-                width: 80,
-                render: (level) => {
-                    const config = LOG_LEVELS[level];
-                    return React.createElement(Tag, {
-                        color: config?.color || 'default'
-                    }, config?.label);
-                }
-            },
-            {
-                title: '用户',
-                dataIndex: 'user',
-                width: 120,
-                render: (user, record) => React.createElement('div', {}, [
-                    React.createElement('div', { key: 'name', style: { fontWeight: 'bold' } }, user),
-                    React.createElement('div', { 
-                        key: 'id', 
-                        style: { fontSize: '12px', color: '#666' } 
-                    }, record.userId)
-                ])
-            },
+    // 获取列定义
+    const getColumns = () => {
+        const baseColumns = [
             {
                 title: '操作',
-                dataIndex: 'operation',
-                width: 120
-            },
-            {
-                title: '结果',
-                dataIndex: 'result',
+                key: 'action',
                 width: 80,
-                render: (result) => {
-                    const config = RESULT_CONFIG[result];
-                    return React.createElement(Tag, {
-                        color: config?.color || 'default'
-                    }, config?.label);
-                }
-            },
-            {
-                title: 'IP地址',
-                dataIndex: 'ip',
-                width: 120
-            },
-            {
-                title: '时间',
-                dataIndex: 'timestamp',
-                width: 150
-            },
-            {
-                title: '操作',
-                width: 100,
                 render: (_, record) => React.createElement(Button, {
-                    size: 'small',
                     type: 'link',
+                    size: 'small',
                     onClick: () => viewLogDetails(record)
-                }, '详情')
+                }, '查看')
             }
         ];
 
-        const filteredData = filterData(logData.auditLogs);
-
-        return React.createElement(Table, {
-            columns: columns,
-            dataSource: filteredData.map((item, index) => ({ ...item, key: index })),
-            pagination: {
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-                pageSizeOptions: ['10', '20', '50', '100']
-            },
-            size: 'small',
-            loading: loading,
-            scroll: { x: 1000 }
-        });
-    };
-
-    // 渲染业务操作日志
-    const renderBusinessLogs = () => {
-        const columns = [
-            {
-                title: '日志类型',
-                dataIndex: 'type',
-                width: 120,
-                render: (type) => {
-                    const config = LOG_TYPES[type];
-                    return React.createElement(Tag, {
-                        color: config?.color || 'default'
-                    }, [
-                        React.createElement('span', { key: 'icon' }, config?.icon),
-                        React.createElement('span', { key: 'label', style: { marginLeft: '4px' } }, config?.label)
-                    ]);
-                }
-            },
-            {
-                title: '用户',
-                dataIndex: 'user',
-                width: 120,
-                render: (user, record) => React.createElement('div', {}, [
-                    React.createElement('div', { key: 'name', style: { fontWeight: 'bold' } }, user),
-                    React.createElement('div', { 
-                        key: 'id', 
-                        style: { fontSize: '12px', color: '#666' } 
-                    }, record.userId)
-                ])
-            },
-            {
-                title: '操作',
-                dataIndex: 'operation',
-                width: 120
-            },
-            {
-                title: '详情',
-                dataIndex: 'details',
-                width: 200,
-                ellipsis: true
-            },
-            {
-                title: '结果',
-                dataIndex: 'result',
-                width: 80,
-                render: (result) => {
-                    const config = RESULT_CONFIG[result];
-                    return React.createElement(Tag, {
-                        color: config?.color || 'default'
-                    }, config?.label);
-                }
-            },
-            {
-                title: '时间',
-                dataIndex: 'timestamp',
-                width: 150
-            },
-            {
-                title: '操作',
-                width: 100,
-                render: (_, record) => React.createElement(Button, {
-                    size: 'small',
-                    type: 'link',
-                    onClick: () => viewLogDetails(record)
-                }, '详情')
-            }
-        ];
-
-        const filteredData = filterData(logData.businessLogs);
-
-        return React.createElement(Table, {
-            columns: columns,
-            dataSource: filteredData.map((item, index) => ({ ...item, key: index })),
-            pagination: {
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-                pageSizeOptions: ['10', '20', '50', '100']
-            },
-            size: 'small',
-            loading: loading,
-            scroll: { x: 1000 }
-        });
-    };
-
-    // 渲染系统运行日志
-    const renderSystemLogs = () => {
-        const columns = [
-            {
-                title: '日志类型',
-                dataIndex: 'type',
-                width: 120,
-                render: (type) => {
-                    const config = LOG_TYPES[type];
-                    return React.createElement(Tag, {
-                        color: config?.color || 'default'
-                    }, [
-                        React.createElement('span', { key: 'icon' }, config?.icon),
-                        React.createElement('span', { key: 'label', style: { marginLeft: '4px' } }, config?.label)
-                    ]);
-                }
-            },
-            {
-                title: '级别',
-                dataIndex: 'level',
-                width: 80,
-                render: (level) => {
-                    const config = LOG_LEVELS[level];
-                    return React.createElement(Tag, {
-                        color: config?.color || 'default'
-                    }, config?.label);
-                }
-            },
-            {
-                title: '操作',
-                dataIndex: 'operation',
-                width: 150
-            },
-            {
-                title: '详情',
-                dataIndex: 'details',
-                width: 250,
-                ellipsis: true
-            },
-            {
-                title: '时间',
-                dataIndex: 'timestamp',
-                width: 150
-            },
-            {
-                title: '操作',
-                width: 100,
-                render: (_, record) => React.createElement(Button, {
-                    size: 'small',
-                    type: 'link',
-                    onClick: () => viewLogDetails(record)
-                }, '详情')
-            }
-        ];
-
-        const filteredData = filterData(logData.systemLogs);
-
-        return React.createElement(Table, {
-            columns: columns,
-            dataSource: filteredData.map((item, index) => ({ ...item, key: index })),
-            pagination: {
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`,
-                pageSizeOptions: ['10', '20', '50', '100']
-            },
-            size: 'small',
-            loading: loading,
-            scroll: { x: 1000 }
-        });
+        switch(activeTab) {
+            case 'normal_user':
+            case 'association_user':
+            case 'exhibitor_user':
+                return [
+                    ...baseColumns,
+                    { title: '用户名', dataIndex: 'username', key: 'username' },
+                    { title: '手机号', dataIndex: 'phone', key: 'phone' },
+                    { title: 'IPv4', dataIndex: 'ipv4', key: 'ipv4' },
+                    { title: 'IPv6', dataIndex: 'ipv6', key: 'ipv6' },
+                    { 
+                        title: '操作类型', 
+                        dataIndex: 'operationType', 
+                        key: 'operationType',
+                        render: (type) => React.createElement(Tag, {
+                            color: OPERATION_TYPES[type]?.color || 'default'
+                        }, type)
+                    },
+                    { 
+                        title: '操作结果', 
+                        dataIndex: 'operationResult', 
+                        key: 'operationResult',
+                        render: (result) => React.createElement(Tag, {
+                            color: RESULT_CONFIG[result]?.color || 'default'
+                        }, result)
+                    },
+                    { title: '操作时间', dataIndex: 'operationTime', key: 'operationTime' }
+                ];
+            
+            case 'association_ai_review':
+            case 'normal_ai_review':
+                return [
+                    ...baseColumns,
+                    { title: '作品ID', dataIndex: 'workId', key: 'workId' },
+                    { title: '作品名称', dataIndex: 'workName', key: 'workName' },
+                    { title: '发布人', dataIndex: 'publisher', key: 'publisher' },
+                    { 
+                        title: '审核评级', 
+                        dataIndex: 'reviewRating', 
+                        key: 'reviewRating',
+                        render: (rating) => React.createElement(Tag, {
+                            color: REVIEW_RATINGS[rating]?.color || 'default'
+                        }, rating)
+                    },
+                    { title: '操作状态', dataIndex: 'operationStatus', key: 'operationStatus' },
+                    { 
+                        title: '操作结果', 
+                        dataIndex: 'operationResult', 
+                        key: 'operationResult',
+                        render: (result) => React.createElement(Tag, {
+                            color: RESULT_CONFIG[result]?.color || 'default'
+                        }, result)
+                    },
+                    { title: '提交时间', dataIndex: 'submitTime', key: 'submitTime' },
+                    { title: '审批时间', dataIndex: 'approvalTime', key: 'approvalTime' }
+                ];
+            
+            case 'association_manual_review':
+            case 'normal_manual_review':
+                return [
+                    ...baseColumns,
+                    { title: '标题', dataIndex: 'title', key: 'title' },
+                    { title: '发布人', dataIndex: 'publisher', key: 'publisher' },
+                    { title: '审核人', dataIndex: 'reviewer', key: 'reviewer' },
+                    { 
+                        title: 'AI审核评级', 
+                        dataIndex: 'aiReviewRating', 
+                        key: 'aiReviewRating',
+                        render: (rating) => React.createElement(Tag, {
+                            color: REVIEW_RATINGS[rating]?.color || 'default'
+                        }, rating)
+                    },
+                    { 
+                        title: '操作类型', 
+                        dataIndex: 'operationType', 
+                        key: 'operationType',
+                        render: (type) => React.createElement(Tag, {
+                            color: OPERATION_TYPES[type]?.color || 'default'
+                        }, type)
+                    },
+                    { 
+                        title: '操作结果', 
+                        dataIndex: 'operationResult', 
+                        key: 'operationResult',
+                        render: (result) => React.createElement(Tag, {
+                            color: RESULT_CONFIG[result]?.color || 'default'
+                        }, result)
+                    },
+                    { title: '提交时间', dataIndex: 'submitTime', key: 'submitTime' },
+                    { title: '审批时间', dataIndex: 'approvalTime', key: 'approvalTime' },
+                    { title: '备注', dataIndex: 'remark', key: 'remark' }
+                ];
+            
+            case 'user_freeze_unfreeze':
+                return [
+                    ...baseColumns,
+                    { title: '目标用户名', dataIndex: 'targetUsername', key: 'targetUsername' },
+                    { title: '目标手机号', dataIndex: 'targetPhone', key: 'targetPhone' },
+                    { title: '操作人', dataIndex: 'operator', key: 'operator' },
+                    { 
+                        title: '操作类型', 
+                        dataIndex: 'operationType', 
+                        key: 'operationType',
+                        render: (type) => React.createElement(Tag, {
+                            color: OPERATION_TYPES[type]?.color || 'default'
+                        }, type)
+                    },
+                    { 
+                        title: '操作结果', 
+                        dataIndex: 'operationResult', 
+                        key: 'operationResult',
+                        render: (result) => React.createElement(Tag, {
+                            color: RESULT_CONFIG[result]?.color || 'default'
+                        }, result)
+                    },
+                    { title: '操作时间', dataIndex: 'operationTime', key: 'operationTime' },
+                    { title: '备注', dataIndex: 'remark', key: 'remark' }
+                ];
+            
+            case 'user_registration':
+                return [
+                    ...baseColumns,
+                    { title: '用户名', dataIndex: 'username', key: 'username' },
+                    { title: '手机号', dataIndex: 'phone', key: 'phone' },
+                    { title: 'ID', dataIndex: 'id', key: 'id' },
+                    { title: 'IPv4', dataIndex: 'ipv4', key: 'ipv4' },
+                    { title: 'IPv6', dataIndex: 'ipv6', key: 'ipv6' },
+                    { title: '注册时间', dataIndex: 'registrationTime', key: 'registrationTime' },
+                    { 
+                        title: '操作结果', 
+                        dataIndex: 'operationResult', 
+                        key: 'operationResult',
+                        render: (result) => React.createElement(Tag, {
+                            color: RESULT_CONFIG[result]?.color || 'default'
+                        }, result)
+                    }
+                ];
+            
+            case 'exhibition_maintenance':
+                return [
+                    ...baseColumns,
+                    { title: '用户名', dataIndex: 'username', key: 'username' },
+                    { title: '手机号', dataIndex: 'phone', key: 'phone' },
+                    { title: 'IPv4', dataIndex: 'ipv4', key: 'ipv4' },
+                    { title: 'IPv6', dataIndex: 'ipv6', key: 'ipv6' },
+                    { title: '维护公司名称', dataIndex: 'maintenanceCompany', key: 'maintenanceCompany' },
+                    { 
+                        title: '操作类型', 
+                        dataIndex: 'operationType', 
+                        key: 'operationType',
+                        render: (type) => React.createElement(Tag, {
+                            color: OPERATION_TYPES[type]?.color || 'default'
+                        }, type)
+                    },
+                    { title: '操作栏目', dataIndex: 'operationColumn', key: 'operationColumn' },
+                    { 
+                        title: '操作结果', 
+                        dataIndex: 'operationResult', 
+                        key: 'operationResult',
+                        render: (result) => React.createElement(Tag, {
+                            color: RESULT_CONFIG[result]?.color || 'default'
+                        }, result)
+                    },
+                    { title: '操作时间', dataIndex: 'operationTime', key: 'operationTime' }
+                ];
+            
+            case 'system_operation':
+                return [
+                    ...baseColumns,
+                    { title: '日志ID', dataIndex: 'id', key: 'id' },
+                    { title: '操作用户账号', dataIndex: 'operatorAccount', key: 'operatorAccount' },
+                    { title: '操作用户名', dataIndex: 'operatorName', key: 'operatorName' },
+                    { title: '操作行为', dataIndex: 'operationBehavior', key: 'operationBehavior' },
+                    { title: '操作模块', dataIndex: 'operationModule', key: 'operationModule' },
+                    { title: '发生时间', dataIndex: 'operationTime', key: 'operationTime' },
+                    { 
+                        title: '操作结果', 
+                        dataIndex: 'operationResult', 
+                        key: 'operationResult',
+                        render: (result) => React.createElement(Tag, {
+                            color: RESULT_CONFIG[result]?.color || 'default'
+                        }, result)
+                    },
+                    { title: 'IP地址', dataIndex: 'ipAddress', key: 'ipAddress' },
+                    { title: '操作详情', dataIndex: 'operationDetails', key: 'operationDetails' }
+                ];
+            
+            default:
+                return baseColumns;
+        }
     };
 
     // 渲染日志详情弹窗
-    const renderLogDetailsModal = () => {
+    const renderLogDetailModal = () => {
         if (!selectedLog) return null;
 
-        const logType = LOG_TYPES[selectedLog.type];
-        const logLevel = LOG_LEVELS[selectedLog.level];
-
         return React.createElement(Modal, {
-            title: React.createElement('div', {
-                style: { display: 'flex', alignItems: 'center', gap: '8px' }
-            }, [
-                React.createElement('span', { key: 'icon' }, logType?.icon),
-                React.createElement('span', { key: 'label' }, `${logType?.label}详情`)
-            ]),
+            title: '日志详情',
             open: logModalVisible,
             onCancel: () => setLogModalVisible(false),
-            footer: React.createElement(Button, {
+            footer: [
+                React.createElement(Button, {
+                    key: 'close',
                 onClick: () => setLogModalVisible(false)
-            }, '关闭'),
+                }, '关闭')
+            ],
             width: 800
-        }, React.createElement(Descriptions, {
-            bordered: true,
-            column: 2,
-            size: 'small'
         }, [
-            React.createElement(Descriptions.Item, {
-                key: 'type',
-                label: '日志类型'
-            }, React.createElement(Tag, {
-                color: logType?.color
-            }, logType?.label)),
-            React.createElement(Descriptions.Item, {
-                key: 'level',
-                label: '日志级别'
-            }, React.createElement(Tag, {
-                color: logLevel?.color
-            }, logLevel?.label)),
-            React.createElement(Descriptions.Item, {
-                key: 'timestamp',
-                label: '发生时间'
-            }, selectedLog.timestamp),
-            React.createElement(Descriptions.Item, {
-                key: 'user',
-                label: '操作用户'
-            }, `${selectedLog.user} (${selectedLog.userId})`),
-            React.createElement(Descriptions.Item, {
-                key: 'operation',
-                label: '操作类型'
-            }, selectedLog.operation),
-            React.createElement(Descriptions.Item, {
-                key: 'result',
-                label: '操作结果'
-            }, React.createElement(Tag, {
-                color: RESULT_CONFIG[selectedLog.result]?.color
-            }, RESULT_CONFIG[selectedLog.result]?.label)),
-            selectedLog.ip && React.createElement(Descriptions.Item, {
-                key: 'ip',
-                label: 'IP地址'
-            }, selectedLog.ip),
-            selectedLog.device && React.createElement(Descriptions.Item, {
-                key: 'device',
-                label: '设备信息'
-            }, selectedLog.device),
-            React.createElement(Descriptions.Item, {
+            React.createElement(Descriptions, {
                 key: 'details',
-                label: '详细信息',
+                bordered: true,
+                column: 2
+            }, Object.entries(selectedLog).map(([key, value]) => 
+                React.createElement(Descriptions.Item, {
+                    key: key,
+                    label: key,
                 span: 2
-            }, selectedLog.details),
-            // 根据日志类型显示特定字段
-            selectedLog.contentId && React.createElement(Descriptions.Item, {
-                key: 'contentId',
-                label: '内容ID'
-            }, selectedLog.contentId),
-            selectedLog.targetUser && React.createElement(Descriptions.Item, {
-                key: 'targetUser',
-                label: '目标用户'
-            }, `${selectedLog.targetUser} (${selectedLog.targetUserId})`),
-            selectedLog.configKey && React.createElement(Descriptions.Item, {
-                key: 'configChange',
-                label: '配置变更'
-            }, `${selectedLog.configKey}: ${selectedLog.oldValue} → ${selectedLog.newValue}`),
-            selectedLog.recordCount && React.createElement(Descriptions.Item, {
-                key: 'recordCount',
-                label: '记录数量'
-            }, selectedLog.recordCount),
-            selectedLog.apiName && React.createElement(Descriptions.Item, {
-                key: 'apiName',
-                label: 'API接口'
-            }, selectedLog.apiName),
-            selectedLog.responseTime && React.createElement(Descriptions.Item, {
-                key: 'responseTime',
-                label: '响应时间'
-            }, selectedLog.responseTime)
-        ]));
+                }, String(value))
+            ))
+        ]);
     };
 
-    // Tab配置
-    const tabItems = [
-        {
-            key: 'audit',
-            label: React.createElement('span', {}, [
-                React.createElement('span', { key: 'icon' }, '🔐'),
-                React.createElement('span', { key: 'text', style: { marginLeft: '4px' } }, '安全审计日志')
-            ]),
-            children: React.createElement('div', {}, [
-                renderSearchToolbar(),
-                React.createElement(Card, {
-                    title: '安全审计日志',
-                    extra: React.createElement(Badge, {
-                        count: logData.auditLogs.length,
-                        showZero: true,
-                        style: { backgroundColor: '#1890ff' }
-                    }),
-                    bodyStyle: { padding: '0' }
-                }, renderAuditLogs())
-            ])
-        },
-        {
-            key: 'business',
-            label: React.createElement('span', {}, [
-                React.createElement('span', { key: 'icon' }, '💼'),
-                React.createElement('span', { key: 'text', style: { marginLeft: '4px' } }, '业务操作日志')
-            ]),
-            children: React.createElement('div', {}, [
-                renderSearchToolbar(),
-                React.createElement(Card, {
-                    title: '业务操作日志',
-                    extra: React.createElement(Badge, {
-                        count: logData.businessLogs.length,
-                        showZero: true,
-                        style: { backgroundColor: '#52c41a' }
-                    }),
-                    bodyStyle: { padding: '0' }
-                }, renderBusinessLogs())
-            ])
-        },
-        {
-            key: 'system',
-            label: React.createElement('span', {}, [
-                React.createElement('span', { key: 'icon' }, '⚙️'),
-                React.createElement('span', { key: 'text', style: { marginLeft: '4px' } }, '系统运行日志')
-            ]),
-            children: React.createElement('div', {}, [
-                renderSearchToolbar(),
-                React.createElement(Card, {
-                    title: '系统运行日志',
-                    extra: React.createElement(Badge, {
-                        count: logData.systemLogs.length,
-                        showZero: true,
-                        style: { backgroundColor: '#722ed1' }
-                    }),
-                    bodyStyle: { padding: '0' }
-                }, renderSystemLogs())
-            ])
-        }
-    ];
-
-    return React.createElement('div', {}, [
-        // 页面头部
+    // 渲染主要内容
+    return React.createElement('div', {
+        style: { padding: '24px' }
+    }, [
+        // 页面标题
         React.createElement('div', {
             key: 'header',
-            style: {
-                marginBottom: '24px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }
+            style: { marginBottom: '24px' }
         }, [
-            React.createElement('div', {
-                key: 'title-section'
-            }, [
-                React.createElement('h2', {
-                    key: 'title',
-                    style: { margin: '0 0 8px 0', fontSize: '24px', fontWeight: 'bold', color: '#1e293b' }
-                }, [
-                    React.createElement('span', { key: 'icon', style: { marginRight: '8px' } }, '📋'),
-                    React.createElement('span', { key: 'text' }, '日志管理')
-                ]),
+            React.createElement('h1', {
+                style: { margin: 0, fontSize: '24px', fontWeight: 'bold' }
+            }, '日志管理'),
                 React.createElement('p', {
-                    key: 'description',
-                    style: { margin: 0, color: '#64748b' }
+                style: { margin: '8px 0 0 0', color: '#666' }
                 }, '等保三级合规日志管理，提供完整的审计追踪能力')
-            ]),
-            React.createElement(Space, {
-                key: 'actions'
-            }, [
-                React.createElement(Button, {
-                    key: 'refresh',
-                    onClick: loadLogData
-                }, '刷新'),
-                React.createElement(Button, {
-                    key: 'export',
-                    onClick: handleExport
-                }, '导出日志'),
-                React.createElement(Button, {
-                    key: 'config',
-                    type: 'primary',
-                    onClick: () => setConfigModalVisible(true)
-                }, '日志配置')
-            ])
         ]),
 
-        // 统计信息
+        // 统计卡片
         renderStatistics(),
 
-        // 安全提醒
-        React.createElement(Alert, {
-            key: 'security-notice',
-            message: '等保三级合规提醒',
-            description: '所有日志数据已加密存储，访问行为被完整记录。日志保存期：一般日志6个月，重要日志1年以上。',
-            type: 'info',
-            showIcon: true,
-            style: { marginBottom: '24px' }
-        }),
+        // 搜索工具栏
+        renderSearchToolbar(),
 
-        // 日志内容
+        // 日志类型标签页
+        React.createElement(Card, {
+            key: 'log-tabs'
+        }, [
         React.createElement(Tabs, {
-            key: 'log-tabs',
             activeKey: activeTab,
             onChange: setActiveTab,
-            items: tabItems,
-            size: 'large'
-        }),
+                type: 'card',
+                items: Object.entries(LOG_TYPES).map(([key, config]) => ({
+                    key: key,
+                    label: React.createElement('span', {}, [
+                        React.createElement('span', { style: { marginRight: '8px' } }, config.icon),
+                        config.label
+                    ]),
+                    children: React.createElement(Table, {
+                        columns: getColumns(),
+                        dataSource: filterData(getCurrentData()),
+                        rowKey: 'id',
+                        loading: loading,
+                        pagination: {
+                            total: filterData(getCurrentData()).length,
+                            pageSize: 10,
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条，共 ${total} 条`
+                        },
+                        size: 'middle',
+                        scroll: { x: 'max-content' }
+                    })
+                }))
+            })
+        ]),
 
         // 日志详情弹窗
-        renderLogDetailsModal()
+        renderLogDetailModal()
     ]);
 };
 
-window.LogManagement = LogManagement; 
+export default LogManagement; 

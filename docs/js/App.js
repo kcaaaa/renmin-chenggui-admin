@@ -177,11 +177,18 @@ const App = () => {
             'UserManagement': window.UserManagement,
             'OrganizationManagement': window.OrganizationManagement,
             'RoleManagement': window.RoleManagement,
-            // 日志管理子页面
-            'UserOperationLogs': window.LogManagement, // 用户操作日志 - 复用LogManagement
-            'LoginLogoutLogs': window.LoginLogoutLogs,
-            'ContentPublishLogs': window.ContentPublishLogs,
-            'ApprovalLogs': window.ApprovalLogs,
+            // 日志管理子页面 - 11种独立日志类型
+            'NormalUserLogs': window.NormalUserLogs,
+            'AssociationUserLogs': window.AssociationUserLogs,
+            'ExhibitorUserLogs': window.ExhibitorUserLogs,
+            'AssociationAIReviewLogs': window.AssociationAIReviewLogs,
+            'AssociationManualReviewLogs': window.AssociationManualReviewLogs,
+                            'NormalAIReviewLogs': window.NormalAIReviewLogs,
+                'NormalManualReviewLogs': window.NormalManualReviewLogs,
+                'UserFreezeUnfreezeLogs': window.UserFreezeUnfreezeLogs,
+                'UserRegistrationLogs': window.UserRegistrationLogs,
+                'ExhibitionMaintenanceLogs': window.ExhibitionMaintenanceLogs,
+                'SystemOperationLogs': window.SystemOperationLogs,
             // AI管理子页面
             'AgentManagement': window.AgentManagement,
             'KnowledgeBaseManagement': window.KnowledgeBaseManagement,
@@ -198,6 +205,16 @@ const App = () => {
 
         // 获取页面组件
         let PageComponent = pageComponents[currentPage];
+        
+        // 调试信息：检查组件是否在window对象中
+        console.log('🔍 查找组件:', currentPage);
+        console.log('🔍 window对象中的组件:', {
+            'WorkflowDesigner': typeof window.WorkflowDesigner,
+            'FlowAssignment': typeof window.FlowAssignment,
+            'AIReview': typeof window.AIReview,
+            'Dashboard': typeof window.Dashboard
+        });
+        console.log('🔍 pageComponents映射:', pageComponents[currentPage] ? '找到' : '未找到');
         
         // 如果找不到组件，返回错误页面
         if (!PageComponent) {

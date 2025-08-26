@@ -196,29 +196,71 @@ const Sidebar = ({ currentPage, onPageChange, collapsed }) => {
                     icon: React.createElement('i', { style: { fontSize: '14px', color: '#8c8c8c' } }, '📋'),
                     children: [
                         { 
-                            key: 'UserOperationLogs', 
-                            label: '用户操作日志', 
-                            page: 'UserOperationLogs',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🔧')
+                            key: 'NormalUserLogs', 
+                            label: '普通用户操作日志', 
+                            page: 'NormalUserLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '👤')
                         },
                         { 
-                            key: 'LoginLogoutLogs', 
-                            label: '登录登出日志', 
-                            page: 'LoginLogoutLogs',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🚪')
+                            key: 'AssociationUserLogs', 
+                            label: '协会用户操作日志', 
+                            page: 'AssociationUserLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🏢')
                         },
                         { 
-                            key: 'ContentPublishLogs', 
-                            label: '作品发布日志', 
-                            page: 'ContentPublishLogs',
+                            key: 'ExhibitorUserLogs', 
+                            label: '展商用户操作日志', 
+                            page: 'ExhibitorUserLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🏪')
+                        },
+                        { 
+                            key: 'AssociationAIReviewLogs', 
+                            label: '协会作品AI审核日志', 
+                            page: 'AssociationAIReviewLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🤖')
+                        },
+                        { 
+                            key: 'AssociationManualReviewLogs', 
+                            label: '协会作品人工审核日志', 
+                            page: 'AssociationManualReviewLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '👨‍💼')
+                        },
+                        { 
+                            key: 'NormalAIReviewLogs', 
+                            label: '普通作品AI审核日志', 
+                            page: 'NormalAIReviewLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🤖')
+                        },
+                        { 
+                            key: 'NormalManualReviewLogs', 
+                            label: '普通作品人工审核日志', 
+                            page: 'NormalManualReviewLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '👩‍💼')
+                        },
+                        { 
+                            key: 'UserFreezeUnfreezeLogs', 
+                            label: '用户冻结/解冻日志', 
+                            page: 'UserFreezeUnfreezeLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🔒')
+                        },
+                        { 
+                            key: 'UserRegistrationLogs', 
+                            label: '用户注册日志', 
+                            page: 'UserRegistrationLogs',
                             icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '📝')
                         },
                         { 
-                            key: 'ApprovalLogs', 
-                            label: '审批日志', 
-                            page: 'ApprovalLogs',
-                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '✅')
+                            key: 'ExhibitionMaintenanceLogs', 
+                            label: '展会维护日志', 
+                            page: 'ExhibitionMaintenanceLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '🏗️')
                         },
+                        { 
+                            key: 'SystemOperationLogs', 
+                            label: '系统操作日志', 
+                            page: 'SystemOperationLogs',
+                            icon: React.createElement('i', { style: { fontSize: '12px', color: '#bfbfbf' } }, '⚙️')
+                        }
                     ]
                 },
                 {
